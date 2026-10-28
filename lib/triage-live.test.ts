@@ -155,3 +155,12 @@ test("a patched replay cannot reach the network, even by routes a keyword screen
   assert.equal(connections, 0, "no attack reached the local TCP server");
   assert.equal(packets, 0, "no DNS packet reached the local UDP server");
 });
+
+test("a patch that only flips a rule the replay forces off is not credited as a fix", async () => {
+  const input = { run: bug4, persona: personas.get("p0653")!, tuning: { ...RECORDED, "rules.mountReleaseFix": 0 }, sameSignature: [bug4] };
+  const src = readFileSync(join(ROOT, "game/src/ground.js"), "utf8");
+  const line = src.split("\n").find((l) => l.includes("if(RULES.mountReleaseFix){"))!;
+  const r = await triageRound(input, { ask: ask({ patches: [{ file: "ground.js", find: line.trim(), replace: line.trim().replace("if(RULES.mountReleaseFix){", "{") }] }) });
+  assert.equal(r.verdict, "reused-shipped-fix");
+  assert.equal(r.after, null, "no replay is run for it");
+});

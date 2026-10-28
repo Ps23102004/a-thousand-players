@@ -101,7 +101,7 @@ test("/bugs shows four clusters each with a verdict", async ({ page }) => {
     replay: a.querySelector("a[href^='/replay']")?.getAttribute("href") ?? null,
   })));
   test.info().annotations.push({ type: "bugs", description: JSON.stringify(summary) });
-  const VERDICTS = ["fix verified", "partly fixed", "not fixed", "patch did not apply", "triage failed", "not verified", "fixed by hand (Ultra failed)"];
+  const VERDICTS = ["fix verified", "partly fixed", "not fixed", "patch did not apply", "triage failed", "not verified", "fixed by hand (Ultra failed)", "partly fixed by the bug2 hand fix (Ultra failed)", "bug did not reproduce, no verdict"];
   for (const b of summary) {
     expect(b.chips.some((c) => VERDICTS.some((v) => c === v || c.startsWith(v + " · "))), `verdict chip on "${b.title}"`).toBe(true);
     expect(b.replay).toMatch(/^\/replay\?key=/);

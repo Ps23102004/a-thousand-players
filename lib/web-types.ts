@@ -30,7 +30,7 @@ export interface ReproResult { total: number; matched: number; examples: ReproMa
 export interface ReproResponse extends ReproResult { oracle: Oracle }
 
 // ---------- live triage (one Ultra call from the Repro page) ----------
-export type TriageVerdict = "fixed" | "not-fixed" | "patch-did-not-apply" | "not-a-bug";
+export type TriageVerdict = "fixed" | "not-fixed" | "patch-did-not-apply" | "not-a-bug" | "reused-shipped-fix";
 /** One replay of the exact seed: shipped game (before) or patched scratch copy (after). */
 export interface TriageLiveSide { out: Outcome; t: number; bugs: string[]; bugEvents: number; crash: string | null }
 export interface TriageLiveResult {

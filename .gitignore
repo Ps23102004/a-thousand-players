@@ -14,3 +14,6 @@ public/engine/
 # local tooling and test output
 .serena/
 e2e/test-results/
+
+# screen footage for the video (e2e/footage.cjs)
+footage/

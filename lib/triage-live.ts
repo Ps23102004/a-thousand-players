@@ -148,7 +148,12 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
 
   // 3 + 4. Patch a scratch copy, replay the same seed with the same tuning. The repo's game/src is never touched.
   let applied: Applied[] = [], after: TriageLiveSide | null = null, afterError: string | undefined, verdict: TriageVerdict;
+  // The replay forces some rules off so recorded rounds show their bugs. A patch that edits one of those guards only switches on a
+  // fix the game already ships: it would "fix" the round, but Ultra found nothing, so it is not credited.
+  const forcedOff = Object.entries(tuning ?? {}).filter(([k, v]) => k.startsWith("rules.") && v === 0).map(([k]) => k.slice(6));
+  const reusesFix = triage.patches.some((p) => forcedOff.some((r) => p.find.includes(r) || p.replace.includes(r)));
   if (!triage.isRealBug) verdict = "not-a-bug";
+  else if (reusesFix) verdict = "reused-shipped-fix";
   else {
     const scratch = makeScratch(root);
     try {

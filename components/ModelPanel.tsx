@@ -36,7 +36,7 @@ export default function ModelPanel({ usage }: { usage: UsageFile | null }) {
                   {r.name !== "Tavily" && <><dt>tokens in</dt><dd>{n(sum("tokensIn"))}</dd><dt>tokens out</dt><dd>{n(sum("tokensOut"))}</dd></>}
                   {usd > 0 ? <><dt>cost estimate</dt><dd>~${usd.toFixed(2)} (estimate)</dd></> : r.name !== "Tavily" && <><dt>cost</dt><dd>not priced</dd></>}
                 </dl>
-              ) : <p className="model-stats">No calls recorded in this run.</p>}
+              ) : <p className="model-stats">Not part of the recorded run. It runs live in the app ({r.name === "Tavily" ? "Find precedent on Repro" : "the Eyes panel on a replay"}), and live calls are not logged here.</p>}
             </section>
           );
         })}

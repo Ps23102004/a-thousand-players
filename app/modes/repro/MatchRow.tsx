@@ -7,6 +7,7 @@ const VERDICT: Record<TriageVerdict, { label: string; cls: string }> = {
   "not-fixed": { label: "not fixed: the replay still breaks", cls: "chip-warn" },
   "patch-did-not-apply": { label: "patch did not apply", cls: "chip-warn" },
   "not-a-bug": { label: "Ultra says this is legitimate gameplay", cls: "chip-warn" },
+  "reused-shipped-fix": { label: "not credited: the patch only switches on a fix the game already ships", cls: "chip-warn" },
 };
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 const sideText = (s: { out: string; t: number; bugs: string[]; bugEvents: number; crash: string | null }) =>

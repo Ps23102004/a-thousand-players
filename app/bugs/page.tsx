@@ -8,6 +8,7 @@ export const metadata: Metadata = { title: "Bugs · A Thousand Players" };
 const VERDICT: Record<string, { label: string; cls: string }> = {
   fixed: { label: "fix verified", cls: "chip-ok" },
   "fixed-by-hand": { label: "fixed by hand (Ultra failed)", cls: "chip-ok" },
+  "partly-fixed-by-hand": { label: "partly fixed by the bug2 hand fix (Ultra failed)", cls: "chip-warn" },
   "partially-fixed": { label: "partly fixed", cls: "chip-warn" },
   "not-fixed": { label: "not fixed", cls: "chip-warn" },
   "did-not-reproduce": { label: "bug did not reproduce, no verdict", cls: "chip-warn" },

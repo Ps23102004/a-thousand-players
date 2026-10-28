@@ -34,7 +34,7 @@ Small game teams that have no QA department: a crowd of synthetic players finds 
 All numbers below come from files in `data/run-main/`.
 
 - **Crowd** (`summary.json`): 1000 players, 1000 sessions, 2831 rounds, 891 wins and 1940 losses for the players (win rate 31.5%). Session end reasons: 708 frustration, 250 satisfied, 42 hit the round cap.
-- **Throughput** (measured 2026-10-28, `node engine/crowd.mjs --personas data/run-main/personas.json --out .work/tp --traces 0`): 1000 players, 2,828 rounds in 15.2 s on 11 worker threads of a 12-core Mac, 186 rounds per second, with other jobs running. This is the current game build, so it differs slightly from the recorded 2,831 rounds. It reports one game crash, the unpatched `throwProp` bug (bug3).
+- **Throughput** (measured 2026-10-28, `node engine/crowd.mjs --personas data/run-main/personas.json --out .work/tp --traces 0`): 1000 players, 2,829 rounds in 14.2 s on 11 worker threads of a 12-core Mac, 199 rounds per second, 0 game crashes. This is the current game build with the bug2 and bug3 fixes, so it differs slightly from the recorded 2,831 rounds.
 - **Report** (`findings.json`): Ultra read the whole crowd in one call (220,334 prompt tokens including the system prompt; the corpus estimate was 219,064; 4,439 tokens out) and returned 8 findings. **31 of 31 structured claims matched the recomputed value. 13 cited seeds did not exist in the runs and were removed.**
 - **Bug triage** (`triage.json`, `fixes/`): 4 bug clusters.
 
