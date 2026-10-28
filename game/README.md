@@ -2,7 +2,7 @@
 
 A single-player 3D martial arts fighting game for **CSCI 310: GUI & Game Development, Project 2**. Earlier working title: Street Brawl 3D.
 
-Two original selectable characters, Kai and Rook, face off at Lantern Court. Rendered in **Three.js r170** with **Rapier3D 0.14** rigid-body physics. Fighters can sidestep across a bounded 3D arena. A close three-quarter camera tracks both bodies, adjusts for separation and jumps, and reframes ground fighting. There is no free-roaming movement or multiplayer.
+Two original selectable characters, Kai and Rook, face off at Lantern Court. Rendered with **Three.js** and **Rapier3D** rigid-body physics (this repo pins three 0.186.1 and @dimforge/rapier3d-compat 0.21.0; the original course build used r170 and 0.14). Fighters can sidestep across a bounded 3D arena. A close three-quarter camera tracks both bodies, adjusts for separation and jumps, and reframes ground fighting. There is no free-roaming movement or multiplayer.
 
 ## Play locally
 

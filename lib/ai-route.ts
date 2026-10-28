@@ -1,4 +1,4 @@
-// Shared guard for the API routes that spend model credits: rate limit, input check, and a clear 501 while ai/ is a stub.
+// Shared guard for the API routes that spend model credits: rate limit, input check, readable errors.
 import "server-only";
 import { createLimiter } from "./rate-limit";
 import { RejectedInput } from "../ai/nl";
@@ -17,7 +17,10 @@ export function rateLimited(req: Request): Response | null {
   return Response.json({ error: `Too many requests: ${limit.reason}. These calls cost model credits.` }, { status: 429, headers: { "Retry-After": String(limit.retryAfter) } });
 }
 
-export async function aiRoute<T>(req: Request, field: string, run: (text: string) => Promise<T>): Promise<Response> {
+/** A real answer recorded for the page's built-in example, served (marked cached) only when that exact example hits the rate limit. */
+export interface Sample { input: string; response: unknown; recordedAt: string }
+
+export async function aiRoute<T>(req: Request, field: string, run: (text: string) => Promise<T>, opts: { sample?: Sample | null } = {}): Promise<Response> {
   let text: unknown;
   try {
     text = ((await req.json()) as Record<string, unknown>)[field];
@@ -28,7 +31,14 @@ export async function aiRoute<T>(req: Request, field: string, run: (text: string
   if (text.length > MAX_INPUT) return Response.json({ error: `"${field}" is limited to ${MAX_INPUT} characters.` }, { status: 413 });
 
   const limited = rateLimited(req);
-  if (limited) return limited;
+  if (limited) {
+    // ponytail: exact-match only, so a cached answer is never presented as the answer to different input.
+    const s = opts.sample;
+    if (s && text.trim() === s.input.trim() && s.response && typeof s.response === "object") {
+      return Response.json({ ...(s.response as object), cached: true, cachedNotice: `The rate limit is reached, so this is the real answer recorded for this example on ${s.recordedAt.slice(0, 10)}, not a new model call.` });
+    }
+    return limited;
+  }
 
   try {
     return Response.json(await run(text.trim()));

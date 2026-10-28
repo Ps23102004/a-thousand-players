@@ -1,0 +1,12 @@
+{
+ "input": "Sweep is too strong: make it slower to recover and a bit weaker. Blocking should chip a little more damage.",
+ "recordedAt": "2026-10-28T18:35:01+00:00",
+ "response": {
+  "tuning": {
+   "anim.SWEEP.damage": 12.8,
+   "anim.SWEEP.recovery": 0.456,
+   "rules.guardDamageMultiplier": 0.25
+  },
+  "rationale": "Reduced Sweep damage from 16 to 12.8 (-20%) and increased its recovery time from 0.38s to 0.456s (+20%) to make it slower and weaker as requested. Increased guardDamageMultiplier from 0.2 to 0.25 so blocking now chips slightly more damage (25% of incoming damage instead of 20%), making defense less safe against repeated hits."
+ }
+}

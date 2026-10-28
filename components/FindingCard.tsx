@@ -59,7 +59,7 @@ export default function FindingCard({ f }: { f: Finding }) {
 
       {f.precedent && f.precedent.length > 0 && (
         <div>
-          <div className="label">Precedent (Tavily web search)</div>
+          <div className="label">Related reading (Tavily web search results, not reviewed)</div>
           <ul className="precedent">
             {f.precedent.map((p) => (
               <li key={p.url + p.title}><a href={p.url} target="_blank" rel="noopener noreferrer">{p.title}</a><span>{p.snippet}</span></li>

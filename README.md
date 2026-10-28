@@ -4,6 +4,19 @@ A crowd of Nemotron-driven synthetic players plays your browser game by the thou
 
 Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied into `game/` with two small changes (a rules file for tuning, and a mount-release fix that can be switched off). All models run on Nebius Token Factory.
 
+## Start here (two minutes)
+
+1. Open the home page: the crowd grid replays recorded rounds, and the findings carry their verified claims. Each page is tagged **Recorded run** or **Live model call**.
+2. Open **Repro**, press **Use an example**, then **Find it in the crowd**. Super writes an oracle live and code finds the two recorded rounds with that bug. Press **Triage this (Ultra)** on a match for a live root cause, patch and replay verdict.
+3. Press a seed's replay link: the real game re-simulates that exact round in your browser and shows the bug.
+4. Open **Bugs** for the four clusters and what happened to each fix.
+
+If the shared rate limit is reached, the built-in examples on Repro and Balance return the real answer recorded for them, marked as cached. Any other input gets a 429.
+
+## Who it is for
+
+Small game teams that have no QA department: a crowd of synthetic players finds where the game breaks or frustrates, and every claim comes with a seed that replays the exact round. Commercial tools such as modl.ai and nunu.ai also use AI agents to play-test games; this project differs in being open source, in proving each finding with a deterministic replay, and in checking the model's claims with code instead of trusting them. It has one game adapter so far, so it is a working prototype, not a product.
+
 ## What it does
 
 1. **Personas.** Nemotron Nano writes 1000 player personas (archetype, skill, reaction time, patience, frustration tolerance, a short bio, and sparse decision rules). A validator rejects bad ones and a repair loop asks for replacements.
@@ -13,7 +26,8 @@ Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Braw
 5. **Exploit search.** Nano proposes bot strategies, the engine plays each one, Nano evolves the best ones, and Super writes an explanation of why they win.
 6. **Repro.** A player writes a bug report in plain English. Nemotron Super turns it into an oracle, a predicate over the engine's event log. Plain code (`lib/oracle.ts`, no model) runs the oracle over all 2831 recorded rounds and links the rounds that trip it. The sample report about floating up and leaving the arena finds exactly the two recorded rounds with that bug. Zero matches does not prove a bug is absent, and the model's oracle varies a little between calls.
 7. **Eyes.** On any replay page, a button captures three frames from the embedded 3D game (around the round's first bug event, if it has one), shrinks them to 640 px JPEGs and asks Nemotron Super-VL what it sees. It is a description aid: the engine's invariant checks decide what counts as a bug.
-8. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 42 of 42 sampled recorded rounds replay event for event that way.
+8. **Balance.** Patch notes in plain English become tuning values, checked against each value's allowed range (Super, live). Replaying the crowd with them is a command-line step; one recorded example is on the page.
+9. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 42 of 42 sampled recorded rounds replay event for event that way.
 
 ## Results from the main run
 
@@ -26,7 +40,7 @@ All numbers below come from files in `data/run-main/`.
 
   | Cluster | Signature | Rounds | Result |
   |---|---|---|---|
-  | bug4 | `stuck:KNOCKDOWN+airborne+softlock` | 1 | **Fixed and replay-verified.** Seed 529060 ran to the 99 s time limit before the patch and ends by KO at 18.73 s with no bug events after it. Regression crowd of 200 personas: bug rounds 4 before, 3 after. |
+  | bug4 | `stuck:KNOCKDOWN+airborne+softlock` | 1 | **Fixed and replay-verified on 1 of 1 seeds; not shipped** (the patch removes a height guard entirely). Seed 529060 ran to the 99 s time limit before the patch and ends by KO at 18.73 s with no bug events after it. Regression crowd of 200 personas: bug rounds 4 before, 3 after. |
   | bug1 | `airborne` | 21 | Ultra's patch fixed 0 of 8 replayed rounds. The same mount-release fix as bug2 clears 5 of those 8; 3 still show `airborne`. **Partly fixed, not triaged further.** |
   | bug2 | `oob+airborne+softlock` | 4 | **Fixed by hand, replay-verified, 4 of 4.** Ultra's patch failed twice (0 of 4; its "stale aim offset" guess was wrong). Tracing the seed tick by tick found two causes, both in `releaseMount`: (1) the top fighter was placed inside a crate beside the wall and ejected upward at 7.7 m/s; it now lands on the first side that is clear of crates. (2) After the mount a fighter that had been held still sank through the floor for 0.3 s and was then thrown upward against the wall; a `sleep()` then `wakeUp()` at release stops it. Cause (2) is a workaround: the fighter then rests 0.07 m low, and why the contact goes stale is not understood. Regression crowd of 200 personas: bug rounds 4 before, 1 after; win rate 0.314 to 0.300 because trajectories changed. |
   | bug3 | `crash: RuntimeError: unreachable in throwProp (props.js:303)` | 3 | **Fixed and replay-verified, 3 of 3 seeds.** Ultra guarded `throwProp` against a prop whose body was already freed. The first two triage runs failed because Ultra ignored the answer format; adding a concrete format example to the prompt fixed that. The regression crowd (200 personas) did not contain this crash, so it shows no change (4 bug rounds before and after). |
@@ -41,6 +55,10 @@ All numbers below come from files in `data/run-main/`.
 - **Only the claims and seeds are machine-checked.** Ultra's prose can still contain wrong numbers. On a test fixture it wrote "10/18 Round 1s end in draws" when there were 3. Trust the verified claims, not the narrative.
 - **Super's exploit explanation was wrong until it was grounded.** Given only the strategies' rule text and the CPU code, Super explained the wins as "recovery-state grabs". The recorded hits say sweep into mount. The prompt now includes the measured hit tally per strategy, and the `explanation` field starts with that tally, written by code. Super's prose after it names the sweep and the guard rule, but still over-reads the grabs.
 - **Super-VL missed a bug the engine caught.** On the bug2 round (seed 634310) the three frames were taken at 11.3, 13.8 and 15.3 s. The engine flags the player airborne at 13.8 s. Super-VL said nothing was floating or outside the arena, because the camera pulls back and the fighters are tiny, and it reported a crate overlapping a fighter in the first frame. One round is not a measurement, but it shows the vision answer cannot be trusted as a detector.
+- **Part of the cheeser story is built in.** The cheeser archetype's base table already favors sweeps (`engine/policy.mjs`), so "cheesers win 92% by sweep" is partly the author's table. What the crowd and the exploit search found independently is that the CPU never crouch-blocks, so low attacks are unblockable for it.
+- **"31 of 31 claims verified" checks the report against code-computed tables.** Ultra's claims are rates by archetype and round, which code also computes for the prompt header, so the check proves Ultra read the numbers correctly, not that it discovered them. The stronger test is the planted fixture: four stories hidden in 1000 players, all four found.
+- **Fix status in the shipped game.** bug2 (by hand) and bug3 (Ultra's patch) are in `game/src`, each behind a rule so recorded rounds still replay as recorded. bug4's patch is verified on 1 of 1 seeds and removes a height guard entirely, so it is not shipped. bug1 is partly fixed.
+- **The rate limit is per server instance.** Counts live in memory, so on Vercel each instance has its own 10 per minute and 200 per day. The cached example answers keep the demo working when a limit is hit.
 - **One game adapter.** The adapter contract is documented below, but Market Brawl is the only game that implements it.
 - **Prices are estimates.** Only Ultra has a dollar estimate, at an unverified aggregator price ($1/M input, $3/M output). Other models report tokens only.
 

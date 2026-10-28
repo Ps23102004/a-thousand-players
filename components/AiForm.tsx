@@ -37,6 +37,7 @@ export default function AiForm<T>({ endpoint, field, label, placeholder, example
       </form>
       <div aria-live="polite">
         {error && <p className="notice notice-error">{error}</p>}
+        {data && (data as { cachedNotice?: string }).cachedNotice && <p className="notice" style={{ marginBottom: 16 }}>{(data as { cachedNotice?: string }).cachedNotice}</p>}
         {data && render(data)}
       </div>
     </div>

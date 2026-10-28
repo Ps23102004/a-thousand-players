@@ -10,6 +10,8 @@ Our test bed is Market Brawl, a student's Three.js + Rapier fighting game. In th
 
 The players are synthetic. The findings are hypotheses to replay and check, not a replacement for real people.
 
+**Who it is for.** Small game teams with no QA department. Commercial tools such as modl.ai and nunu.ai also use AI agents to play-test games; this project is open source, proves each finding with a deterministic replay, and checks the model's claims with code. It is a prototype with one game adapter.
+
 ## How Nemotron is used
 
 All calls go to Nebius Token Factory through its OpenAI-compatible chat completions API. Each model has a job that needs it:

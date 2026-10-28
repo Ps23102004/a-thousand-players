@@ -103,7 +103,7 @@ test("/bugs shows four clusters each with a verdict", async ({ page }) => {
   test.info().annotations.push({ type: "bugs", description: JSON.stringify(summary) });
   const VERDICTS = ["fix verified", "partly fixed", "not fixed", "patch did not apply", "triage failed", "not verified", "fixed by hand (Ultra failed)"];
   for (const b of summary) {
-    expect(b.chips.some((c) => VERDICTS.includes(c)), `verdict chip on "${b.title}"`).toBe(true);
+    expect(b.chips.some((c) => VERDICTS.some((v) => c === v || c.startsWith(v + " · "))), `verdict chip on "${b.title}"`).toBe(true);
     expect(b.replay).toMatch(/^\/replay\?key=/);
   }
   await expect(page.locator(".lede").first()).toContainText(/4 clusters of game-breaking states\. .*\d+ verified fixed/);

@@ -1,4 +1,5 @@
 import CrowdGrid from "@/components/CrowdGrid";
+import SourceTag from "@/components/SourceTag";
 import FindingCard from "@/components/FindingCard";
 import ModelPanel from "@/components/ModelPanel";
 import { ArchetypeBars, DurationHist, KoHeatmap, QuitFunnel } from "@/components/Charts";
@@ -14,6 +15,7 @@ export default function Home() {
     <>
       <section className="hero wrap" aria-labelledby="hero-title">
         <div className="kicker">{source === "fixtures" ? "Sample run" : "Crowd run"} · Market Brawl</div>
+        <SourceTag recorded="1000 players, 2,831 rounds, Ultra report" />
         <h1 id="hero-title" style={{ marginTop: 14 }}>A crowd of <em>synthetic players</em> breaks your game so you can fix it.</h1>
         <p className="lede">
           NVIDIA Nemotron models write the players, Market Brawl runs their matches headless, and Nemotron Ultra reads every log at once.

@@ -1,0 +1,108 @@
+{
+ "input": "My guy floated up in the air while blocking after the other fighter let go of me near the wall, and then he flew out of the arena.",
+ "recordedAt": "2026-10-28T18:35:01+00:00",
+ "response": {
+  "oracle": {
+   "description": "The player floats upward while blocking after being released by the rival near the wall, then flies out of bounds.",
+   "combine": "all",
+   "atoms": [
+    {
+     "event": "airborne",
+     "who": 0,
+     "minCount": 1,
+     "withinSeconds": [
+      0,
+      100
+     ]
+    },
+    {
+     "event": "block",
+     "who": 0,
+     "minCount": 1,
+     "withinSeconds": [
+      0,
+      100
+     ]
+    },
+    {
+     "event": "oob",
+     "who": 0,
+     "minCount": 1,
+     "withinSeconds": [
+      0,
+      100
+     ]
+    }
+   ]
+  },
+  "total": 2831,
+  "matched": 2,
+  "examples": [
+   {
+    "p": "p0537",
+    "name": "Mona",
+    "archetype": "casual",
+    "round": 1,
+    "seed": 634310,
+    "t": 99,
+    "out": "loss",
+    "events": [
+     [
+      0.37,
+      "block",
+      0
+     ],
+     [
+      4.33,
+      "block",
+      0
+     ],
+     [
+      13.8,
+      "airborne",
+      0
+     ],
+     [
+      14.3,
+      "oob",
+      0,
+      -10.5
+     ]
+    ],
+    "href": "/replay?key=p0537%3A1&t=eyJzZWVkIjo2MzQzMTAsInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA1MzciLCJuYW1lIjoiTW9uYSIsImFyY2hldHlwZSI6ImNhc3VhbCIsInNraWxsIjowLjI0LCJyZWFjdGlvbl90aWNrcyI6NDAsInBhdGllbmNlIjowLjE1LCJmcnVzdHJhdGlvbl90b2xlcmFuY2UiOjAuMzUsImJpbyI6Ik5pZ2h0IHdhcmQgbnVyc2UsIGZpZ2h0cyBmb3IgYSBxdWljayB0aHJpbGwsIHF1aXRzIGltbWVkaWF0ZWx5IGFmdGVyIGJlaW5nIGhpdCIsInJ1bGVzIjpbeyJyaXZhbCI6ImFjdGl2ZSIsIndlaWdodHMiOnsicHVuY2giOjh9fSx7IndlaWdodHMiOnsicmV0cmVhdCI6OX19XX19"
+   },
+   {
+    "p": "p0731",
+    "name": "Kai",
+    "archetype": "casual",
+    "round": 2,
+    "seed": 497239,
+    "t": 99,
+    "out": "loss",
+    "events": [
+     [
+      1.87,
+      "block",
+      0
+     ],
+     [
+      5.95,
+      "block",
+      0
+     ],
+     [
+      11.78,
+      "block",
+      0
+     ],
+     [
+      12,
+      "airborne",
+      0
+     ]
+    ],
+    "href": "/replay?key=p0731%3A2&t=eyJzZWVkIjo0OTcyMzksInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA3MzEiLCJuYW1lIjoiS2FpIiwiYXJjaGV0eXBlIjoiY2FzdWFsIiwic2tpbGwiOjAuMzMsInJlYWN0aW9uX3RpY2tzIjozMywicGF0aWVuY2UiOjAuMzUsImZydXN0cmF0aW9uX3RvbGVyYW5jZSI6MC40NSwiYmlvIjoiU2thdGXigJFwYXJrIHJlZ3VsYXIsIHByZWZlcnMgcXVpY2sgc3RyaWtlcyB0aGVuIHJldHJlYXQiLCJydWxlcyI6W3siZGlzdCI6ImNsb3NlIiwicml2YWwiOiJhY3RpdmUiLCJ3ZWlnaHRzIjp7InB1bmNoIjo3LCJraWNrIjo2fX0seyJyaXZhbCI6InJlY292ZXJ5Iiwid2VpZ2h0cyI6eyJqdW1wIjo1fX0seyJ3ZWlnaHRzIjp7InJldHJlYXQiOjh9fV19fQ"
+   }
+  ]
+ }
+}

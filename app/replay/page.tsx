@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import SourceTag from "@/components/SourceTag";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import Link from "next/link";
@@ -37,6 +38,7 @@ export default async function ReplayPage({ searchParams }: { searchParams: Promi
         <div className="section-head">
           <div>
             <div className="kicker">Replay · seed {token.seed}</div>
+        <SourceTag recorded="deterministic re-simulation of the seed" live="Eyes panel (Super-VL)" />
             <h1 id="replay-title" style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", marginTop: 8 }}>
               {persona ? `${persona.name}, the ${persona.archetype}` : `Seed ${token.seed}`}
               {run ? ` · round ${run.round} · ${run.out}` : ""}

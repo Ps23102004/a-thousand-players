@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import SourceTag from "@/components/SourceTag";
 import { getData, getTriage } from "@/lib/data";
 import type { BugView, RegressionSide } from "@/lib/web-types";
 
@@ -39,7 +40,7 @@ function BugCard({ b }: { b: BugView }) {
     <article className="panel finding" aria-labelledby={`${b.id}-title`}>
       <div className="finding-top">
         <span className={`sev sev-${b.severity ?? "low"}`}>{b.severity === "med" ? "medium" : b.severity}</span>
-        <span className={`chip ${v.cls}`}>{v.label}</span>
+        <span className={`chip ${v.cls}`}>{v.label}{b.verifyRounds ? ` · ${b.fixedRounds ?? 0} of ${b.verifyRounds} seeds` : ""}</span>
         {b.isRealBug === false && <span className="chip chip-warn">not a real bug</span>}
         <span className="chip">{b.signature}</span>
         <span className="chip">{b.count} rounds hit it</span>
@@ -85,6 +86,7 @@ export default function BugsPage() {
       <div className="section-head">
         <div>
           <div className="kicker">Bug triage · {getData().source === "fixtures" ? "sample" : "crowd run"}</div>
+        <SourceTag recorded="Ultra triage and seed replays" live="Triage this on Repro" />
           <h1 id="bugs-title" style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", marginTop: 8 }}>Bugs the crowd found</h1>
         </div>
       </div>

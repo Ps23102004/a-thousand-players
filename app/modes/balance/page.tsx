@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import SourceTag from "@/components/SourceTag";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { TuningSpec } from "@/lib/types";
@@ -11,6 +12,7 @@ export default function BalancePage() {
   return (
     <section className="section wrap" aria-labelledby="balance-title">
       <div className="kicker">Mode · Balance</div>
+        <SourceTag live="Super turns patch notes into tuning" />
       <h1 id="balance-title" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", margin: "10px 0 16px" }}>If you ship this patch, what changes?</h1>
       <p className="lede" style={{ marginBottom: 32 }}>
         Nemotron Super turns patch notes into concrete tuning values, checked against the game&apos;s allowed ranges.

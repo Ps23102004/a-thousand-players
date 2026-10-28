@@ -58,6 +58,20 @@ async function send(handler: (r: Request) => Promise<Response>, r: Request) {
 const echo = (r: Request) => aiRoute(r, "text", async (t) => ({ got: t }));
 
 // ---------- lib/ai-route.ts ----------
+test("rate limited: the built-in example gets the recorded real answer marked cached; any other input still gets 429", async () => {
+  const sample = { input: "the example text", response: { got: "recorded answer" }, recordedAt: "2026-10-28T00:00:00Z" };
+  const withSample = (r: Request) => aiRoute(r, "text", async (t) => ({ got: t }), { sample });
+  const ip = freshIp();
+  for (let i = 0; i < 10; i++) assert.equal((await send(withSample, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 200);
+  const cached = await send(withSample, req({ text: "  the example text " }, { "x-forwarded-for": ip }));
+  spent--; // a cached answer is served after the limiter refused the call, so it did not use a unit of the daily cap
+  assert.equal(cached.status, 200);
+  assert.equal(cached.json.got, "recorded answer");
+  assert.equal(cached.json.cached, true);
+  assert.match(cached.json.cachedNotice, /rate limit/i);
+  assert.equal((await send(withSample, req({ text: "something else" }, { "x-forwarded-for": ip }))).status, 429);
+});
+
 
 test("aiRoute: 400 on bad JSON, missing, blank or non-string field; 413 over 4000 chars; input is trimmed", async () => {
   assert.deepEqual(await send(echo, req("{not json")).then((r) => [r.status, r.json.error]), [400, "Body must be JSON."]);
