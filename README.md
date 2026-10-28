@@ -33,7 +33,7 @@ All numbers below come from files in `data/run-main/`.
 ## Honest limits
 
 - **Players are synthetic.** Quit and boredom come from a simple mood model with Nano-written traits. It generates hypotheses; it does not replace human playtesters.
-- **Crowd players are not LLM-driven move by move.** Nano writes each persona's policy, and the engine runs that policy natively. Driving all 1000 players with model calls on every decision was measured as too slow and too costly. Only the on-screen "spotlight" players have Nano choose each action live.
+- **Crowd players are not LLM-driven move by move.** Nano writes each persona's policy, and the engine runs that policy natively. Driving all 1000 players with model calls on every decision was measured as too slow and too costly. The live "spotlight" player (`ai/spotlight.ts`, Nano picks each action) is implemented and measured but is not part of the main crowd run.
 - **Findings are sampled, not proofs of absence.** If the crowd did not hit a bug, that does not mean the bug is not there.
 - **Only the claims and seeds are machine-checked.** Ultra's prose can still contain wrong numbers. On a test fixture it wrote "10/18 Round 1s end in draws" when there were 3. Trust the verified claims, not the narrative.
 - **One game adapter.** The adapter contract is documented below, but Market Brawl is the only game that implements it.
@@ -43,7 +43,7 @@ All numbers below come from files in `data/run-main/`.
 
 | Model | Token Factory id | Job |
 |---|---|---|
-| Nemotron Nano 30B | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Writes the 1000 persona policies in bulk; picks every action live for spotlight players; proposes and evolves exploit strategies |
+| Nemotron Nano 30B | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Writes the 1000 persona policies in bulk; can pick each action live for a spotlight player (implemented, not in the main run); proposes and evolves exploit strategies |
 | Nemotron Super 120B | `nvidia/nemotron-3-super-120b-a12b` | Turns English into things the engine runs: bug report to oracle predicate, patch notes to tuning overrides; explains why exploit strategies win |
 | Nemotron Super-VL | `nvidia/Nemotron-3.5-Super-VL` | Looks at replay frames and describes what it sees |
 | Nemotron Ultra 550B | `nvidia/Nemotron-3-Ultra-550b-a55b` | Reads every play log at once and writes the report; proposes root causes and patches in bug triage |
