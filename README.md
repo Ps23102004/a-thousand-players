@@ -12,7 +12,8 @@ Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Braw
 4. **Bug triage.** Invariant checks in the engine (`engine/bugs.mjs`) group broken rounds into bug clusters. Ultra proposes a root cause and a patch. `engine/verify-fix.mjs` applies the patch to a scratch copy of the game, replays the exact seeds, and runs a regression crowd.
 5. **Exploit search.** Nano proposes bot strategies, the engine plays each one, Nano evolves the best ones, and Super writes an explanation of why they win.
 6. **Repro.** A player writes a bug report in plain English. Nemotron Super turns it into an oracle, a predicate over the engine's event log. Plain code (`lib/oracle.ts`, no model) runs the oracle over all 2831 recorded rounds and links the rounds that trip it. The sample report about floating up and leaving the arena finds exactly the two recorded rounds with that bug. Zero matches does not prove a bug is absent, and the model's oracle varies a little between calls.
-7. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 42 of 42 sampled recorded rounds replay event for event that way.
+7. **Eyes.** On any replay page, a button captures three frames from the embedded 3D game (around the round's first bug event, if it has one), shrinks them to 640 px JPEGs and asks Nemotron Super-VL what it sees. It is a description aid: the engine's invariant checks decide what counts as a bug.
+8. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 42 of 42 sampled recorded rounds replay event for event that way.
 
 ## Results from the main run
 
@@ -38,6 +39,7 @@ All numbers below come from files in `data/run-main/`.
 - **Findings are sampled, not proofs of absence.** If the crowd did not hit a bug, that does not mean the bug is not there.
 - **Only the claims and seeds are machine-checked.** Ultra's prose can still contain wrong numbers. On a test fixture it wrote "10/18 Round 1s end in draws" when there were 3. Trust the verified claims, not the narrative.
 - **Super's exploit explanation was wrong until it was grounded.** Given only the strategies' rule text and the CPU code, Super explained the wins as "recovery-state grabs". The recorded hits say sweep into mount. The prompt now includes the measured hit tally per strategy, and the `explanation` field starts with that tally, written by code. Super's prose after it names the sweep and the guard rule, but still over-reads the grabs.
+- **Super-VL missed a bug the engine caught.** On the bug2 round (seed 634310) the three frames were taken at 11.3, 13.8 and 15.3 s. The engine flags the player airborne at 13.8 s. Super-VL said nothing was floating or outside the arena, because the camera pulls back and the fighters are tiny, and it reported a crate overlapping a fighter in the first frame. One round is not a measurement, but it shows the vision answer cannot be trusted as a detector.
 - **One game adapter.** The adapter contract is documented below, but Market Brawl is the only game that implements it.
 - **Prices are estimates.** Only Ultra has a dollar estimate, at an unverified aggregator price ($1/M input, $3/M output). Other models report tokens only.
 

@@ -5,6 +5,17 @@ import { createLimiter } from "./rate-limit";
 const check = createLimiter(10, 200);
 const MAX_INPUT = 4000;
 
+/** 429 response when this caller (or everyone, today) is over the limit; null when the call may go ahead. */
+export function rateLimited(req: Request): Response | null {
+  // Client IP from a header the platform sets (Vercel), else the rightmost proxy-appended hop; the leftmost entry is caller-controlled.
+  // The per-IP limit only slows one caller down; the global daily cap in the limiter is what bounds credit spend.
+  const forwarded = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+  const ip = req.headers.get("x-vercel-forwarded-for") || forwarded.at(-1) || req.headers.get("x-real-ip") || "local";
+  const limit = check(ip);
+  if (limit.ok) return null;
+  return Response.json({ error: `Too many requests: ${limit.reason}. These calls cost model credits.` }, { status: 429, headers: { "Retry-After": String(limit.retryAfter) } });
+}
+
 export async function aiRoute<T>(req: Request, field: string, run: (text: string) => Promise<T>): Promise<Response> {
   let text: unknown;
   try {
@@ -15,14 +26,8 @@ export async function aiRoute<T>(req: Request, field: string, run: (text: string
   if (typeof text !== "string" || !text.trim()) return Response.json({ error: `"${field}" must be a non-empty string.` }, { status: 400 });
   if (text.length > MAX_INPUT) return Response.json({ error: `"${field}" is limited to ${MAX_INPUT} characters.` }, { status: 413 });
 
-  // Client IP from a header the platform sets (Vercel), else the rightmost proxy-appended hop; the leftmost entry is caller-controlled.
-  // The per-IP limit only slows one caller down; the global daily cap in the limiter is what bounds credit spend.
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
-  const ip = req.headers.get("x-vercel-forwarded-for") || forwarded.at(-1) || req.headers.get("x-real-ip") || "local";
-  const limit = check(ip);
-  if (!limit.ok) {
-    return Response.json({ error: `Too many requests: ${limit.reason}. These calls cost model credits.` }, { status: 429, headers: { "Retry-After": String(limit.retryAfter) } });
-  }
+  const limited = rateLimited(req);
+  if (limited) return limited;
 
   try {
     return Response.json(await run(text.trim()));

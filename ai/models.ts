@@ -15,7 +15,7 @@ export interface ChatOpts {
   model: string;
   system?: string;
   user: string;
-  images?: string[];          // PNG base64 without the data: prefix
+  images?: string[];          // PNG or JPEG base64 without the data: prefix
   maxTokens: number;
   temperature?: number;
   thinking?: boolean;         // false sends chat_template_kwargs.enable_thinking=false
@@ -45,7 +45,7 @@ export async function chat(o: ChatOpts): Promise<ChatResult> {
   const key = process.env.NEBIUS_API_KEY;
   if (!key) throw new Error("NEBIUS_API_KEY is not set (run with npx tsx --env-file=.env)");
   const userContent = o.images?.length
-    ? [{ type: "text", text: o.user }, ...o.images.map((b64) => ({ type: "image_url", image_url: { url: `data:image/png;base64,${b64}` } }))]
+    ? [{ type: "text", text: o.user }, ...o.images.map((b64) => ({ type: "image_url", image_url: { url: `data:image/${b64.startsWith("/9j/") ? "jpeg" : "png"};base64,${b64}` } }))]
     : o.user;
   const body: Record<string, unknown> = {
     model: o.model,

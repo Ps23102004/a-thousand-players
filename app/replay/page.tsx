@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import Link from "next/link";
+import EyesPanel from "@/components/EyesPanel";
 import GameEmbed, { CopyLink } from "@/components/GameEmbed";
 import ReplayScrubber from "@/components/ReplayScrubber";
-import { findRound, getData } from "@/lib/data";
-import { decodeToken, encodeToken } from "@/lib/replay-token";
+import { findRound, getData, recordedTuning } from "@/lib/data";
+import { captureTimes, DEFAULT_QUESTION } from "@/lib/eyes";
+import { decodeToken, encodeToken, fighterFor } from "@/lib/replay-token";
 
 export const metadata: Metadata = { title: "Replay · A Thousand Players" };
 
@@ -14,7 +16,7 @@ export default async function ReplayPage({ searchParams }: { searchParams: Promi
   const decoded = decodeToken(t);
   const { traces, personas } = getData();
   const { run, trace } = findRound(key, decoded?.seed);
-  const token = decoded ?? (run ? { seed: run.seed, tuning: null, fighter: "kai" as const, maxT: Math.ceil(run.t), persona: personas.get(run.p) } : null);
+  const token = decoded ?? (run ? { seed: run.seed, tuning: recordedTuning(), fighter: fighterFor(run.p), maxT: Math.ceil(run.t), persona: personas.get(run.p) } : null);
 
   if (!token) {
     return (
@@ -76,7 +78,15 @@ export default async function ReplayPage({ searchParams }: { searchParams: Promi
           <h2 id="game-title">In the real game</h2>
           <p className="lede">Market Brawl re-runs the same seed, tuning and policy in the browser. The engine is built so the same inputs give the same match.</p>
         </div>
-        <GameEmbed token={tokenStr} available={existsSync(join(process.cwd(), "public/game/replay.html"))} />
+        {(() => {
+          const available = existsSync(join(process.cwd(), "public/game/replay.html"));
+          return (
+            <>
+              <GameEmbed token={tokenStr} available={available} />
+              {available && <EyesPanel times={captureTimes(run, token.maxT)} defaultQuestion={DEFAULT_QUESTION} />}
+            </>
+          );
+        })()}
       </section>
     </>
   );

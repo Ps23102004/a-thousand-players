@@ -39,7 +39,7 @@ Written by the A Thousand Players team after building on Token Factory for the N
 - **Nano 30B** is the right choice for thousands of cheap calls. For live action picking, the median was 3.5 s per uncached call with 3 tokens out. That is fine for a spotlight player, but too slow to drive 1000 players move by move, so crowd players run Nano-written policies natively instead.
 - **Super 120B** handled the "English to engine config" jobs well, and it rejected off-topic input (a banana bread recipe, cosmetic-only patch notes) instead of making something up. It was less reliable at causal explanation: asked why 32 bot strategies beat the CPU, with only their rule text and the CPU code, it invented a "recovery-state grab" mechanism; the engine's hit log shows sweep spam into mount. With the measured hit tally in the prompt it names the right move and the right guard condition, but still over-explains.
 - **Ultra 550B** is the reason this project works. But its narrative prose is less reliable than its structured claims. On a fixture, every structured claim was correct, but the prose said "10/18 Round 1s end in draws" (there were 3) and made up a hit count. In the main run, 31 of 31 claims checked out, but 13 cited seeds did not exist. We recommend that anyone building on Ultra check its claims with code.
-- **Super-VL** described a 1.6K-token frame in 5.2 s.
+- **Super-VL** described a 1.6K-token frame in 5.2 s. Three 640 px JPEG frames (about 20 to 30 KB each) went through the same `image_url` route without trouble; JPEG needs the matching data-URL type. In one test it missed a fighter floating 10 m up because the pulled-back camera made both fighters tiny, so framing matters more than model size for this kind of check.
 
 ## Usage for the main run
 
