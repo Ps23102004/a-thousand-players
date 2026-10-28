@@ -1,0 +1,64 @@
+{
+ "bug": "bug4",
+ "signature": "stuck:KNOCKDOWN+airborne+softlock",
+ "verdict": "fixed",
+ "applied": [
+  {
+   "file": "ground.js",
+   "ok": true
+  }
+ ],
+ "rounds": 1,
+ "fixedRounds": 1,
+ "before": [
+  {
+   "p": "p0653",
+   "round": 2,
+   "seed": 529060,
+   "label": "base",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    7,
+    84
+   ],
+   "bugs": [
+    "airborne",
+    "stuck",
+    "softlock"
+   ],
+   "crash": null
+  }
+ ],
+ "after": [
+  {
+   "p": "p0653",
+   "round": 2,
+   "seed": 529060,
+   "label": "base",
+   "out": "loss",
+   "t": 18.73,
+   "hp": [
+    0,
+    82
+   ],
+   "bugs": [],
+   "crash": null
+  }
+ ],
+ "regression": {
+  "personas": 200,
+  "shipped": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  },
+  "patched": {
+   "rounds": 553,
+   "winRate": 0.316,
+   "avgT": 12.03,
+   "bugRounds": 3
+  }
+ }
+}

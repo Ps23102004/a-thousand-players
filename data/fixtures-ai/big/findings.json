@@ -1,0 +1,787 @@
+{
+ "summary": "Turtle and rusher archetypes suffer extreme quit rates (73% and 65%) driven by round-2 difficulty spikes and a blocking bug that stalls matches at 99s. Rushers lose 69% of rounds by KO and quit 65% after round 2. Cheesers exploit a near-instant win loop (avg 16.9s round-1, 6-hit combos, zero damage taken). A single invariant violation (!stuck on BLOCK) appears on 3 turtle rounds, confirming a blocking-state bug. (Verification: 1 of 24 claims did not match the recomputed value; 2 cited seeds did not exist in the runs and were removed.)",
+ "findings": [
+  {
+   "id": "f1",
+   "title": "Turtle archetype: 73% quit rate, round-2 frustration wall, and blocking bug",
+   "severity": "high",
+   "kind": "difficulty",
+   "narrative": "Turtles play long, defensive rounds (avg 76s) but 73% quit overall. Round-2 quit rate is 43% (42% after R1, 43% after R2) and win rate drops to 55% then 53%. Three turtle rounds show the invariant violation !stuck@~38-48s on BLOCK, stalling the match at the 99s cap and causing boredom/frustration quits.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 0.73
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle",
+      "round": 2
+     },
+     "value": 0.43
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 76
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "turtle",
+      "round": 2
+     },
+     "value": 0.55
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0001",
+     "round": 1,
+     "seed": 80000,
+     "why": "!stuck@38.5 BLOCK causes 99s draw and boredom quit"
+    },
+    {
+     "p": "p0002",
+     "round": 1,
+     "seed": 80001,
+     "why": "!stuck@39.2 BLOCK after knockdown, frustration quit"
+    },
+    {
+     "p": "p0003",
+     "round": 1,
+     "seed": 80002,
+     "why": "!stuck@48.3 BLOCK, 99s draw, continues but quits after R2 boredom"
+    }
+   ],
+   "suggestion": "Fix the BLOCK state machine so it cannot enter a stuck invariant; add a hard timeout or auto-break on block stalls. Reduce turtle round length cap from 99s to 60s to prevent boredom.",
+   "confidence": 0.92,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 0.73
+     },
+     "actual": 0.725,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle",
+       "round": 2
+      },
+      "value": 0.43
+     },
+     "actual": 0.433,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 76
+     },
+     "actual": 76.004,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "turtle",
+       "round": 2
+      },
+      "value": 0.55
+     },
+     "actual": 0.552,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Design the escape-path invariant: every blocked auto-mode state has a reachable exit (ADR) · Issue #1647 · open-gsd/gsd-pi · GitHub",
+     "url": "https://github.com/open-gsd/gsd-pi/issues/1647",
+     "snippet": "The invariant, in one line: a block signature may not recur with unchanged inputs — either a reachable operation changes what the guard reads, or auto escalates to a surfaced, acknowledged pause.\n10. jeremymcs\n\n    closed this as completedon Aug 8, 2026\n\nSign up for free to join this conversation on"
+    },
+    {
+     "title": "fix(discord): add timeout to typing indicator HTTP request to prevent stuck loop by okyssta · Pull Request #64910 · NousResearch/hermes-agent · GitHub",
+     "url": "https://github.com/NousResearch/hermes-agent/pull/64910",
+     "snippet": "Title: fix(discord): add timeout to typing indicator HTTP request to prevent stuck loop by okyssta · Pull Request #64910 · NousResearch/hermes-agent · GitHub\n## Navigation Menu. You signed in with another tab or window. Reload to refresh your session. You switched accounts on another tab or window. "
+    },
+    {
+     "title": "WSL Ubuntu Installation Timeout? Fix Node.js Playwright Stalls & Proxy Setup | Efficient Coder",
+     "url": "https://www.xugj520.cn/en/archives/fix-wsl-ubuntu-install-timeout-nodejs-stalls.html",
+     "snippet": "Title: WSL Ubuntu Installation Timeout? Fix Node.js Playwright Stalls & Proxy Setup | Efficient Coder\nHomeSoftware DevelopmentWSL Ubuntu Installation Timeout? Fix Node.js Playwright Stalls & Proxy Setup. ## WSL Ubuntu Installation Timeout? # Troubleshooting WSL Ubuntu Installation Timeouts and Node."
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "title": "Rusher archetype: 65% quit rate, 69% KO share, round-2 difficulty cliff",
+   "severity": "high",
+   "kind": "difficulty",
+   "narrative": "Rushers win only 31% overall and lose 69% by KO. Round-1 win rate is 49% but collapses to 9% in round-2, where 65% of surviving rushers quit from frustration. Average round duration is 34.6s (fast deaths). Low patience/frustration-tolerance personas amplify the quit spike.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 0.31
+    },
+    {
+     "metric": "koShare",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 0.69
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "rusher",
+      "round": 2
+     },
+     "value": 0.65
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 34.6
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0121",
+     "round": 2,
+     "seed": 80224,
+     "why": "R1 win 39s, R2 loss 23.8s KO, frustration quit"
+    },
+    {
+     "p": "p0122",
+     "round": 2,
+     "seed": 80226,
+     "why": "R1 loss 44.7s, R2 loss 22.3s KO, frustration quit"
+    },
+    {
+     "p": "p0123",
+     "round": 2,
+     "seed": 80228,
+     "why": "R1 loss 41.1s, R2 loss 18.1s KO, frustration quit"
+    }
+   ],
+   "suggestion": "Reduce round-2 opponent aggression/damage for rusher persona or grant rushers a defensive buffer (e.g., +15 HP, block frames) in round 2. Add a 'catch-up' mechanic that lowers rival KO threshold after a round-1 loss.",
+   "confidence": 0.95,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 0.31
+     },
+     "actual": 0.311,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "koShare",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 0.69
+     },
+     "actual": 0.689,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "rusher",
+       "round": 2
+      },
+      "value": 0.65
+     },
+     "actual": 0.65,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 34.6
+     },
+     "actual": 34.623,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Core Mechanics of Fighting Games - DEV Community",
+     "url": "https://dev.to/goldenxp/core-mechanics-of-fighting-games-24ej",
+     "snippet": "The most common way of reducing HP is to connect an attack onto the opponent. The Player performs inputs which cause the Character to attack. If the Character's attack fails to connect with the opponent's Character, it is a miss and no HP is lost. If it does connect, the opposing Character loses som"
+    },
+    {
+     "title": "Dynamic game difficulty balancing - Wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Dynamic_game_difficulty_balancing",
+     "snippet": "A traditional implementation of such an agent's intelligence is to use behavior rules defined during game development. A typical rule in a fighting game would state \"punch opponent if he is reachable, chase him otherwise\". Extending such an approach to include opponent modeling can be made through S"
+    },
+    {
+     "title": "Dynamic Difficulty Adjustment Systems in Games: Techniques, Algorithms, and Benefits for Creating Personalized Player Experiences, Improving Engagement, and Balancing Challenge in Modern Game Development",
+     "url": "https://www.daydreamsoft.com/blog/dynamic-difficulty-adjustment-systems-enhancing-player-experience-through-adaptive-game-design",
+     "snippet": "Get Free Quote\n\n# Dynamic Difficulty Adjustment Systems Enhancing Player Experience Through Adaptive Game Design\n\nHome / blog / dynamic difficulty adjustment systems enhancing player experience through adaptive game design\n\nimage\n\n Category\n\n  Game Development\n View707\n Posted OnApril 16, 2026 [...]"
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "title": "Cheeser exploit: near-instant wins, 6-hit combos, zero damage taken",
+   "severity": "high",
+   "kind": "exploit",
+   "narrative": "Cheesers win 54% with 46% KO share but round-1 avg duration is only 16.9s (vs 44.6s overall). Example p0561 wins R1 in 16.9s (hp99/0, 6-hit combo, 1 dmg taken), R2 in 16.1s, R3 in 17.3s. This pattern repeats across cheesers: they land sweep/jab loops the rival cannot answer, suggesting a frame-advantage or cancel exploit.",
+   "claims": [
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "cheeser",
+      "round": 1
+     },
+     "value": 16.9
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 0.54
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 76
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0561",
+     "round": 1,
+     "seed": 81357,
+     "why": "16.9s win, hp99/0, 6-hit combo, 1 dmg taken, knockdown*@5.8"
+    },
+    {
+     "p": "p0561",
+     "round": 2,
+     "seed": 81358,
+     "why": "16.1s win, hp91/0, 6-hit combo, 9 dmg taken"
+    },
+    {
+     "p": "p0561",
+     "round": 3,
+     "seed": 81359,
+     "why": "17.3s win, hp95/0, 6-hit combo, 5 dmg taken"
+    }
+   ],
+   "suggestion": "Audit cheeser move-frame data: SWEEP/JAB startup, active, recovery, and cancel windows. Add a combo-break system (pushback, damage scaling, or meter cost) so 6-hit zero-damage loops are impossible.",
+   "confidence": 0.88,
+   "verified": [
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "cheeser",
+       "round": 1
+      },
+      "value": 16.9
+     },
+     "actual": 43.515,
+     "ok": false
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 0.54
+     },
+     "actual": 0.537,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 76
+     },
+     "actual": 76.029,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Could someone explain Frame Data indetail? - General Discussion - Killer Instinct Forums",
+     "url": "https://forums.ultra-combo.com/t/could-someone-explain-frame-data-indetail/12956",
+     "snippet": "Like I said, it seems like you more or less already understand things, but hopefully this provides at least a little more clarity about frame data.\n\nSo I use the start up info to see if the move will land in time? The active data is if I want to time any hit, but the first to hit? And the recovery i"
+    },
+    {
+     "title": "Frame Data Basics [Fighting Game Mechanisms]",
+     "url": "https://www.youtube.com/watch?v=sbyUM5aWKpk",
+     "snippet": "[2:18] Recovery we will use Street Fighter 5 Chun Le standing har punch for this example startup is the first phase that\n[2:26] occurs after a player does an attack input and continues until the hit boox of an attack comes out this is the windup for an attack before it can do\n[2:35] any damage after"
+    },
+    {
+     "title": "Understanding Framedata: Combos, Traps, and Turns – Celia Wagar's CritPoints",
+     "url": "https://critpoints.net/2016/11/29/understanding-framedata-combos-traps-and-turns",
+     "snippet": "To explain the basics of Frame Data, I’m going to use Cammy in SFV, since she’s a character with extremely simple combos, and I main her.  \n\nNext to each attack are 3 columns, startup, active, and recovery. These list the number of frames before an attack becomes active, the number of frames it is a"
+    }
+   ]
+  },
+  {
+   "id": "f4",
+   "title": "Blocking invariant violation (!stuck on BLOCK) stalls matches at 99s",
+   "severity": "high",
+   "kind": "bug",
+   "narrative": "Three turtle rounds (p0001, p0002, p0003) show the engine invariant violation '!stuck@~38-48s BLOCK', forcing the round to the 99s cap and ending in draw. This directly feeds the 73% turtle quit rate (boredom/frustration). No other archetype shows this violation.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 0.73
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 76
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0001",
+     "round": 1,
+     "seed": 80000,
+     "why": "!stuck@38.5 BLOCK, 99s draw, boredom quit"
+    },
+    {
+     "p": "p0002",
+     "round": 1,
+     "seed": 80001,
+     "why": "knockdown@17.8 then !stuck@39.2 BLOCK, frustration quit"
+    },
+    {
+     "p": "p0003",
+     "round": 1,
+     "seed": 80002,
+     "why": "!stuck@48.3 BLOCK, 99s draw, continues but quits after R2"
+    }
+   ],
+   "suggestion": "Patch the block state machine: add a watchdog timer that forces block exit after 2s of no state change. Log and telemetry the stuck condition for post-mortem.",
+   "confidence": 0.98,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 0.73
+     },
+     "actual": 0.725,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 76
+     },
+     "actual": 76.004,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Watchdog timer - Wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Watchdog_timer",
+     "snippet": "A watchdog timer (WDT, or simply a watchdog), sometimes called a computer operating properly timer (COP timer), is an electronic or software timer that is used to detect and recover from computer malfunctions. Watchdog timers are widely used in computers to facilitate automatic correction of tempora"
+    },
+    {
+     "title": "[Bug]: stale-stream watchdog measures with a suspend-inclusive wall clock — kills 71 ms after host resume and reports a 6.5 h provider stall that never happened (follow-up to #114741) · Issue #121878 · NousResearch/hermes-agent · GitHub",
+     "url": "https://github.com/NousResearch/hermes-agent/issues/121878",
+     "snippet": "rml4791lol-lang\n\n   on Oct 4, 2026\n\n   More actions\n\n   Also reproduces on macOS with `Sleep Service` dark-wake cycles — and here the false kills accumulate in the stale streak, terminating unattended jobs [...] P2Medium — degraded but workaround existsMedium — degraded but workaround exists\n\n   com"
+    },
+    {
+     "title": "[SOLVED] - Clock watchdog timeout | Tom's Hardware Forum",
+     "url": "https://forums.tomshardware.com/threads/clock-watchdog-timeout.3527460",
+     "snippet": "New OS: since September 13, 2019 the problem occurred only today around 12 th\n\nMB : MSI b450 gaming plus\n\nCPU : amd ryzen 5 3600\n\nRAM: HyperX Fury Black 8GB DDR4 2400 ( 2x ) [16GB]\n\nGPU : Zotac GeForce GTX 1660 GAMING, 6GB GDDR5\n\nHDD 1 : HITACHI HUA7210SASUN 1 TB ( OS WIN 10)\n\nHDD 2 : HITACHI HUA721"
+    }
+   ]
+  },
+  {
+   "id": "f5",
+   "title": "Round-2 global quit spike: 18% of all players quit after round 2",
+   "severity": "med",
+   "kind": "boredom",
+   "narrative": "Overall quit rate after round 2 is 18% (vs 7% after R1, 3% after R3). Turtles (43%), rushers (65%), and casuals (5%) all show elevated R2 quits. Round-2 duration drops to 41s (from 47s R1) but difficulty spikes for defensive/low-skill archetypes, causing frustration/boredom exits before round 3.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "round": 2
+     },
+     "value": 0.18
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "round": 1
+     },
+     "value": 0.07
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "round": 2
+     },
+     "value": 41
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "round": 2
+     },
+     "value": 0.46
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0003",
+     "round": 2,
+     "seed": 80003,
+     "why": "Turtle wins R2 87.5s but quits after R2 boredom"
+    },
+    {
+     "p": "p0121",
+     "round": 2,
+     "seed": 80224,
+     "why": "Rusher loses R2 23.8s KO, frustration quit"
+    },
+    {
+     "p": "p0664",
+     "round": 1,
+     "seed": 81638,
+     "why": "Casual wins R1 46.7s but quits after R1 frustration (early R2 quit proxy)"
+    }
+   ],
+   "suggestion": "Smooth the round-2 difficulty curve: reduce rival damage/aggression by 10-15% in round 2, or give players a mid-session upgrade (health, meter, move unlock) before round 2 starts.",
+   "confidence": 0.85,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "round": 2
+      },
+      "value": 0.18
+     },
+     "actual": 0.184,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "round": 1
+      },
+      "value": 0.07
+     },
+     "actual": 0.071,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "round": 2
+      },
+      "value": 41
+     },
+     "actual": 40.986,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "round": 2
+      },
+      "value": 0.46
+     },
+     "actual": 0.46,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Marvel Rivals Version 20260507 Patch Notes",
+     "url": "https://www.marvelrivals.com/gameupdate/20260506/41548_1299168.html",
+     "snippet": "May 6, 2026 — Marvel Rivals is a Super Hero Team-based PVP Shooter ・ drops on May 7th, 2026, Fixes and Optimizations Heroes ・ flawlessly commence!"
+    },
+    {
+     "title": "Marvel Rivals Patch 20251030 - Full Update Notes and More | Turtle Beach",
+     "url": "https://www.turtlebeach.com/blog/marvel-rivals-patch-20251030-full-update-notes-and-more",
+     "snippet": "Giveaways, gaming gear, our discord channel and more:\n\n© 2026Turtle Beach. All rights reserved.\n\nSite Map [...] Change is hard, I understand. But sometimes when you make a tough change, you’ll wonder how you ever lived your life the way you did before. I mean, people used to say the internet will ne"
+    },
+    {
+     "title": "[🔴live] i just hit the jackpot",
+     "url": "https://www.youtube.com/watch?v=k1DHOwgQKFo",
+     "snippet": "Games might get ugly but thats how it goes. SEASON 11 WILL SAVE MARVEL RIVALS !fps Necros•56K views"
+    }
+   ]
+  },
+  {
+   "id": "f6",
+   "title": "Speedrunner archetype: fast rounds (28s) but 10% quit, no clear exploit",
+   "severity": "low",
+   "kind": "balance",
+   "narrative": "Speedrunners average 28s/round (fastest) with 56% win rate and only 10% quit. They don't show the cheeser instant-win pattern; rounds are competitive (hp loss ~76). No action needed, but monitor for hidden frame-perfect exploits.",
+   "claims": [
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 28
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 0.56
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 0.1
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0861",
+     "round": 1,
+     "seed": 82173,
+     "why": "22.6s loss, 34.1s win, 32.0s loss, ends at cap"
+    },
+    {
+     "p": "p0863",
+     "round": 1,
+     "seed": 82179,
+     "why": "25.9s loss, 33.1s win, 26.1s win, ends at cap"
+    },
+    {
+     "p": "p0869",
+     "round": 1,
+     "seed": 82194,
+     "why": "24.4s win, 34.8s loss, 26.6s win, ends at cap"
+    }
+   ],
+   "suggestion": "No immediate change; keep telemetry on speedrunner frame data for future exploit detection.",
+   "confidence": 0.6,
+   "verified": [
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 28
+     },
+     "actual": 27.958,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 0.56
+     },
+     "actual": 0.558,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 0.1
+     },
+     "actual": 0.1,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Theory: Aiding Asymmetrical Balance with Frame Data",
+     "url": "https://www.gamedeveloper.com/design/theory-aiding-asymmetrical-balance-with-frame-data",
+     "snippet": "Now these are just example numbers, but from this, I can determine a lot about the attack, for example, it starts up and recovers relatively quickly.  As a designer though, I need a more information to help me balance it against other information.\n\n|  |  |  |  |  |  |  |  |\n ---  ---  ---  --- |\n| A"
+    },
+    {
+     "title": "The Secret To A Great Fighting Game Balance Update",
+     "url": "https://www.youtube.com/watch?v=t8qi8QWRbGc",
+     "snippet": "[5:05] in dbsc were completely brain dead basically you would get the hit you would snap back them in and then you would do 50/50 after 50/50 get the hit\n[5:13] and then youd snap back again and you keep looping the situation over and over because your defensive options after a stat back were way wo"
+    },
+    {
+     "title": "How To Read Frame Data In Fighting Games",
+     "url": "https://www.thegamer.com/fighting-games-frame-data-explained",
+     "snippet": "You may think that being +2 on block is sorta useless if the fastest attack in the game is three frames on startup, but nothing could be further from the truth. Being plus means that your opponent will have to just keep blocking your attacks (as you will be ahead of them by multiple frames), and if "
+    }
+   ]
+  },
+  {
+   "id": "f7",
+   "title": "Masher/Learner/Casual/Explorer: healthy 50-55% win rates, low quit (8-10%)",
+   "severity": "low",
+   "kind": "balance",
+   "narrative": "These four archetypes (520 players, 1520 rounds) show balanced win rates (52-55%), low KO share (44-48%), low quit rates (8-10%), and normal round durations (44-45s). They represent the well-tuned core of the game.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "masher"
+     },
+     "value": 0.52
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "masher"
+     },
+     "value": 0.08
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "learner"
+     },
+     "value": 0.53
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "casual"
+     },
+     "value": 0.09
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0281",
+     "round": 1,
+     "seed": 80599,
+     "why": "Masher loss 33.3s, satisfied quit (healthy short session)"
+    }
+   ],
+   "suggestion": "Preserve current tuning for these archetypes; use them as baseline when adjusting turtle/rusher/cheeser.",
+   "confidence": 0.9,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "masher"
+      },
+      "value": 0.52
+     },
+     "actual": 0.523,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "masher"
+      },
+      "value": 0.08
+     },
+     "actual": 0.081,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "learner"
+      },
+      "value": 0.53
+     },
+     "actual": 0.531,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "casual"
+      },
+      "value": 0.09
+     },
+     "actual": 0.09,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "The Fighting Game Theory of Flesh and Blood - The Rathe Times",
+     "url": "https://rathetimes.com/articles/the-fighting-game-theory-of-flesh-and-blood",
+     "snippet": "The archetypes in Magic all revolve around these axes of victory. Obviously it's more complicated than that, but this is a decent baseline to understand the very core of Magic as a game.\n\nIn Fighting Games, we do not use Aggro, Combo, or Control (nor do we use Midrange, the 'center' of the archetypi"
+    },
+    {
+     "title": "Character Archetypes in Fighting Games - The All Arounder/Balance/Shoto (Video Essay)",
+     "url": "https://www.youtube.com/watch?v=wllOU4JwN4g",
+     "snippet": "[4:17] character they are best suited for\n[4:23] [Music]\n[4:25] one of the first archetype you'll see in any fighting game is the balance archetype also known as the all-rounder or Shoto characters but let me get this\n[4:34] out of the way there are differences and similarities between a shadow and "
+    },
+    {
+     "title": "Update 10.3.0 — THE FINALS",
+     "url": "https://www.reachthefinals.com/patchnotes/10-30",
+     "snippet": "In Respec Order, we’re adjusting both the health values and the base movement speeds of the Heavy and the Light archetypes in Cashout mode for one week, the changes will be as follows:\n\n Health decreased from 350 to 325\n Base movement speeds (run and sprint) increased by approximately 10%\n\n Health i"
+    }
+   ]
+  }
+ ],
+ "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+ "tokensIn": 224420,
+ "tokensOut": 3498,
+ "corpusTokens": 219280
+}

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Market Brawl Replay</title>
+<style>
+  :root { --ink: #f3e9d8; --dim: #9fb0ae; --bg: #0f1a22; --accent: #ec684a; --mint: #7fd6b9; --gold: #e3c99e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  .bar { position: fixed; left: 12px; right: 12px; top: 10px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; pointer-events: none; }
+  .hp { display: grid; gap: 4px; }
+  .hp.r { text-align: right; }
+  .hp b { font-size: 12px; letter-spacing: .08em; }
+  .track { height: 10px; background: #ffffff1a; border-radius: 2px; overflow: hidden; }
+  .fill { height: 100%; background: var(--accent); width: 100%; transition: width .12s linear; }
+  .hp.r .fill { background: var(--mint); margin-left: auto; }
+  #clock { font-size: 22px; color: var(--gold); min-width: 3ch; text-align: center; }
+  #badge { position: fixed; top: 46px; left: 50%; transform: translateX(-50%); color: var(--dim); font-size: 11px; white-space: nowrap; max-width: calc(100vw - 24px); overflow: hidden; text-overflow: ellipsis; }
+  #ticker { position: fixed; left: 12px; bottom: 56px; display: grid; gap: 2px; pointer-events: none; max-width: 60vw; }
+  #ticker div { background: #0b1319cc; padding: 2px 6px; border-left: 2px solid var(--gold); }
+  #ticker .bug { border-color: var(--accent); color: #ffb4a3; }
+  .controls { position: fixed; left: 12px; right: 12px; bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  button { font: inherit; color: var(--ink); background: #1b2a33; border: 1px solid #ffffff22; border-radius: 4px; padding: 6px 10px; min-height: 32px; cursor: pointer; }
+  button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  #end { position: fixed; inset: 0; display: none; place-items: center; background: #0f1a22aa; text-align: center; }
+  #end.show { display: grid; }
+  #end h1 { margin: 0 0 6px; font-size: 28px; letter-spacing: .1em; }
+  #err { position: fixed; inset: 0; display: none; place-items: center; padding: 24px; text-align: center; color: #ffb4a3; }
+</style>
+<!-- Same Rapier/three builds as the headless engine (copied from node_modules by scripts/sync-game.mjs) so replays match bit for bit. -->
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","@dimforge/rapier3d-compat":"./vendor/rapier/rapier.mjs"}}</script>
+</head>
+<body>
+<canvas id="c" aria-label="3D replay of a recorded Market Brawl round"></canvas>
+<div class="bar">
+  <div class="hp"><b id="pname">PLAYER</b><div class="track"><div class="fill" id="php"></div></div></div>
+  <div id="clock">99</div>
+  <div class="hp r"><b id="rname">RIVAL (CPU)</b><div class="track"><div class="fill" id="rhp"></div></div></div>
+</div>
+<div id="badge"></div>
+<div id="ticker" aria-live="polite"></div>
+<div class="controls">
+  <button id="play" type="button">Pause</button>
+  <button id="restart" type="button">Restart</button>
+  <span style="color:var(--dim)">speed</span>
+  <button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2">2×</button><button type="button" data-speed="4">4×</button>
+</div>
+<div id="end"><div><h1 id="endTitle"></h1><div id="endDetail" style="color:var(--dim)"></div><p><button id="again" type="button">Watch again</button></p></div></div>
+<div id="err"></div>
+<script type="module">
+import * as THREE from 'three';
+import { createMarketEnvironment } from './src/world.js';
+import { createTownfolkCrowd, updateCrowd } from './src/crowd.js';
+import { combatFraming } from './src/camera.js';
+import { createSim, inputController, DT } from '../engine/sim.mjs';
+import { createPolicy } from '../engine/policy.mjs';
+
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+function decode(s) {
+  if (!s || s.length > 20000) return null;
+  try {
+    const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+    const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
+    return o && Number.isFinite(o.seed) && Number.isFinite(o.maxT) && (o.fighter === 'kai' || o.fighter === 'rook') && (o.tuning === null || typeof o.tuning === 'object') ? o : null;
+  } catch { return null; }
+}
+const token = decode(params.get('t'));
+if (!token) { $('err').style.display = 'grid'; $('err').textContent = 'This replay link is missing or malformed.'; throw new Error('bad token'); }
+
+const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100); camera.position.set(0, 2.5, 8.5);
+function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+let scene, env, crowd, sim, ctrl, speed = +(params.get('speed') || 1), paused = false, acc = 0, seen = 0, clock = 0;
+const LABEL = { hit: 'hit', block: 'blocked', parry: 'PARRY', knockdown: 'KNOCKDOWN', throw: 'THROW', prop: 'crate smashed', combo: 'combo', mount: 'ground control',
+  stuck: 'BUG? stuck in state', oob: 'BUG? out of bounds', nan: 'BUG? NaN', clip: 'BUG? bodies overlap', airborne: 'BUG? airborne too long', softlock: 'BUG? no damage for 25s' };
+const BUGS = new Set(['stuck', 'oob', 'nan', 'clip', 'airborne', 'softlock']);
+
+async function start() {
+  if (sim) sim.dispose();
+  scene = new THREE.Scene(); scene.background = new THREE.Color(0x111e2a); scene.fog = new THREE.FogExp2(0x111e2a, 0.025);
+  env = createMarketEnvironment(scene, null); crowd = createTownfolkCrowd(scene);
+  sim = await createSim({ seed: token.seed, tuning: token.tuning, fighter: token.fighter, maxT: token.maxT, scene });
+  ctrl = token.persona ? createPolicy(token.persona, token.seed) : token.inputs ? inputController(token.inputs) : { step: () => 0 };
+  acc = 0; seen = 0; $('ticker').textContent = ''; $('end').classList.remove('show');
+  $('pname').textContent = (token.persona ? `${token.persona.name} · ${token.persona.archetype}` : 'RECORDED INPUT') + ` (${sim.player.name})`;
+  $('rname').textContent = `${sim.rival.name} · built-in CPU`;
+  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? 'patched tuning' : 'shipped tuning'} · deterministic re-simulation`;
+}
+function seekTo(t) { while (!sim.done && sim.time() < t) sim.step(ctrl.step(sim)); }
+function tickerAdd(e) {
+  const who = e[2] === 0 ? (token.persona?.name || 'Player') : 'CPU';
+  const d = document.createElement('div'); if (BUGS.has(e[1])) d.className = 'bug';
+  d.textContent = `${e[0].toFixed(1)}s  ${who} ${LABEL[e[1]] || e[1]}${e[3] !== undefined ? ' ' + e[3] : ''}`;
+  const t = $('ticker'); t.prepend(d); while (t.children.length > 5) t.lastChild.remove();
+}
+function draw(dt) {
+  clock += dt; env.update(clock); updateCrowd(crowd, dt);
+  const a = sim.player.rigidBody.translation(), b = sim.rival.rigidBody.translation();
+  const ground = sim.player.mount ? 'mount' : (sim.player.ground || sim.rival.ground) ? 'down' : false;
+  const f = combatFraming(a, b, camera.aspect, ground);
+  camera.position.lerp(new THREE.Vector3(f.position.x, f.position.y, f.position.z), 1 - Math.exp(-dt * 5)); camera.lookAt(f.target.x, f.target.y, f.target.z);
+  $('php').style.width = Math.max(0, sim.player.health) + '%'; $('rhp').style.width = Math.max(0, sim.rival.health) + '%';
+  $('clock').textContent = String(Math.max(0, Math.ceil(99 - sim.time()))).padStart(2, '0');
+  while (seen < sim.events.length) tickerAdd(sim.events[seen++]);
+  renderer.render(scene, camera);
+}
+function showEnd() {
+  const r = sim.result();
+  $('endTitle').textContent = r.out === 'win' ? `${token.persona?.name || 'PLAYER'} WINS` : r.out === 'loss' ? 'CPU WINS' : 'TIME / DRAW';
+  const exp = token.exp ? (token.exp.hash === r.hash ? ` · matches headless run ✓` : ` · differs from headless run (${token.exp.hash})`) : '';
+  $('endDetail').textContent = `${r.t}s · hp ${r.hp.join(' / ')} · state hash ${r.hash}${exp}`;
+  $('end').classList.add('show');
+}
+let last = performance.now(), ended = false;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (sim && !paused && !sim.done) {
+    acc += dt * speed; let n = 0;
+    while (acc >= DT && !sim.done && n++ < 40) { sim.step(ctrl.step(sim)); acc -= DT; }
+  }
+  if (sim) { draw(dt); if (sim.done && !ended) { ended = true; showEnd(); } }
+  requestAnimationFrame(frame);
+}
+
+$('play').onclick = () => { paused = !paused; $('play').textContent = paused ? 'Play' : 'Pause'; };
+$('restart').onclick = $('again').onclick = async () => { ended = false; await start(); };
+document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { speed = +b.dataset.speed; document.querySelectorAll('[data-speed]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+
+// Frame capture for vision checks (Super-VL): parent posts {type:'capture', times:[s...]}; we reply with PNG base64 frames.
+addEventListener('message', async ev => {
+  if (ev.origin !== location.origin || ev.data?.type !== 'capture') return;
+  paused = true; const frames = [];
+  for (const t of (ev.data.times || []).slice(0, 6)) {
+    ended = false; await start(); seekTo(+t);
+    for (let i = 0; i < 40; i++) draw(1 / 60); // let the camera settle on the framing
+    frames.push(renderer.domElement.toDataURL('image/png').split(',')[1]);
+  }
+  ev.source.postMessage({ type: 'frames', frames }, ev.origin);
+});
+
+await start();
+if (params.get('at')) { seekTo(+params.get('at')); paused = true; $('play').textContent = 'Play'; }
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

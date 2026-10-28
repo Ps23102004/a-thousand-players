@@ -1,0 +1,26 @@
+{
+ "usage": [
+  {
+   "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "calls": 14,
+   "tokensIn": 555498,
+   "tokensOut": 9983,
+   "usdEstimate": 0.5855
+  },
+  {
+   "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+   "calls": 3,
+   "tokensIn": 1849,
+   "tokensOut": 6225,
+   "usdEstimate": 0
+  },
+  {
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "calls": 1,
+   "tokensIn": 1276,
+   "tokensOut": 183,
+   "usdEstimate": 0
+  }
+ ],
+ "notes": "usdEstimate is filled only for Ultra, at an UNVERIFIED aggregator price of $1/M input and $3/M output tokens. Nano, Super and Super-VL report tokens only (usdEstimate 0) because no verified Token Factory price was available."
+}

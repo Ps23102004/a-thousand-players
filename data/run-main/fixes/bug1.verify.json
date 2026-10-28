@@ -1,0 +1,288 @@
+{
+ "bug": "bug1",
+ "signature": "airborne",
+ "verdict": "not-fixed",
+ "applied": [
+  {
+   "file": "ground.js",
+   "ok": true
+  }
+ ],
+ "rounds": 8,
+ "fixedRounds": 0,
+ "before": [
+  {
+   "p": "p0009",
+   "round": 3,
+   "seed": 822230,
+   "label": "base",
+   "out": "loss",
+   "t": 16.68,
+   "hp": [
+    0,
+    60
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0069",
+   "round": 1,
+   "seed": 678098,
+   "label": "base",
+   "out": "loss",
+   "t": 24.9,
+   "hp": [
+    0,
+    37
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0111",
+   "round": 3,
+   "seed": 509784,
+   "label": "base",
+   "out": "loss",
+   "t": 26.15,
+   "hp": [
+    0,
+    32
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0129",
+   "round": 3,
+   "seed": 689759,
+   "label": "base",
+   "out": "win",
+   "t": 23.67,
+   "hp": [
+    52,
+    0
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0306",
+   "round": 4,
+   "seed": 594319,
+   "label": "base",
+   "out": "win",
+   "t": 12.33,
+   "hp": [
+    36,
+    0
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0355",
+   "round": 2,
+   "seed": 278329,
+   "label": "base",
+   "out": "loss",
+   "t": 18.13,
+   "hp": [
+    0,
+    70
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0744",
+   "round": 3,
+   "seed": 360604,
+   "label": "base",
+   "out": "loss",
+   "t": 19.72,
+   "hp": [
+    0,
+    26
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0027",
+   "round": 1,
+   "seed": 255412,
+   "label": "sweep-nerf",
+   "out": "win",
+   "t": 24.58,
+   "hp": [
+    58,
+    0
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  }
+ ],
+ "after": [
+  {
+   "p": "p0009",
+   "round": 3,
+   "seed": 822230,
+   "label": "base",
+   "out": "loss",
+   "t": 16.68,
+   "hp": [
+    0,
+    60
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0069",
+   "round": 1,
+   "seed": 678098,
+   "label": "base",
+   "out": "loss",
+   "t": 24.9,
+   "hp": [
+    0,
+    37
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0111",
+   "round": 3,
+   "seed": 509784,
+   "label": "base",
+   "out": "loss",
+   "t": 26.15,
+   "hp": [
+    0,
+    32
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0129",
+   "round": 3,
+   "seed": 689759,
+   "label": "base",
+   "out": "win",
+   "t": 23.67,
+   "hp": [
+    52,
+    0
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0306",
+   "round": 4,
+   "seed": 594319,
+   "label": "base",
+   "out": "win",
+   "t": 12.33,
+   "hp": [
+    36,
+    0
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0355",
+   "round": 2,
+   "seed": 278329,
+   "label": "base",
+   "out": "loss",
+   "t": 18.13,
+   "hp": [
+    0,
+    70
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0744",
+   "round": 3,
+   "seed": 360604,
+   "label": "base",
+   "out": "loss",
+   "t": 19.72,
+   "hp": [
+    0,
+    26
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0027",
+   "round": 1,
+   "seed": 255412,
+   "label": "sweep-nerf",
+   "out": "win",
+   "t": 24.58,
+   "hp": [
+    58,
+    0
+   ],
+   "bugs": [
+    "airborne"
+   ],
+   "crash": null
+  }
+ ],
+ "regression": {
+  "personas": 200,
+  "shipped": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  },
+  "patched": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  }
+ }
+}

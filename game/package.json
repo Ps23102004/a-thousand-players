@@ -1,0 +1,21 @@
+{
+  "name": "market-brawl",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Street Brawl 3D: Old Chinatown Martial Arts game for CSCI 310",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "python3 -m http.server 5173",
+    "build": "node scripts/build.mjs",
+    "preview": "python3 -m http.server 5174 --directory dist",
+    "test:browser": "node scripts/browser-smoke.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
+    "three": "^0.170.0",
+    "vitest": "^5.0.5"
+  }
+}

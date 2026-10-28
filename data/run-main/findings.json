@@ -1,0 +1,960 @@
+{
+ "summary": "The game has a severe difficulty cliff: casual, learner, and turtle players quit at 78-97% rates and win only 6-15% of rounds, while cheesers exploit a dominant SWEEP/GROUND strategy to win 92% with 6% quit. Round 2 is a massive frustration wall (31% overall quit rate, 50-75% for weak archetypes). A physics bug (!airborne) appears on turtle and explorer runs, and masher/learner show zero progression — win rates flatline across rounds. (Verification: 0 of 31 claims did not match the recomputed value; 13 cited seeds did not exist in the runs and were removed.)",
+ "findings": [
+  {
+   "id": "f1",
+   "title": "Casual/learner/turtle hit a difficulty wall at Round 2 and quit en masse",
+   "severity": "high",
+   "kind": "difficulty",
+   "narrative": "Round 2 quit rates are catastrophic for weak archetypes: casual 59%, learner 27%, turtle 5%, masher 50%, rusher 35%. Overall 31% of players quit right after Round 2. These archetypes also have win rates of 4-8% in Round 2 and 0-5% in Round 3, meaning they cannot progress. The session end reasons confirm this: 708 frustration quits vs only 250 satisfied.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "casual",
+      "round": 2
+     },
+     "value": 0.59
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "learner",
+      "round": 2
+     },
+     "value": 0.27
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "masher",
+      "round": 2
+     },
+     "value": 0.5
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "casual",
+      "round": 2
+     },
+     "value": 0.04
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0001",
+     "round": 2,
+     "seed": 792093,
+     "why": "casual quits after R2 frustration, 0% win rate"
+    },
+    {
+     "p": "p0033",
+     "round": 2,
+     "seed": 988036,
+     "why": "casual quits after R2, hp0/17"
+    },
+    {
+     "p": "p0045",
+     "round": 1,
+     "seed": 918544,
+     "why": "masher quits after R1 frustration"
+    },
+    {
+     "p": "p0051",
+     "round": 2,
+     "seed": 198252,
+     "why": "explorer quits after R2 frustration"
+    }
+   ],
+   "suggestion": "Add a difficulty ramp: reduce rival aggression/HP in Rounds 1-2, or give players a defensive tool (parry/dodge) that works at low skill.",
+   "confidence": 0.95,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "casual",
+       "round": 2
+      },
+      "value": 0.59
+     },
+     "actual": 0.591,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "learner",
+       "round": 2
+      },
+      "value": 0.27
+     },
+     "actual": 0.274,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "masher",
+       "round": 2
+      },
+      "value": 0.5
+     },
+     "actual": 0.497,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "casual",
+       "round": 2
+      },
+      "value": 0.04
+     },
+     "actual": 0.044,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "MMA Fighting",
+     "url": "https://www.mmafighting.com",
+     "snippet": "Come Fight With UsWednesday, October 28, 2026\n\nMMA Fighting homepage\n\nNavigation Drawer\n\n Login\n  Sign Up\n\nin-5 Trivia Game\n\nCan you guess this American fighter in today’s in-5 trivia game?\n\nUFC\n\nMatt Brown defends Islam Makhachev, rips UFC for introducing another ‘f\\cking interim title’\n\nBy Damon M"
+    },
+    {
+     "title": "Fighting Games 🕹️ Play on CrazyGames",
+     "url": "https://www.crazygames.com/t/fighting",
+     "snippet": "Hand-to-hand combat is what many people think of when it comes to fighting games. These fighting games often involve a 1-on-1 fight between two experienced fighters. Striker Dummies is a two-player classic from this genre. If you like these 1-on-1 style sparring matches, Wrestle Bros is a great onli"
+    },
+    {
+     "title": "Fighting Games - Play Online on Snokido",
+     "url": "https://www.snokido.com/games/fighting",
+     "snippet": "85% - 69 k plays\n Marvel Tribute\n\n  Marvel Tribute\n\n  90% - 193 k plays\n Mario Combat Deluxe\n\n  Mario Combat Deluxe\n\n  88% - 265 k plays\n Madness Melee\n\n  Madness Melee\n\n  89% - 25 k plays\n Battle For Leaf Village\n\n  Battle For Leaf Village\n\n  90% - 230 k plays\n Regular Show: Fist Punch\n\n  Regular S"
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "title": "Cheeser archetype exploits SWEEP/GROUND spam for 92% win rate and near-zero frustration",
+   "severity": "high",
+   "kind": "exploit",
+   "narrative": "Cheesers (100 players, 299 rounds) win 92% overall with only 6% quit rate and 7% koShare. They land SWEEP (3538 total events) and GROUND (2526) at massive volume while taking minimal damage (meanHpLoss 48.1 vs 85.9 overall). Their strategy is repeatable: SWEEP x3-6 + GROUND x1-4 per round, often winning in 15-20s. No other archetype approaches this win rate.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 0.92
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 0.06
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 48.1
+    },
+    {
+     "metric": "koShare",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 0.07
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0002",
+     "round": 1,
+     "seed": 458977,
+     "why": "cheeser wins R1 with SWEEPx4,BODY_JABx1,PUNCHx1"
+    },
+    {
+     "p": "p0004",
+     "round": 1,
+     "seed": 150359,
+     "why": "cheeser wins R1 with SWEEPx4,GROUNDx1"
+    },
+    {
+     "p": "p0006",
+     "round": 1,
+     "seed": 966421,
+     "why": "cheeser wins R1 with SWEEPx5,GROUNDx2,JABx1"
+    }
+   ],
+   "suggestion": "Nerf SWEEP/GROUND frame advantage or add rival counter-play (armor/parry vs low attacks). Require move variety for full damage.",
+   "confidence": 0.98,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 0.92
+     },
+     "actual": 0.923,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 0.06
+     },
+     "actual": 0.06,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 48.1
+     },
+     "actual": 48.147,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "koShare",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 0.07
+     },
+     "actual": 0.074,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "The \"UNFAIR\" mechanic that fighting games have.",
+     "url": "https://www.youtube.com/watch?v=HlPoO7fsk3E",
+     "snippet": "[2:28] armor special moves can have them too like potemkin's Hammer fall or when you interrupt Mika's speech fun fact if you let her finish the speech she can KO you\n[2:36] in one move basically the opposite of what Dan super taunt does\n[2:46] what's up armored moves can also vary in how much armor "
+    },
+    {
+     "title": "The Secret To A Great Fighting Game Balance Update",
+     "url": "https://www.youtube.com/watch?v=t8qi8QWRbGc",
+     "snippet": "[2:24] characters were generally viable and they added vshift which is another mechanic and all these kind of did one thing they added more ways to express\n[2:32] yourself they added more ways to play the game essentially when you add new mechanics or you buff underutilized moves or you buff things "
+    },
+    {
+     "title": "Characters who were nerfed by ADDING a move",
+     "url": "https://www.youtube.com/watch?v=zk6mWIAGCWk",
+     "snippet": "### Transcript\n[0:00] folks when developers feel that a fighting aim character is too strong and needs to be nerfed there are a few different ways that they can go about it\n[0:07] they can reduce their damage so they're not doing as much on each hit they can Nerf their combos so that things that use"
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "title": "Masher and learner archetypes show zero learning — win rates flatline across all rounds",
+   "severity": "high",
+   "kind": "balance",
+   "narrative": "Masher win rates: R1 26%, R2 24%, R3 32%, R4 29%, R5 50% (only 5 rounds). Learner: R1 10%, R2 15%, R3 14%, R4 27%, R5 67% (but only 3 players reach R5). Both have 73-85% koShare and 83-86% quit rates. They land the same moves (JAB, ROUNDHOUSE_KICK) round after round with no adaptation. The 'learner' persona does not learn.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "masher",
+      "round": 1
+     },
+     "value": 0.26
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "masher",
+      "round": 3
+     },
+     "value": 0.32
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "learner",
+      "round": 1
+     },
+     "value": 0.1
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "learner",
+      "round": 3
+     },
+     "value": 0.14
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0008",
+     "round": 1,
+     "seed": 218315,
+     "why": "masher loses R1, same moves R2"
+    }
+   ],
+   "suggestion": "Give masher/learner a visible progression system: unlock moves/combos after X wins, or add a practice mode with move tutorials.",
+   "confidence": 0.9,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "masher",
+       "round": 1
+      },
+      "value": 0.26
+     },
+     "actual": 0.256,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "masher",
+       "round": 3
+      },
+      "value": 0.32
+     },
+     "actual": 0.323,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "learner",
+       "round": 1
+      },
+      "value": 0.1
+     },
+     "actual": 0.1,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "learner",
+       "round": 3
+      },
+      "value": 0.14
+     },
+     "actual": 0.141,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "MMA Fighting",
+     "url": "https://www.mmafighting.com",
+     "snippet": "Come Fight With UsWednesday, October 28, 2026\n\nMMA Fighting homepage\n\nNavigation Drawer\n\n Login\n  Sign Up\n\nin-5 Trivia Game\n\nCan you guess this American fighter in today’s in-5 trivia game?\n\nUFC\n\nMatt Brown defends Islam Makhachev, rips UFC for introducing another ‘f\\cking interim title’\n\nBy Damon M"
+    },
+    {
+     "title": "Game Pertarungan 👊 - Main Online Gratis! | Poki",
+     "url": "https://poki.com/en/fighting",
+     "snippet": "Pemain baru dapat membangun keterampilan dalam menjaga jarak serangan, menghindar, dan merangkai kombo dengan memainkan game-game yang tercantum di bawah ini.\n\n| Game | Alasan |\n --- |\n| Big Shot Boxing | Mudah untuk mempelajari kapan harus memukul dan kapan harus menghindar |\n| Stickman Dragon Figh"
+    },
+    {
+     "title": "Fighting Games 🕹️ Play on CrazyGames",
+     "url": "https://www.crazygames.com/t/fighting",
+     "snippet": "### Battle It Out\n\nBrowse our battle games for a different type of fight. Far Orion: New Worlds is an action game where you fight across galaxies in 2121 with your squad of heroes and unlock the secrets of this mysterious world. Firestone Idle RPG is an idle RPG where you lead a party against Orcs a"
+    }
+   ]
+  },
+  {
+   "id": "f4",
+   "title": "Physics bug: !airborne invariant violation on turtle and explorer players",
+   "severity": "high",
+   "kind": "bug",
+   "narrative": "Multiple turtle and explorer rounds show '!airborne@<time>' events, marking engine invariant violations. Examples: p0009 R3 (!airborne@16.6), p0114 R3 (!airborne@18.0), p0254 R1 (!airborne@11.1), p0745 R3 (!airborne@13.2), p0355 R2 (!airborne@16.6). These correlate with high frustration and KO losses. The bug likely causes unfair knockdowns or state desync.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle",
+      "round": 3
+     },
+     "value": 0.25
+    },
+    {
+     "metric": "koShare",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 0.89
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "explorer",
+      "round": 3
+     },
+     "value": 0.35
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0009",
+     "round": 3,
+     "seed": 822230,
+     "why": "turtle !airborne@16.6 then frustration quit"
+    },
+    {
+     "p": "p0355",
+     "round": 2,
+     "seed": 278329,
+     "why": "learner !airborne@16.6 in R2"
+    }
+   ],
+   "suggestion": "Fix the airborne state invariant — likely a collision/grounding check that fails on certain move sequences. Add automated regression test for !airborne.",
+   "confidence": 0.85,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle",
+       "round": 3
+      },
+      "value": 0.25
+     },
+     "actual": 0.248,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "koShare",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 0.89
+     },
+     "actual": 0.891,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "explorer",
+       "round": 3
+      },
+      "value": 0.35
+     },
+     "actual": 0.345,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "9 Types of bug fix that every game tester should know — Modern Game Testing",
+     "url": "https://www.moderngametesting.com/articles/10-types-of-bug-fix-that-every-game-tester-should-know",
+     "snippet": "testers will be retesting against the original ‘expected result’ of the bug and may even mark the fix as a fail if the new design isn’t documented in the bug fix comments. These types of fixes require more detail in the bug fix comments and present a stronger case for regression testing of connected"
+    },
+    {
+     "title": "What Do Bug Fixes in Video Game Update Notes Tell Us?",
+     "url": "http://stairs.ics.uci.edu/papers/ICSE_2021_Poster_CR.pdf",
+     "snippet": "likely to have a severe negative impact on users . [...] We received 47 applicable responses to our survey. Accord-ing to respondents, the aspects of game development most frequently linked to bug recurrence were testing, game design, and code quality. With testing, responses ranged from dealing wit"
+    },
+    {
+     "title": "Aggressive Bug Hunting in Game Dev: Setting traps. Changing rules. Lighting fires. | #SDC2024",
+     "url": "https://www.youtube.com/watch?v=50TNbhwrOY4",
+     "snippet": "[0:48] well it's about bugs um and so here is our bug reports fresh from QA if the\n[0:57] final boss swipes you into the lava at exactly the same time that your grappling hope attaches to a minion the\n[1:05] game soft locks happened once and well it looks like there's a good three improbable events "
+    }
+   ]
+  },
+  {
+   "id": "f5",
+   "title": "Rusher archetype is the only non-cheeser with viable win rate (42%) but still quits 72%",
+   "severity": "med",
+   "kind": "balance",
+   "narrative": "Rushers (160 players) win 42% overall — second best after cheesers — but 72% still quit (mostly frustration). They win early (R1 44%, R2 38%) but quit spikes at R2 (35%) and R3 (46%). Their style (BODY_JAB, ROUNDHOUSE_KICK, GROUND) works but feels unrewarding. They need a satisfaction hook: visible progress, combo variety, or less HP loss on wins (meanHpLoss 82.9).",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 0.42
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 0.72
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "rusher",
+      "round": 2
+     },
+     "value": 0.35
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 82.9
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0012",
+     "round": 1,
+     "seed": 365564,
+     "why": "rusher wins R1 with BODY_JABx4,BODY_HOOKx3"
+    },
+    {
+     "p": "p0054",
+     "round": 1,
+     "seed": 582506,
+     "why": "rusher loses R1, quits R2"
+    },
+    {
+     "p": "p0096",
+     "round": 1,
+     "seed": 320064,
+     "why": "rusher wins R1-R4, quits R5 frustration"
+    }
+   ],
+   "suggestion": "Add rusher-friendly rewards: meter gain on aggression, visible combo counter, or reduce HP loss on successful rushdowns.",
+   "confidence": 0.8,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 0.42
+     },
+     "actual": 0.417,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 0.72
+     },
+     "actual": 0.719,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "rusher",
+       "round": 2
+      },
+      "value": 0.35
+     },
+     "actual": 0.347,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 82.9
+     },
+     "actual": 82.934,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "The Secret To A Great Fighting Game Balance Update",
+     "url": "https://www.youtube.com/watch?v=t8qi8QWRbGc",
+     "snippet": "[5:05] in dbsc were completely brain dead basically you would get the hit you would snap back them in and then you would do 50/50 after 50/50 get the hit\n[5:13] and then youd snap back again and you keep looping the situation over and over because your defensive options after a stat back were way wo"
+    },
+    {
+     "title": "Fighting Game Balance Is...",
+     "url": "https://www.youtube.com/watch?v=zgAU3bP1rdc",
+     "snippet": "I know a game is balanced when I'm winning every game because the only way I could possibly lose is poor balance. If I lose it's because my ...Read more"
+    },
+    {
+     "title": "MY HERO ULTRA RUMBLE - About the adjustments made in the 10/21/2026 maintenance | Bandai Namco Europe",
+     "url": "https://en.bandainamcoent.eu/my-hero-academia/news/my-hero-ultra-rumble-about-the-adjustments-made-the-10212026-maintenance",
+     "snippet": "\\ Items such as Roll Tickets and Tuning-related materials have been added to the drop pool.  \n\\ Rewards are obtained randomly from a set list of possibilities, based on defined probabilities.  \n\\ Please check the in-game reward list for further details.\n\nMy Hero Ultra Rumble Drop Event rewards: S Tu"
+    }
+   ]
+  },
+  {
+   "id": "f6",
+   "title": "Speedrunner and explorer have polarized outcomes — either dominate or quit fast",
+   "severity": "med",
+   "kind": "balance",
+   "narrative": "Speedrunners (60 players) win 65% but 28% quit; explorers (80 players) win 32% with 60% quit. Both have low avgDuration (9.8s, 12.1s) meaning rounds end fast — either quick KOs or quick deaths. Speedrunners use GROUND/ROUNDHOUSE_KICK/PUNCH combos; explorers mix JAB/SWEEP/ROUNDHOUSE_KICK. The variance suggests matchup RNG or seed sensitivity, not skill expression.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 0.65
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 0.28
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 9.8
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "explorer"
+     },
+     "value": 0.32
+    }
+   ],
+   "seeds": [],
+   "suggestion": "Reduce round-ending volatility: increase HP pools, add comeback mechanics, or make KO require combo/confirmation not single big hit.",
+   "confidence": 0.3,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 0.65
+     },
+     "actual": 0.65,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 0.28
+     },
+     "actual": 0.283,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 9.8
+     },
+     "actual": 9.806,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "explorer"
+      },
+      "value": 0.32
+     },
+     "actual": 0.32,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Comeback Mechanics (In Games [Mostly Fighting Games])",
+     "url": "https://www.reddit.com/r/Fighters/comments/l9gcgk/comeback_mechanics_in_games_mostly_fighting_games",
+     "snippet": "Comeback mechanics also serve to balance out snowballing mechanics. A comeback mechanic example here is the gold reward for ending an opponent'"
+    },
+    {
+     "title": "Game Balance is Mostly Just Vibes",
+     "url": "https://www.youtube.com/watch?v=5xfkDs_LFS0",
+     "snippet": "[50:42] Against the risk of that action frustrating a vocal and influential part of your community. The Street Fighter 6 community is going through this right now as of filming in early 2026. Many in\n[50:52] the community feel the game is well tuned, but still want a big shakeup anyway because they "
+    },
+    {
+     "title": "\"Comeback Mechanics\" Can Create Interesting Strategy & ...",
+     "url": "https://www.youtube.com/watch?v=hcFjptYml4c",
+     "snippet": "I think a good rule of thumb is comeback mechanics are fine as long as the player is never thinking \"I wish I had less health right now.Read more"
+    }
+   ]
+  },
+  {
+   "id": "f7",
+   "title": "Turtle archetype is a trap — high patience but 11% win rate, 89% KO share, 78% quit",
+   "severity": "med",
+   "kind": "balance",
+   "narrative": "Turtles (120 players) have high patience (avg 0.8+) and frustration tolerance but get crushed: 11% win rate, 89% koShare, 96.6 meanHpLoss. They block/parry (blk 1-5, par 1-4 per round) but it doesn't convert to offense. They quit late (R3 25%, R4 52%, R5 46%) after prolonged suffering. The defensive playstyle is non-viable.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 0.11
+    },
+    {
+     "metric": "koShare",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 0.89
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle",
+      "round": 4
+     },
+     "value": 0.52
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 96.6
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0005",
+     "round": 1,
+     "seed": 469644,
+     "why": "turtle blocks 2, parries 0, loses hp0/63"
+    },
+    {
+     "p": "p0007",
+     "round": 2,
+     "seed": 861899,
+     "why": "turtle blocks 1, loses hp0/100"
+    },
+    {
+     "p": "p0050",
+     "round": 3,
+     "seed": 239488,
+     "why": "turtle blocks 4, parries 0, loses hp0/6"
+    }
+   ],
+   "suggestion": "Give turtles a counter-attack mechanic: successful block/parry grants guaranteed punish window or meter. Make defense rewarding.",
+   "confidence": 0.85,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 0.11
+     },
+     "actual": 0.109,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "koShare",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 0.89
+     },
+     "actual": 0.891,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle",
+       "round": 4
+      },
+      "value": 0.52
+     },
+     "actual": 0.524,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 96.6
+     },
+     "actual": 96.613,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "202506 Ver. Battle Change List | Buckler's Boot Camp | STREET FIGHTER 6 | CAPCOM",
+     "url": "https://www.streetfighter.com/6/buckler/en/battle_change/202506",
+     "snippet": "Normal Throw\n:   Bug Fix\n\n    Fixed an issue where a throw would miss even in a Punish Counter situation when performing a normal throw after a Drive Parry. This change affects A.K.I. (forward and back throws) and M. Bison (back throw)\n\nBack Throw\n:   Bug Fix\n\n    Fixed an issue where a back throw w"
+    },
+    {
+     "title": "The Secret To A Great Fighting Game Balance Update",
+     "url": "https://www.youtube.com/watch?v=t8qi8QWRbGc",
+     "snippet": "[9:52] game will go far I I think that's like if I had to summarize it more freedom you give people to express themselves whether it's through character choice or\n[10:00] move Choice um the better the game's going to be anyways like share and subscribe let me know what you think down in the comments"
+    },
+    {
+     "title": "Fighting Games: A Decade of Excellence",
+     "url": "https://www.streamline-studios.com/case-study-posts/fighting-games-a-decade-of-excellence",
+     "snippet": "Costume Design and Customization: Across our fighting game projects, we have delivered over 349 costumes. Each costume is designed with precision, offering multiple color variants, toggleable accessories, and compliance with global regulatory standards, such as Japan’s CERO guidelines. These customi"
+    }
+   ]
+  },
+  {
+   "id": "f8",
+   "title": "Round 3+ survival bias inflates win rates — only strong players remain",
+   "severity": "low",
+   "kind": "balance",
+   "narrative": "Win rates appear to improve in later rounds (overall R4 40%, R5 45%) but this is survivorship bias: only 253 players reach R4, 92 reach R5. The weak archetypes (casual, learner, turtle) are nearly extinct by R4. Real win rates for the original population stay flat. This masks the difficulty cliff in aggregate metrics.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "round": 4
+     },
+     "value": 0.4
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "round": 5
+     },
+     "value": 0.45
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "round": 3
+     },
+     "value": 0.39
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "round": 4
+     },
+     "value": 0.38
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0003",
+     "round": 5,
+     "seed": 272146,
+     "why": "learner reaches R5 and wins (survivor)"
+    },
+    {
+     "p": "p0037",
+     "round": 5,
+     "seed": 186153,
+     "why": "rusher reaches R5 but loses"
+    },
+    {
+     "p": "p0096",
+     "round": 5,
+     "seed": 451580,
+     "why": "rusher reaches R5, quits after loss"
+    }
+   ],
+   "suggestion": "Report cohort-based win rates (of 1000 starters) not conditional-on-reaching-round. Add early-game telemetry to catch the cliff.",
+   "confidence": 0.7,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "round": 4
+      },
+      "value": 0.4
+     },
+     "actual": 0.395,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "round": 5
+      },
+      "value": 0.45
+     },
+     "actual": 0.446,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "round": 3
+      },
+      "value": 0.39
+     },
+     "actual": 0.39,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "round": 4
+      },
+      "value": 0.38
+     },
+     "actual": 0.383,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "The Secret To A Great Fighting Game Balance Update",
+     "url": "https://www.youtube.com/watch?v=t8qi8QWRbGc",
+     "snippet": "[5:05] in dbsc were completely brain dead basically you would get the hit you would snap back them in and then you would do 50/50 after 50/50 get the hit\n[5:13] and then youd snap back again and you keep looping the situation over and over because your defensive options after a stat back were way wo"
+    },
+    {
+     "title": "Players Directly Influencing the Game Balance",
+     "url": "https://www.youtube.com/watch?v=bfKEWsCANYM",
+     "snippet": "[0:16] truly awful balance patches for multiple fighting games it is crazy to me that more devs don't hire players as consultants something which is\n[0:24] commonplace in basically every other esport now I will say first and foremost this is actually not true I think basically every fighting game hi"
+    },
+    {
+     "title": "Fighting Games Market Size, Trends, Growth By 2035",
+     "url": "https://www.marketreportsworld.com/market-reports/fighting-games-market-14715328",
+     "snippet": "The global fighting games market size is anticipated to be valued at USD 1754.23 Million in 2026, with a projected growth to USD 2537.44 Million by 2035 at a CAGR of 4.2% during the forecast from 2026 to 2035. [...] ## Frequently Asked Questions\n\n## \n\nThe global fighting games market is expected to "
+    }
+   ]
+  }
+ ],
+ "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+ "tokensIn": 220334,
+ "tokensOut": 4439,
+ "corpusTokens": 219064
+}

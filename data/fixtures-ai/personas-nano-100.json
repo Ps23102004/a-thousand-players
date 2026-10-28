@@ -1,0 +1,2636 @@
+[
+ {
+  "id": "p0001",
+  "name": "Bea",
+  "archetype": "turtle",
+  "skill": 0.3,
+  "reaction_ticks": 33,
+  "patience": 0.86,
+  "frustration_tolerance": 0.91,
+  "bio": "Freelance writer, pauses when hit, resets posture.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 7
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "jump": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0002",
+  "name": "Hickory",
+  "archetype": "casual",
+  "skill": 0.21,
+  "reaction_ticks": 38,
+  "patience": 0.12,
+  "frustration_tolerance": 0.62,
+  "bio": "Truck loader who uses sweeping low attacks",
+  "rules": [
+   {
+    "rival": "down",
+    "weights": {
+     "sweep": 8,
+     "punch": 4
+    }
+   },
+   {
+    "weights": {
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0003",
+  "name": "Kip",
+  "archetype": "rusher",
+  "skill": 0.65,
+  "reaction_ticks": 14,
+  "patience": 0.1,
+  "frustration_tolerance": 0.5,
+  "bio": "Corner‑hater, will panic and jump",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "jump": 8,
+     "retreat": 5
+    }
+   },
+   {
+    "weights": {
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0004",
+  "name": "Drew",
+  "archetype": "casual",
+  "skill": 0.19,
+  "reaction_ticks": 40,
+  "patience": 0.3,
+  "frustration_tolerance": 0.5,
+  "bio": "Part-time mechanic using predictable close-range strikes",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8,
+     "kick": 4
+    }
+   },
+   {
+    "weights": {
+     "sweep": 2
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0005",
+  "name": "Olive",
+  "archetype": "explorer",
+  "skill": 0.8,
+  "reaction_ticks": 14,
+  "patience": 0.85,
+  "frustration_tolerance": 0.7,
+  "bio": "Hospital admin on a quick break, loves to experiment with every tool.",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "stunned",
+    "weights": {
+     "prop": 9,
+     "jump": 4
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "block": 8,
+     "parry": 7
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "grab": 6,
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0006",
+  "name": "Lance",
+  "archetype": "cheeser",
+  "skill": 0.7,
+  "reaction_ticks": 8,
+  "patience": 0.5,
+  "frustration_tolerance": 0.9,
+  "bio": "College sophomore, repeats low sweep champions.",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "sweep": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0007",
+  "name": "Tara",
+  "archetype": "explorer",
+  "skill": 0.88,
+  "reaction_ticks": 10,
+  "patience": 0.95,
+  "frustration_tolerance": 0.6,
+  "bio": "Late‑night nurse, dashes between props, testing every attack.",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "active",
+    "weights": {
+     "jump": 9,
+     "prop": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "punch": 8,
+     "kick": 7
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "stunned",
+    "weights": {
+     "block": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0008",
+  "name": "Zephyr",
+  "archetype": "casual",
+  "skill": 0.31,
+  "reaction_ticks": 37,
+  "patience": 0.42,
+  "frustration_tolerance": 0.68,
+  "bio": "Skateboarder trying flashy combos but inconsistently",
+  "rules": [
+   {
+    "weights": {
+     "kick": 8,
+     "jump": 6,
+     "punch": 4
+    }
+   },
+   {
+    "rival": "active",
+    "weights": {
+     "wait": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0009",
+  "name": "Nia",
+  "archetype": "explorer",
+  "skill": 0.71,
+  "reaction_ticks": 18,
+  "patience": 0.5,
+  "frustration_tolerance": 0.9,
+  "bio": "Tired nurse, will swing any crate she can reach before losing interest.",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "idle",
+    "weights": {
+     "prop": 9
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8,
+     "low_punch": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0010",
+  "name": "Taylor",
+  "archetype": "casual",
+  "skill": 0.18,
+  "reaction_ticks": 40,
+  "patience": 0.25,
+  "frustration_tolerance": 0.15,
+  "bio": "Delivery truck driver who blocks often by habit",
+  "rules": [
+   {
+    "weights": {
+     "block": 9,
+     "low_punch": 3
+    }
+   },
+   {
+    "rival": "down",
+    "weights": {
+     "punch": 7,
+     "sweep": 2
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0011",
+  "name": "Duke",
+  "archetype": "rusher",
+  "skill": 0.61,
+  "reaction_ticks": 13,
+  "patience": 0.12,
+  "frustration_tolerance": 0.55,
+  "bio": "Arcade old‑timer, rushes until his opponent crumbles",
+  "rules": [
+   {
+    "rival": "down",
+    "weights": {
+     "punch": 6,
+     "sweep": 1
+    }
+   },
+   {
+    "weights": {
+     "retreat": 2
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0012",
+  "name": "Rico",
+  "archetype": "masher",
+  "skill": 0.05,
+  "reaction_ticks": 35,
+  "patience": 0.2,
+  "frustration_tolerance": 0.8,
+  "bio": "Street kid from Manila who thrashes buttons for fun.",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0013",
+  "name": "Whisper",
+  "archetype": "casual",
+  "skill": 0.17,
+  "reaction_ticks": 40,
+  "patience": 0.22,
+  "frustration_tolerance": 0.55,
+  "bio": "Barista who waits for openings before striking",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "advance": 5,
+     "punch": 8
+    }
+   },
+   {
+    "weights": {
+     "kick": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0014",
+  "name": "Moe",
+  "archetype": "rusher",
+  "skill": 0.63,
+  "reaction_ticks": 12,
+  "patience": 0.14,
+  "frustration_tolerance": 0.55,
+  "bio": "Fast‑pressing old‑school fighter, hates waiting",
+  "rules": [
+   {
+    "rival": "recovery",
+    "weights": {
+     "punch": 7,
+     "advance": 6
+    }
+   },
+   {
+    "weights": {
+     "sweep": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0015",
+  "name": "CartMan",
+  "archetype": "cheeser",
+  "skill": 0.6,
+  "reaction_ticks": 9,
+  "patience": 0.2,
+  "frustration_tolerance": 0.75,
+  "bio": "Always prop-cart-wheel; never moves otherwise",
+  "rules": []
+ },
+ {
+  "id": "p0016",
+  "name": "Leo",
+  "archetype": "speedrunner",
+  "skill": 0.88,
+  "reaction_ticks": 9,
+  "patience": 0.3,
+  "frustration_tolerance": 0.6,
+  "bio": "Paperwork-weary worker aims to finish fights before email ping",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "idle",
+    "weights": {
+     "kick": 6
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "idle",
+    "weights": {
+     "jump": 7
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "recovery",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0017",
+  "name": "Morgan",
+  "archetype": "casual",
+  "skill": 0.22,
+  "reaction_ticks": 39,
+  "patience": 0.1,
+  "frustration_tolerance": 0.4,
+  "bio": "Barista frantically taps buttons during rushes",
+  "rules": [
+   {
+    "dist": "far",
+    "weights": {
+     "wait": 7,
+     "prop": 4
+    }
+   },
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0018",
+  "name": "Jax",
+  "archetype": "learner",
+  "skill": 0.5,
+  "reaction_ticks": 27,
+  "patience": 0.4,
+  "frustration_tolerance": 0.65,
+  "bio": "Often trips on own feet but tries blocking after hit",
+  "rules": [
+   {
+    "weights": {
+     "block": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "stunned",
+    "weights": {
+     "punch": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0019",
+  "name": "Troy",
+  "archetype": "rusher",
+  "skill": 0.7,
+  "reaction_ticks": 10,
+  "patience": 0.19,
+  "frustration_tolerance": 0.78,
+  "bio": "Coin‑hall veteran, pushes forward relentlessly",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 7,
+     "kick": 6
+    }
+   },
+   {
+    "weights": {
+     "block": 1,
+     "parry": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0020",
+  "name": "Mia",
+  "archetype": "learner",
+  "skill": 0.4,
+  "reaction_ticks": 30,
+  "patience": 0.3,
+  "frustration_tolerance": 0.55,
+  "bio": "Imitates combo videos yet still misses timing",
+  "rules": [
+   {
+    "weights": {
+     "punch": 7
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "idle",
+    "weights": {
+     "advance": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0021",
+  "name": "Zara",
+  "archetype": "learner",
+  "skill": 0.49,
+  "reaction_ticks": 26,
+  "patience": 0.39,
+  "frustration_tolerance": 0.66,
+  "bio": "Imitates popular streamer but still drops combos",
+  "rules": [
+   {
+    "weights": {
+     "punch": 7
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "kick": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0022",
+  "name": "Lena",
+  "archetype": "explorer",
+  "skill": 0.78,
+  "reaction_ticks": 20,
+  "patience": 0.6,
+  "frustration_tolerance": 0.9,
+  "bio": "Exhausted nurse, will grab any crate or sign and swing it wildly.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "prop": 8,
+     "wait": 2
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "stunned",
+    "weights": {
+     "grab": 9
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0023",
+  "name": "Sam",
+  "archetype": "learner",
+  "skill": 0.47,
+  "reaction_ticks": 25,
+  "patience": 0.41,
+  "frustration_tolerance": 0.68,
+  "bio": "Eyes openings, but still panics in tight spaces",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "jump": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "punch": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0024",
+  "name": "LidLicker",
+  "archetype": "cheeser",
+  "skill": 0.45,
+  "reaction_ticks": 18,
+  "patience": 0.45,
+  "frustration_tolerance": 0.55,
+  "bio": "Repeatedly sweeps lids; gets flustered when opponent pokes back",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "sweep": 5
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "sweep": 4,
+     "retreat": 6,
+     "block": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0025",
+  "name": "Maya",
+  "archetype": "speedrunner",
+  "skill": 0.92,
+  "reaction_ticks": 8,
+  "patience": 0.2,
+  "frustration_tolerance": 0.7,
+  "bio": "Lunch break runner tries to beat every rival before the bell rings",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 7
+    }
+   },
+   {
+    "rival": "down",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0026",
+  "name": "Omar",
+  "archetype": "rusher",
+  "skill": 0.66,
+  "reaction_ticks": 13,
+  "patience": 0.16,
+  "frustration_tolerance": 0.68,
+  "bio": "Arcade veteran, loves constant forward assault",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8,
+     "low_punch": 6
+    }
+   },
+   {
+    "weights": {
+     "kick": 1,
+     "sweep": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0027",
+  "name": "Rio",
+  "archetype": "casual",
+  "skill": 0.05,
+  "reaction_ticks": 40,
+  "patience": 0.01,
+  "frustration_tolerance": 0.03,
+  "bio": "Street musician panics when opponent approaches",
+  "rules": [
+   {
+    "weights": {
+     "punch": 2
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0028",
+  "name": "Juno",
+  "archetype": "explorer",
+  "skill": 0.82,
+  "reaction_ticks": 15,
+  "patience": 0.8,
+  "frustration_tolerance": 0.5,
+  "bio": "Scheduler on break, constantly testing every move and prop.",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "active",
+    "weights": {
+     "jump": 7,
+     "prop": 5
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "down",
+    "weights": {
+     "sweep": 1
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "stunned",
+    "weights": {
+     "parry": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0029",
+  "name": "SweepKing",
+  "archetype": "cheeser",
+  "skill": 0.53,
+  "reaction_ticks": 11,
+  "patience": 0.28,
+  "frustration_tolerance": 0.68,
+  "bio": "Obsessed with sweeping; never attempts anything else",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "recovery",
+    "weights": {
+     "sweep": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0030",
+  "name": "Jin",
+  "archetype": "speedrunner",
+  "skill": 0.81,
+  "reaction_ticks": 12,
+  "patience": 0.4,
+  "frustration_tolerance": 0.5,
+  "bio": "Spreadsheet enthusiast rushes to end fights before deadline",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "idle",
+    "weights": {
+     "jump": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "kick": 7
+    }
+   },
+   {
+    "rival": "down",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0031",
+  "name": "Casey",
+  "archetype": "casual",
+  "skill": 0.08,
+  "reaction_ticks": 40,
+  "patience": 0.02,
+  "frustration_tolerance": 0.08,
+  "bio": "Early morning market cleaner who focuses on staying safe",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "low_punch": 4,
+     "wait": 9
+    }
+   },
+   {
+    "weights": {
+     "punch": 3
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0032",
+  "name": "Kai",
+  "archetype": "masher",
+  "skill": 0.08,
+  "reaction_ticks": 34,
+  "patience": 0.22,
+  "frustration_tolerance": 0.75,
+  "bio": "Brazilian teen constantly uses aggressive advance moves.",
+  "rules": [
+   {
+    "dist": "close",
+    "weights": {
+     "advance": 8
+    }
+   },
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0033",
+  "name": "Leroy",
+  "archetype": "rusher",
+  "skill": 0.68,
+  "reaction_ticks": 9,
+  "patience": 0.2,
+  "frustration_tolerance": 0.8,
+  "bio": "Never backs off; loves relentless punches",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8,
+     "low_punch": 7
+    }
+   },
+   {
+    "weights": {
+     "kick": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0034",
+  "name": "Yara",
+  "archetype": "speedrunner",
+  "skill": 0.95,
+  "reaction_ticks": 7,
+  "patience": 0.1,
+  "frustration_tolerance": 0.9,
+  "bio": "Quantitative analyst obsesses over minimal moves for maximal efficiency",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "kick": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "punch": 9
+    }
+   },
+   {
+    "dist": "close",
+    "weights": {
+     "punch": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0035",
+  "name": "Yara",
+  "archetype": "turtle",
+  "skill": 0.32,
+  "reaction_ticks": 31,
+  "patience": 0.87,
+  "frustration_tolerance": 0.92,
+  "bio": "bartender, mixes drinks, watches timing, blocks carefully.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 7
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "jump": 5
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0036",
+  "name": "An",
+  "archetype": "masher",
+  "skill": 0.07,
+  "reaction_ticks": 37,
+  "patience": 0.25,
+  "frustration_tolerance": 0.7,
+  "bio": "Vietnamese teen thinks rapid punching breaks defenses.",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0037",
+  "name": "Lena",
+  "archetype": "turtle",
+  "skill": 0.28,
+  "reaction_ticks": 32,
+  "patience": 0.85,
+  "frustration_tolerance": 0.9,
+  "bio": "Father, practices breathing, only moves when safe.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "retreat": 7
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0038",
+  "name": "Tara",
+  "archetype": "turtle",
+  "skill": 0.29,
+  "reaction_ticks": 30,
+  "patience": 0.82,
+  "frustration_tolerance": 0.88,
+  "bio": "School librarian, prefers calm analysis, never rushes.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 9
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "retreat": 8
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0039",
+  "name": "Hiro",
+  "archetype": "masher",
+  "skill": 0.1,
+  "reaction_ticks": 31,
+  "patience": 0.3,
+  "frustration_tolerance": 0.65,
+  "bio": "17yo Osaka gamer mashes punches after taking hits.",
+  "rules": [
+   {
+    "rival": "stunned",
+    "weights": {
+     "punch": 9
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0040",
+  "name": "Kaito",
+  "archetype": "masher",
+  "skill": 0.09,
+  "reaction_ticks": 33,
+  "patience": 0.2,
+  "frustration_tolerance": 0.85,
+  "bio": "Japanese college student enjoys chaotic close range play.",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 7
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0041",
+  "name": "Miguel",
+  "archetype": "masher",
+  "skill": 0.02,
+  "reaction_ticks": 40,
+  "patience": 0.08,
+  "frustration_tolerance": 0.98,
+  "bio": "21yo Mexico City newbie thrashes buttons after any hit.",
+  "rules": [
+   {
+    "rival": "stunned",
+    "weights": {
+     "punch": 8
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "kick": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0042",
+  "name": "Lars",
+  "archetype": "masher",
+  "skill": 0.12,
+  "reaction_ticks": 28,
+  "patience": 0.4,
+  "frustration_tolerance": 0.6,
+  "bio": "15-year-old Berlin kid loves wild combo mashing.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "kick": 8
+    }
+   },
+   {
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0043",
+  "name": "Sam",
+  "archetype": "speedrunner",
+  "skill": 0.9,
+  "reaction_ticks": 9,
+  "patience": 0.15,
+  "frustration_tolerance": 0.8,
+  "bio": "Techie behavioral analyst automates fight outcomes with precision",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "kick": 7
+    }
+   },
+   {
+    "rival": "down",
+    "weights": {
+     "punch": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "punch": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0044",
+  "name": "Slick",
+  "archetype": "cheeser",
+  "skill": 0.55,
+  "reaction_ticks": 12,
+  "patience": 0.3,
+  "frustration_tolerance": 0.6,
+  "bio": "Loves cheaping with a broom sweep, never varies",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "sweep": 9
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "idle",
+    "weights": {
+     "sweep": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0045",
+  "name": "Alex",
+  "archetype": "casual",
+  "skill": 0.2,
+  "reaction_ticks": 40,
+  "patience": 0.3,
+  "frustration_tolerance": 0.2,
+  "bio": "Newbie cashier who prefers simple punches",
+  "rules": [
+   {
+    "weights": {
+     "punch": 8,
+     "block": 5
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "jump": 3
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0046",
+  "name": "Jamie",
+  "archetype": "casual",
+  "skill": 0.3,
+  "reaction_ticks": 38,
+  "patience": 0.4,
+  "frustration_tolerance": 0.6,
+  "bio": "College student using flashy kicks randomly",
+  "rules": [
+   {
+    "weights": {
+     "kick": 9,
+     "jump": 5
+    }
+   },
+   {
+    "rival": "idle",
+    "weights": {
+     "advance": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0047",
+  "name": "Vic",
+  "archetype": "rusher",
+  "skill": 0.77,
+  "reaction_ticks": 7,
+  "patience": 0.18,
+  "frustration_tolerance": 0.88,
+  "bio": "Fast‑hands veteran, never lets rival breathe",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "advance": 9,
+     "punch": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8,
+     "kick": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0048",
+  "name": "Tomas",
+  "archetype": "masher",
+  "skill": 0.04,
+  "reaction_ticks": 40,
+  "patience": 0.15,
+  "frustration_tolerance": 0.95,
+  "bio": "28yo Warsaw novice panics when cornered pushing forward.",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "advance": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0049",
+  "name": "Ravi",
+  "archetype": "learner",
+  "skill": 0.42,
+  "reaction_ticks": 31,
+  "patience": 0.33,
+  "frustration_tolerance": 0.58,
+  "bio": "Sets traps hoping rival walks into them",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "sweep": 3
+    }
+   },
+   {
+    "weights": {
+     "parry": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0050",
+  "name": "Dana",
+  "archetype": "turtle",
+  "skill": 0.29,
+  "reaction_ticks": 34,
+  "patience": 0.83,
+  "frustration_tolerance": 0.89,
+  "bio": "Retired mechanic, takes deep breath, waits for mistake.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 5
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "parry": 6
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "recovery",
+    "weights": {
+     "wait": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0051",
+  "name": "Quinn",
+  "archetype": "casual",
+  "skill": 0.27,
+  "reaction_ticks": 36,
+  "patience": 0.35,
+  "frustration_tolerance": 0.65,
+  "bio": "Graphic designer who tries evasive jumps constantly",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "jump": 9
+    }
+   },
+   {
+    "dist": "far",
+    "weights": {
+     "wait": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0052",
+  "name": "Leo",
+  "archetype": "learner",
+  "skill": 0.43,
+  "reaction_ticks": 29,
+  "patience": 0.32,
+  "frustration_tolerance": 0.6,
+  "bio": "Cautious at first, then charges once confident",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "idle",
+    "weights": {
+     "advance": 5
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "stunned",
+    "weights": {
+     "punch": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0053",
+  "name": "Jade",
+  "archetype": "turtle",
+  "skill": 0.38,
+  "reaction_ticks": 28,
+  "patience": 0.92,
+  "frustration_tolerance": 0.97,
+  "bio": "Nurse, shifts posture quietly, waits for openings.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 7
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "jump": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0054",
+  "name": "BroomBud",
+  "archetype": "cheeser",
+  "skill": 0.62,
+  "reaction_ticks": 10,
+  "patience": 0.35,
+  "frustration_tolerance": 0.7,
+  "bio": "Sweeps like a maniac; panics when blocked",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "sweep": 7
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "recovery",
+    "weights": {
+     "sweep": 8
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "stunned",
+    "weights": {
+     "sweep": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0055",
+  "name": "Eve",
+  "archetype": "turtle",
+  "skill": 0.27,
+  "reaction_ticks": 35,
+  "patience": 0.84,
+  "frustration_tolerance": 0.9,
+  "bio": "Teacher, grades papers between fights, stays patient.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 5
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "retreat": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0056",
+  "name": "Bliss",
+  "archetype": "casual",
+  "skill": 0.14,
+  "reaction_ticks": 40,
+  "patience": 0.15,
+  "frustration_tolerance": 0.25,
+  "bio": "Florist distracted by flowers, blocks half the time",
+  "rules": [
+   {
+    "weights": {
+     "block": 8,
+     "low_punch": 3
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "idle",
+    "weights": {
+     "punch": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0057",
+  "name": "Briar",
+  "archetype": "casual",
+  "skill": 0.09,
+  "reaction_ticks": 40,
+  "patience": 0.03,
+  "frustration_tolerance": 0.12,
+  "bio": "Garden vendor startled by sudden movements, blocks reflexively",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "block": 9,
+     "punch": 2
+    }
+   },
+   {
+    "weights": {
+     "wait": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0058",
+  "name": "Olga",
+  "archetype": "turtle",
+  "skill": 0.34,
+  "reaction_ticks": 27,
+  "patience": 0.9,
+  "frustration_tolerance": 0.96,
+  "bio": "Barista, watches rhythm, only strikes when rival stalls.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 8
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 7
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "parry": 6
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0059",
+  "name": "Jordan",
+  "archetype": "casual",
+  "skill": 0.35,
+  "reaction_ticks": 37,
+  "patience": 0.45,
+  "frustration_tolerance": 0.7,
+  "bio": "Esports fan mimics pros with combos occasionally",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "parry": 8
+    }
+   },
+   {
+    "weights": {
+     "sweep": 7,
+     "punch": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0060",
+  "name": "Nate",
+  "archetype": "rusher",
+  "skill": 0.59,
+  "reaction_ticks": 19,
+  "patience": 0.03,
+  "frustration_tolerance": 0.4,
+  "bio": "Gives up quickly when pressure mounts",
+  "rules": [
+   {
+    "rival": "stunned",
+    "weights": {
+     "jump": 7
+    }
+   },
+   {
+    "weights": {
+     "retreat": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0061",
+  "name": "Seth",
+  "archetype": "rusher",
+  "skill": 0.69,
+  "reaction_ticks": 11,
+  "patience": 0.24,
+  "frustration_tolerance": 0.72,
+  "bio": "Played countless coin‑op duels, always presses",
+  "rules": [
+   {
+    "rival": "stunned",
+    "weights": {
+     "jump": 6,
+     "punch": 5
+    }
+   },
+   {
+    "weights": {
+     "sweep": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0062",
+  "name": "Sofia",
+  "archetype": "turtle",
+  "skill": 0.26,
+  "reaction_ticks": 38,
+  "patience": 0.81,
+  "frustration_tolerance": 0.85,
+  "bio": "College student, scrolls phone, only reacts when opponent moves.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 9
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 5
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "retreat": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "wait": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0063",
+  "name": "Riley",
+  "archetype": "casual",
+  "skill": 0.12,
+  "reaction_ticks": 40,
+  "patience": 0.05,
+  "frustration_tolerance": 0.1,
+  "bio": "Intern nervous about fighting, prefers retreat",
+  "rules": [
+   {
+    "weights": {
+     "retreat": 9,
+     "block": 4
+    }
+   },
+   {
+    "rival": "active",
+    "weights": {
+     "jump": 6,
+     "parry": 3
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0064",
+  "name": "Sage",
+  "archetype": "casual",
+  "skill": 0.24,
+  "reaction_ticks": 39,
+  "patience": 0.38,
+  "frustration_tolerance": 0.72,
+  "bio": "Library worker using precise blocks and counters",
+  "rules": [
+   {
+    "rival": "recovery",
+    "weights": {
+     "parry": 7,
+     "punch": 5
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "wait": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0065",
+  "name": "SockSlipper",
+  "archetype": "cheeser",
+  "skill": 0.47,
+  "reaction_ticks": 16,
+  "patience": 0.38,
+  "frustration_tolerance": 0.63,
+  "bio": "Throws shoes at opponent; repeats it endlessly",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "idle",
+    "weights": {
+     "prop": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0066",
+  "name": "Kian",
+  "archetype": "learner",
+  "skill": 0.39,
+  "reaction_ticks": 33,
+  "patience": 0.31,
+  "frustration_tolerance": 0.57,
+  "bio": "Tries to read the rival though often misjudges",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "idle",
+    "weights": {
+     "prop": 8
+    }
+   },
+   {
+    "weights": {
+     "punch": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0067",
+  "name": "Jamal",
+  "archetype": "masher",
+  "skill": 0.03,
+  "reaction_ticks": 40,
+  "patience": 0.1,
+  "frustration_tolerance": 0.9,
+  "bio": "20yo Chicago gamer tries anything after a hit.",
+  "rules": [
+   {
+    "rival": "stunned",
+    "weights": {
+     "grab": 7
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "punch": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0068",
+  "name": "Tara",
+  "archetype": "learner",
+  "skill": 0.46,
+  "reaction_ticks": 29,
+  "patience": 0.37,
+  "frustration_tolerance": 0.64,
+  "bio": "Finds rhythm, then rushes in impatiently",
+  "rules": [
+   {
+    "weights": {
+     "advance": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "kick": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0069",
+  "name": "Atlas",
+  "archetype": "casual",
+  "skill": 0.26,
+  "reaction_ticks": 36,
+  "patience": 0.34,
+  "frustration_tolerance": 0.73,
+  "bio": "Security guard mimicking slow guard stances loosely",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "punch": 7,
+     "block": 5
+    }
+   },
+   {
+    "weights": {
+     "sweep": 3
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0070",
+  "name": "Owen",
+  "archetype": "learner",
+  "skill": 0.41,
+  "reaction_ticks": 30,
+  "patience": 0.34,
+  "frustration_tolerance": 0.59,
+  "bio": "Learns slowly, rarely uses advanced moves",
+  "rules": [
+   {
+    "weights": {
+     "block": 5
+    }
+   },
+   {
+    "weights": {
+     "punch": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0071",
+  "name": "Chen",
+  "archetype": "masher",
+  "skill": 0.11,
+  "reaction_ticks": 29,
+  "patience": 0.33,
+  "frustration_tolerance": 0.55,
+  "bio": "19yo Beijing player mixes wild kicks and punches randomly.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "kick": 8
+    }
+   },
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0072",
+  "name": "Lena",
+  "archetype": "learner",
+  "skill": 0.48,
+  "reaction_ticks": 26,
+  "patience": 0.38,
+  "frustration_tolerance": 0.62,
+  "bio": "Quick to copy opponent's moves while still clumsy",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "active",
+    "weights": {
+     "jump": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0073",
+  "name": "Hank",
+  "archetype": "rusher",
+  "skill": 0.64,
+  "reaction_ticks": 15,
+  "patience": 0.15,
+  "frustration_tolerance": 0.6,
+  "bio": "Old arcade legend, keeps pressure on",
+  "rules": [
+   {
+    "rival": "recovery",
+    "weights": {
+     "advance": 7,
+     "punch": 6
+    }
+   },
+   {
+    "weights": {
+     "kick": 1,
+     "sweep": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0074",
+  "name": "Mika",
+  "archetype": "casual",
+  "skill": 0.45,
+  "reaction_ticks": 30,
+  "patience": 0.3,
+  "frustration_tolerance": 0.4,
+  "bio": "Mom of two, plays briefly after kids sleep, quits if match drags",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "punch": 8
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "block": 7,
+     "kick": 6
+    }
+   },
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 5,
+     "retreat": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0075",
+  "name": "StickyFingers",
+  "archetype": "cheeser",
+  "skill": 0.5,
+  "reaction_ticks": 14,
+  "patience": 0.25,
+  "frustration_tolerance": 0.65,
+  "bio": "Grabs dropped items and throws at rival whenever possible",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "grab": 8,
+     "prop": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0076",
+  "name": "Eli",
+  "archetype": "learner",
+  "skill": 0.45,
+  "reaction_ticks": 28,
+  "patience": 0.35,
+  "frustration_tolerance": 0.6,
+  "bio": "Teens eager to learn, mashes punches and expects openings",
+  "rules": [
+   {
+    "weights": {
+     "punch": 8,
+     "low_punch": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "recovery",
+    "weights": {
+     "kick": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0077",
+  "name": "Penny",
+  "archetype": "casual",
+  "skill": 0.13,
+  "reaction_ticks": 40,
+  "patience": 0.07,
+  "frustration_tolerance": 0.17,
+  "bio": "Newspaper seller who retreats aggressively when scared",
+  "rules": [
+   {
+    "weights": {
+     "retreat": 9,
+     "jump": 5
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0078",
+  "name": "Rosa",
+  "archetype": "turtle",
+  "skill": 0.31,
+  "reaction_ticks": 34,
+  "patience": 0.88,
+  "frustration_tolerance": 0.93,
+  "bio": "Grandma, knits while watching, slow but steady.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 7
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 5
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "retreat": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0079",
+  "name": "Benny",
+  "archetype": "rusher",
+  "skill": 0.73,
+  "reaction_ticks": 10,
+  "patience": 0.3,
+  "frustration_tolerance": 0.75,
+  "bio": "Fights like a coin‑ops player, always forward",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 7,
+     "kick": 5
+    }
+   },
+   {
+    "weights": {
+     "block": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0080",
+  "name": "Jules",
+  "archetype": "rusher",
+  "skill": 0.62,
+  "reaction_ticks": 16,
+  "patience": 0.07,
+  "frustration_tolerance": 0.45,
+  "bio": "Old arcade champ, quits fast when backed",
+  "rules": [
+   {
+    "rival": "down",
+    "weights": {
+     "punch": 8,
+     "sweep": 1
+    }
+   },
+   {
+    "weights": {
+     "retreat": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0081",
+  "name": "Rosa",
+  "archetype": "explorer",
+  "skill": 0.68,
+  "reaction_ticks": 22,
+  "patience": 0.3,
+  "frustration_tolerance": 0.95,
+  "bio": "Just got off shift, uses any nearby sign as a makeshift weapon.",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "grab": 9,
+     "prop": 5
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "stunned",
+    "weights": {
+     "kick": 7,
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0082",
+  "name": "Diego",
+  "archetype": "masher",
+  "skill": 0.15,
+  "reaction_ticks": 30,
+  "patience": 0.35,
+  "frustration_tolerance": 0.5,
+  "bio": "23yo Rio player loves aggressive button mashing.",
+  "rules": [
+   {
+    "rival": "startup",
+    "weights": {
+     "kick": 7
+    }
+   },
+   {
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0083",
+  "name": "Nina",
+  "archetype": "turtle",
+  "skill": 0.33,
+  "reaction_ticks": 29,
+  "patience": 0.89,
+  "frustration_tolerance": 0.95,
+  "bio": "Store cashier, counts cards mentally, blocks incoming.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 7
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 6
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "parry": 5
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "recovery",
+    "weights": {
+     "wait": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0084",
+  "name": "Pawel",
+  "archetype": "masher",
+  "skill": 0.03,
+  "reaction_ticks": 40,
+  "patience": 0.12,
+  "frustration_tolerance": 0.88,
+  "bio": "24yo Polish player uses relentless kick mashing.",
+  "rules": [
+   {
+    "rival": "down",
+    "weights": {
+     "kick": 9
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "kick": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0085",
+  "name": "Rico",
+  "archetype": "rusher",
+  "skill": 0.66,
+  "reaction_ticks": 12,
+  "patience": 0.18,
+  "frustration_tolerance": 0.7,
+  "bio": "Retro fighter, rushes through combos",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "advance": 9,
+     "punch": 6
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8,
+     "kick": 2
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0086",
+  "name": "Rashad",
+  "archetype": "rusher",
+  "skill": 0.74,
+  "reaction_ticks": 8,
+  "patience": 0.27,
+  "frustration_tolerance": 0.82,
+  "bio": "Never stops attacking; loves high‑pressure play",
+  "rules": [
+   {
+    "rival": "recovery",
+    "weights": {
+     "advance": 7,
+     "punch": 6
+    }
+   },
+   {
+    "weights": {
+     "kick": 2,
+     "sweep": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0087",
+  "name": "Yusuf",
+  "archetype": "masher",
+  "skill": 0.06,
+  "reaction_ticks": 38,
+  "patience": 0.18,
+  "frustration_tolerance": 0.82,
+  "bio": "32yo Istanbul local uses wild kicks whenever possible.",
+  "rules": [
+   {
+    "rival": "down",
+    "weights": {
+     "kick": 9
+    }
+   },
+   {
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0088",
+  "name": "Mack",
+  "archetype": "rusher",
+  "skill": 0.78,
+  "reaction_ticks": 9,
+  "patience": 0.25,
+  "frustration_tolerance": 0.85,
+  "bio": "Long‑time arcade champ, never backs down",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "advance": 8,
+     "punch": 7
+    }
+   },
+   {
+    "weights": {
+     "kick": 1
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0089",
+  "name": "Lee",
+  "archetype": "masher",
+  "skill": 0.09,
+  "reaction_ticks": 32,
+  "patience": 0.28,
+  "frustration_tolerance": 0.7,
+  "bio": "Young Beijing gamer mashes buttons after getting hit.",
+  "rules": [
+   {
+    "rival": "stunned",
+    "weights": {
+     "punch": 9
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "punch": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0090",
+  "name": "Sven",
+  "archetype": "masher",
+  "skill": 0.14,
+  "reaction_ticks": 26,
+  "patience": 0.38,
+  "frustration_tolerance": 0.45,
+  "bio": "26yo Stockholm teen loves frantic punch mashing.",
+  "rules": [
+   {
+    "rival": "active",
+    "weights": {
+     "punch": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0091",
+  "name": "Ravi",
+  "archetype": "speedrunner",
+  "skill": 0.87,
+  "reaction_ticks": 10,
+  "patience": 0.25,
+  "frustration_tolerance": 0.65,
+  "bio": "Deadline-driven marketer prefers quick knockouts to avoid chaos",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 7,
+     "kick": 6
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "punch": 8
+    }
+   },
+   {
+    "rival": "recovery",
+    "weights": {
+     "kick": 7
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0092",
+  "name": "Omar",
+  "archetype": "masher",
+  "skill": 0.01,
+  "reaction_ticks": 40,
+  "patience": 0.05,
+  "frustration_tolerance": 1,
+  "bio": "Newbie from Cairo panics and rushes forward constantly.",
+  "rules": [
+   {
+    "dist": "close",
+    "weights": {
+     "advance": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0093",
+  "name": "Sam",
+  "archetype": "casual",
+  "skill": 0.15,
+  "reaction_ticks": 35,
+  "patience": 0.2,
+  "frustration_tolerance": 0.1,
+  "bio": "Street vendor tired after long shift, plays loosely",
+  "rules": [
+   {
+    "weights": {
+     "low_punch": 7,
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0094",
+  "name": "PropHustle",
+  "archetype": "cheeser",
+  "skill": 0.48,
+  "reaction_ticks": 15,
+  "patience": 0.4,
+  "frustration_tolerance": 0.5,
+  "bio": "Throws props constantly hoping to stun or knock down",
+  "rules": [
+   {
+    "dist": "far",
+    "rival": "idle",
+    "weights": {
+     "prop": 9
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0095",
+  "name": "Gabe",
+  "archetype": "rusher",
+  "skill": 0.71,
+  "reaction_ticks": 9,
+  "patience": 0.21,
+  "frustration_tolerance": 0.84,
+  "bio": "Never backs off; rushes until victory",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "advance": 9,
+     "punch": 7
+    }
+   },
+   {
+    "weights": {
+     "kick": 2
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0096",
+  "name": "Mara",
+  "archetype": "explorer",
+  "skill": 0.85,
+  "reaction_ticks": 12,
+  "patience": 0.9,
+  "frustration_tolerance": 0.7,
+  "bio": "Night nurse who roams stalls, testing every weapon and dodge.",
+  "rules": [
+   {
+    "dist": "mid",
+    "rival": "stunned",
+    "weights": {
+     "prop": 9
+    }
+   },
+   {
+    "dist": "close",
+    "rival": "recovery",
+    "weights": {
+     "punch": 7,
+     "kick": 6,
+     "low_punch": 4
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "active",
+    "weights": {
+     "jump": 5
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0097",
+  "name": "Samira",
+  "archetype": "explorer",
+  "skill": 0.74,
+  "reaction_ticks": 25,
+  "patience": 0.4,
+  "frustration_tolerance": 0.8,
+  "bio": "Cooling‑down nurse, grabs anything nearby and flails before quitting.",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "grab": 9
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "recovery",
+    "weights": {
+     "kick": 7,
+     "punch": 6
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0098",
+  "name": "Nina",
+  "archetype": "learner",
+  "skill": 0.44,
+  "reaction_ticks": 27,
+  "patience": 0.36,
+  "frustration_tolerance": 0.61,
+  "bio": "Mashes combos when hurt hoping to flip luck",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "active",
+    "weights": {
+     "punch": 8
+    }
+   },
+   {
+    "weights": {
+     "retreat": 4
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0099",
+  "name": "Mia",
+  "archetype": "turtle",
+  "skill": 0.35,
+  "reaction_ticks": 36,
+  "patience": 0.9,
+  "frustration_tolerance": 0.95,
+  "bio": "Mom of two, watches match on portable screen, calm.",
+  "rules": [
+   {
+    "rival": "idle",
+    "weights": {
+     "wait": 7
+    }
+   },
+   {
+    "rival": "stunned",
+    "weights": {
+     "block": 5
+    }
+   },
+   {
+    "dist": "mid",
+    "rival": "active",
+    "weights": {
+     "parry": 6
+    }
+   },
+   {
+    "dist": "far",
+    "rival": "recovery",
+    "weights": {
+     "wait": 8
+    }
+   }
+  ]
+ },
+ {
+  "id": "p0100",
+  "name": "Grabby",
+  "archetype": "cheeser",
+  "skill": 0.57,
+  "reaction_ticks": 13,
+  "patience": 0.33,
+  "frustration_tolerance": 0.6,
+  "bio": "Grabs neighbors' fruit as soon as they drop it",
+  "rules": [
+   {
+    "dist": "close",
+    "rival": "idle",
+    "weights": {
+     "grab": 8,
+     "prop": 4
+    }
+   }
+  ]
+ }
+]

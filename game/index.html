@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#11191e">
+  <meta name="description" content="An original 3D martial arts duel. Two fighters. One night market. Built with Three.js and Rapier physics.">
+  <title>Market Brawl — Midnight Circuit</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23151e24'/%3E%3Cpath d='M12 47V17h8l12 17 12-17h8v30H42V33L32 47 22 33v14' fill='%23ed6749'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./src/style.css">
+  <script>
+    if (window.location.protocol === 'file:') {
+      window.addEventListener('DOMContentLoaded', function() {
+        var label = document.getElementById('loading-label');
+        if (label) {
+          label.innerHTML = 'LOCAL SERVER REQUIRED<br><span style="font-size:12px;letter-spacing:1px;color:#ec684a;text-transform:none;display:block;margin-top:8px;">Browsers block WebAssembly &amp; ES modules on file://<br>Please open: <a href="http://localhost:5173" style="color:#7ec7b6;text-decoration:underline;font-weight:bold;">http://localhost:5173</a><br><small style="color:#8e9da3;">(Run "npm run dev" in project folder)</small></span>';
+        }
+        var line = document.querySelector('.loading-line');
+        if (line) line.style.display = 'none';
+      });
+    }
+  </script>
+  <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","@dimforge/rapier3d-compat":"./vendor/rapier/rapier.es.js"}}</script>
+</head>
+<body data-screen="menu" data-input="keyboard">
+  <canvas id="webgl-canvas" aria-label="3D martial arts fighting arena"></canvas>
+  <div class="vignette-overlay"></div>
+  <div id="loading" role="status"><span class="loading-mark">M<span>/</span>B</span><span id="loading-label">LIGHTING THE LANTERNS</span><div class="loading-line"></div></div>
+  <div id="story-modal" class="menu-screen" aria-label="Main menu">
+    <header class="menu-header"><a class="wordmark" href="./" aria-label="Market Brawl home">M<span>/</span>B <small>MARKET BRAWL</small></a><div class="header-right"><span class="live-dot"></span> SINGLE PLAYER <span class="header-divider">/</span> VOL. 01</div></header>
+    <main class="menu-content">
+      <div class="eyebrow"><span class="short-line"></span> THE MIDNIGHT CIRCUIT</div>
+      <h1>THE MARKET<br>CLOSES.<br><span>THE FIGHT<br>BEGINS.</span></h1>
+      <p class="intro-copy">One last duel under the lanterns. Step into the night market, find your opening, and earn your place in the circuit.</p>
+      <div class="select-label"><span>01</span> CHOOSE YOUR FIGHTER</div>
+      <div class="fighter-select" role="group" aria-label="Choose your fighter">
+        <button class="fighter-choice selected" data-fighter="kai" aria-pressed="true"><span class="choice-number">01</span><span class="choice-info"><strong>KAI</strong><small>THE NIGHTHAWK · KICKBOXING</small></span><span class="selection-dot"></span></button>
+        <button class="fighter-choice" data-fighter="rook" aria-pressed="false"><span class="choice-number">02</span><span class="choice-info"><strong>ROOK</strong><small>THE IRON WALL · STREET BOXING</small></span><span class="selection-dot"></span></button>
+      </div>
+      <div class="menu-actions"><button id="btn-start-duel" class="btn-primary" disabled>PREPARING ARENA <span>↗</span></button><button id="btn-how" class="btn-text">HOW TO PLAY <span>↗</span></button></div>
+      <p id="controller-status" class="controller-status" role="status">PS5 CONTROLLER · CONNECT, CLICK THE GAME, THEN PRESS ✕</p>
+      <p class="start-note">PRESS ENTER TO FIGHT <span>•</span> HEADPHONES RECOMMENDED</p>
+    </main>
+    <aside class="arena-caption"><span class="live-dot"></span> LANTERN COURT <small>NIGHT MARKET DISTRICT &nbsp; / &nbsp; 23:48</small></aside>
+    <div class="fighter-caption"><span id="preview-title">THE NIGHTHAWK</span><strong id="preview-name">KAI<span>01</span></strong><small>PRECISION. PRESSURE. NO HESITATION.</small></div>
+    <footer class="menu-footer"><span>AN ORIGINAL 3D FIGHTING GAME</span><span>THREE.JS <i>×</i> RAPIER PHYSICS</span><button id="btn-sound" aria-pressed="true">◖ SOUND ON</button></footer>
+  </div>
+  <div id="hud-overlay" class="hidden">
+    <header class="fight-topline"><span class="wordmark">M<span>/</span>B</span><span>LANTERN COURT <b> / </b> MIDNIGHT CIRCUIT</span><div class="fight-header-actions"><button id="btn-controls" aria-label="Show controls">? <small>CONTROLS · H</small></button><button id="btn-pause" aria-label="Pause game">Ⅱ <small>ESC</small></button></div></header>
+    <div class="duel-header">
+      <div class="fighter-hud"><div class="fighter-name-row"><span class="fighter-name" id="player-name">KAI</span><span class="fighter-style">YOU / P1</span></div><div class="health-bar-track" role="progressbar" aria-label="Your health" aria-valuemin="0" aria-valuemax="100"><div class="health-bar-fill" id="player-health-bar"></div></div><div class="posture-row"><span>GUARD</span><div class="posture-bar-track"><div class="posture-bar-fill" id="player-posture-bar"></div></div><span id="player-state">READY</span></div></div>
+      <div class="center-emblem"><span class="duel-round">ROUND 01</span><div class="duel-timer" id="hud-timer">99</div><span class="timer-label">SECONDS</span></div>
+      <div class="fighter-hud rival"><div class="fighter-name-row"><span class="fighter-style">CPU / RIVAL</span><span class="fighter-name" id="rival-name">ROOK</span></div><div class="health-bar-track" role="progressbar" aria-label="Rival health" aria-valuemin="0" aria-valuemax="100"><div class="health-bar-fill" id="rival-health-bar"></div></div><div class="posture-row"><span id="rival-state">READY</span><div class="posture-bar-track"><div class="posture-bar-fill" id="rival-posture-bar"></div></div><span>GUARD</span></div></div>
+    </div>
+    <div class="combo-hud" id="combo-hud"><div class="combo-count" id="combo-number">2</div><div class="combo-label">HIT COMBO</div></div>
+    <div id="fight-announcement" aria-live="polite"></div>
+    <div id="hit-feedback" aria-live="polite"></div>
+    <div id="grapple-hud" class="hidden" role="status" aria-live="polite" aria-atomic="true">
+      <div class="grapple-heading"><strong id="grapple-title">YOUR CLINCH</strong><span id="grapple-time" aria-hidden="true">1.6s</span></div>
+      <div id="grapple-key" aria-label="Required combat timing key">J / K / F</div>
+      <p id="grapple-detail">J: punch · K: knee · F: throw · L: release</p>
+      <div class="grapple-track" aria-hidden="true"><div id="grapple-progress"></div></div>
+    </div>
+    <div class="bottom-hud"><div class="control-hints keyboard-hints"><span><kbd>A</kbd><kbd>D</kbd> MOVE / GUARD</span><span><kbd>J</kbd> ×4 PUNCH CHAIN</span><span><kbd>K</kbd> ×3 KICK CHAIN <kbd>S</kbd>+<kbd>K</kbd> SWEEP</span><span><kbd>L</kbd> PARRY</span><span><kbd>F</kbd> CLINCH / MOUNT</span><span><kbd>H</kbd> ALL CONTROLS</span><span><kbd>Q</kbd><kbd>V</kbd> SIDESTEP</span></div><div class="control-hints controller-hints"><span><kbd>LS</kbd> MOVE / SIDESTEP</span><span><kbd>□</kbd> ×4 PUNCH</span><span><kbd>△</kbd> ×3 KICK</span><span><kbd>L1</kbd> DUCK / LOW</span><span><kbd>R1</kbd> CLINCH / MOUNT</span><span><kbd>○</kbd> PARRY <kbd>L2</kbd> GUARD</span><span><kbd>✕</kbd> JUMP <kbd>CREATE</kbd> GUIDE</span></div><div class="score-hud"><small>SCORE</small><strong id="live-score">00000</strong></div></div>
+    <div class="touch-controls"><div><button data-key="KeyA" aria-label="Move left">◀</button><button data-key="KeyD" aria-label="Move right">▶</button></div><div><button data-key="KeyJ">J</button><button data-key="KeyK">K</button><button data-key="KeyL">L</button><button data-key="KeyF">F</button></div></div>
+  </div>
+  <div id="pause-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="modal-card"><span class="eyebrow">TAKE A BREATH</span><h2 id="pause-title">ON PAUSE.</h2><p>The circuit can wait.</p><button id="btn-resume" class="btn-primary">BACK TO THE FIGHT <span>↗</span></button><button id="btn-menu" class="btn-text">RETURN TO MENU</button></div></div>
+  <div id="help-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="help-title"><div class="modal-card help-card"><img class="help-art" src="./assets/art/midnight-circuit.png" alt="Original concept artwork of Kai and Rook at the night market"><span class="eyebrow">FIND YOUR OPENING</span><h2 id="help-title">THE BASICS.</h2><p>Defeat your rival before the 99-second timer expires. At time-out, the fighter with more health wins.</p><div class="guide-tabs" role="group" aria-label="Control guide"><button id="btn-guide-controller" aria-pressed="false">PS5 CONTROLLER</button><button id="btn-guide-keyboard" aria-pressed="true">KEYBOARD</button></div><div class="controls-grid keyboard-guide"><span><kbd>A</kbd> <kbd>D</kbd> Move · hold away to guard</span><span><kbd>J</kbd> Tap four times: jab → cross → hook → uppercut</span><span><kbd>K</kbd> Tap three times: roundhouse → high kick → spinning back kick</span><span><kbd>S</kbd> + <kbd>K</kbd> Low sweep · defeats high guard</span><span><kbd>S</kbd> + <kbd>J</kbd> Body jab → body hook</span><span><kbd>Q</kbd> / <kbd>V</kbd> Sidestep deeper / nearer</span><span><kbd>L</kbd> Timed parry · watch their windup</span><span><kbd>F</kbd> / <kbd>G</kbd> Grab a nearby rival (close range)</span><span>IN A CLINCH: <kbd>J</kbd> Free-hand punch · <kbd>K</kbd> Knee</span><span>IN A CLINCH: <kbd>F</kbd> Throw · <kbd>L</kbd> Release</span><span>Then press the big on-screen key before its timer runs out.</span><span>GRABBED? Match the key to escape. React within 0.45 seconds to counterthrow.</span><span>RIVAL DOWN? <kbd>F</kbd> Mount at close range</span><span>ON TOP: <kbd>J</kbd> Head punch · <kbd>K</kbd> Body punch · <kbd>F</kbd> Stand</span><span>DOWN / PINNED? Match the large key to rise or escape. Within 0.40s: reverse a mount.</span><span><kbd>W</kbd> Jump <kbd>S</kbd> Duck</span><span><kbd>E</kbd> Pick up / throw a nearby crate</span><span><kbd>R</kbd> Restart <kbd>ESC</kbd> Pause <kbd>H</kbd> Controls</span></div><div class="controls-grid controller-guide">
+<span><kbd>LEFT STICK</kbd> / D-pad ← → Move; ↑ ↓ sidestep into / out of the arena</span>
+<span><kbd>□</kbd> Tap four times: jab → cross → hook → uppercut</span>
+<span><kbd>△</kbd> Tap three times: roundhouse → high kick → spinning back kick</span>
+<span><kbd>L1</kbd> Hold to duck</span><span><kbd>L1</kbd> + <kbd>□</kbd> Body jab → body hook</span><span><kbd>L1</kbd> + <kbd>△</kbd> Low sweep</span>
+<span><kbd>✕</kbd> Jump; release before jumping again</span><span><kbd>○</kbd> Timed parry · first 0.12 seconds</span>
+<span><kbd>L2</kbd> Hold to guard · or move away from the rival</span><span><kbd>R1</kbd> Clinch a standing rival / mount a downed rival</span>
+<span>IN A CLINCH: <kbd>□</kbd> Punch · <kbd>△</kbd> Knee · <kbd>R1</kbd> Throw · <kbd>○</kbd> Release</span>
+<span>ON TOP: <kbd>□</kbd> Head punch · <kbd>△</kbd> Body punch · <kbd>R1</kbd> Stand up</span>
+<span>CONFIRM / ESCAPE / GET UP: press the displayed <kbd>□</kbd> / <kbd>△</kbd> / <kbd>○</kbd> once before time expires</span>
+<span>FAST DEFENSE: within 0.45s for a counterthrow; within 0.40s for a mount reversal</span>
+<span><kbd>R2</kbd> Pick up / throw a nearby crate</span><span><kbd>OPTIONS</kbd> Pause / resume</span>
+<span><kbd>CREATE</kbd> / touchpad button: open / close controls</span><span><kbd>R3</kbd> Restart · <kbd>L3</kbd> Sound on / off</span>
+<span>MENUS: stick / D-pad navigate · <kbd>✕</kbd> Confirm · <kbd>○</kbd> Back</span>
+<span>FIGHTER SELECT: left / right switches Kai and Rook · <kbd>✕</kbd> Start</span>
+</div><p class="controller-setup">Connect your DualSense by USB or pair it with your computer over Bluetooth. Click the game once to focus it and enable sound, then press ✕. The browser must report a standard-mapped gamepad. Vibration is optional; adaptive triggers are not used.</p><p class="tip">FIGHT SMART. Tap, release, and tap again to chain strikes; up to three follow-ups queue. Finishers and accumulated hits cause a knockdown. A mount allows three strikes with a new escape chance each time. The rival mixes punches, kicks and throws, remembers recent attacks, and punishes recovery. A clinch allows two strikes before a throw or release. Missing a prompt can let the rival escape or reverse. Holding a key or controller button does not clear prompts. Release between taps.</p><button id="btn-close-help" class="btn-primary">GOT IT <span>↗</span></button></div></div>
+  <div id="end-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="end-title"><div class="modal-card result-card"><span class="eyebrow" id="end-subtitle">THE CIRCUIT HAS SPOKEN</span><h2 id="end-title">VICTORY.</h2><p id="end-summary"></p><div id="end-stats"></div><button id="btn-restart" class="btn-primary">RUN IT BACK <span>↗</span></button><button id="btn-end-menu" class="btn-text">CHOOSE ANOTHER FIGHTER</button></div></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

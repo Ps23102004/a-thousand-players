@@ -1,0 +1,9 @@
+{
+ "patches": [
+  {
+   "file": "ground.js",
+   "find": "if(g.elapsed>=GROUND_RULES.fallTime && pos(f).y<1.08){g.phase='DOWNED';g.elapsed=0;f.state='DOWNED';stop(f);emit(f,'slam',{defender:f})}",
+   "replace": "if(g.elapsed>=GROUND_RULES.fallTime){g.phase='DOWNED';g.elapsed=0;f.state='DOWNED';stop(f);emit(f,'slam',{defender:f})}"
+  }
+ ]
+}

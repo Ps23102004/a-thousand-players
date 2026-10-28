@@ -1,0 +1,597 @@
+[
+ {
+  "key": "anim.JAB.damage",
+  "default": 10,
+  "min": 2.5,
+  "max": 40,
+  "description": "JAB damage"
+ },
+ {
+  "key": "anim.JAB.startup",
+  "default": 0.06,
+  "min": 0.015,
+  "max": 0.24,
+  "description": "JAB startup"
+ },
+ {
+  "key": "anim.JAB.active",
+  "default": 0.14,
+  "min": 0.035,
+  "max": 0.56,
+  "description": "JAB active"
+ },
+ {
+  "key": "anim.JAB.recovery",
+  "default": 0.26,
+  "min": 0.065,
+  "max": 1.04,
+  "description": "JAB recovery"
+ },
+ {
+  "key": "anim.JAB.hitStop",
+  "default": 3,
+  "min": 0.75,
+  "max": 12,
+  "description": "JAB hitStop"
+ },
+ {
+  "key": "anim.JAB.reach",
+  "default": 1.05,
+  "min": 0.2625,
+  "max": 4.2,
+  "description": "JAB reach"
+ },
+ {
+  "key": "anim.JAB.drive",
+  "default": 1.2,
+  "min": 0.3,
+  "max": 4.8,
+  "description": "JAB drive"
+ },
+ {
+  "key": "anim.CROSS.damage",
+  "default": 18,
+  "min": 4.5,
+  "max": 72,
+  "description": "CROSS damage"
+ },
+ {
+  "key": "anim.CROSS.startup",
+  "default": 0.1,
+  "min": 0.025,
+  "max": 0.4,
+  "description": "CROSS startup"
+ },
+ {
+  "key": "anim.CROSS.active",
+  "default": 0.2,
+  "min": 0.05,
+  "max": 0.8,
+  "description": "CROSS active"
+ },
+ {
+  "key": "anim.CROSS.recovery",
+  "default": 0.36,
+  "min": 0.09,
+  "max": 1.44,
+  "description": "CROSS recovery"
+ },
+ {
+  "key": "anim.CROSS.hitStop",
+  "default": 5,
+  "min": 1.25,
+  "max": 20,
+  "description": "CROSS hitStop"
+ },
+ {
+  "key": "anim.CROSS.reach",
+  "default": 1.05,
+  "min": 0.2625,
+  "max": 4.2,
+  "description": "CROSS reach"
+ },
+ {
+  "key": "anim.CROSS.drive",
+  "default": 1.7,
+  "min": 0.425,
+  "max": 6.8,
+  "description": "CROSS drive"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.damage",
+  "default": 24,
+  "min": 6,
+  "max": 96,
+  "description": "ROUNDHOUSE_KICK damage"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.startup",
+  "default": 0.12,
+  "min": 0.03,
+  "max": 0.48,
+  "description": "ROUNDHOUSE_KICK startup"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.active",
+  "default": 0.24,
+  "min": 0.06,
+  "max": 0.96,
+  "description": "ROUNDHOUSE_KICK active"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.recovery",
+  "default": 0.44,
+  "min": 0.11,
+  "max": 1.76,
+  "description": "ROUNDHOUSE_KICK recovery"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.hitStop",
+  "default": 6,
+  "min": 1.5,
+  "max": 24,
+  "description": "ROUNDHOUSE_KICK hitStop"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.reach",
+  "default": 1.42,
+  "min": 0.355,
+  "max": 5.68,
+  "description": "ROUNDHOUSE_KICK reach"
+ },
+ {
+  "key": "anim.ROUNDHOUSE_KICK.drive",
+  "default": 0.75,
+  "min": 0.1875,
+  "max": 3,
+  "description": "ROUNDHOUSE_KICK drive"
+ },
+ {
+  "key": "anim.SWEEP.damage",
+  "default": 16,
+  "min": 4,
+  "max": 64,
+  "description": "SWEEP damage"
+ },
+ {
+  "key": "anim.SWEEP.startup",
+  "default": 0.08,
+  "min": 0.02,
+  "max": 0.32,
+  "description": "SWEEP startup"
+ },
+ {
+  "key": "anim.SWEEP.active",
+  "default": 0.18,
+  "min": 0.045,
+  "max": 0.72,
+  "description": "SWEEP active"
+ },
+ {
+  "key": "anim.SWEEP.recovery",
+  "default": 0.38,
+  "min": 0.095,
+  "max": 1.52,
+  "description": "SWEEP recovery"
+ },
+ {
+  "key": "anim.SWEEP.hitStop",
+  "default": 4,
+  "min": 1,
+  "max": 16,
+  "description": "SWEEP hitStop"
+ },
+ {
+  "key": "anim.SWEEP.reach",
+  "default": 1.4,
+  "min": 0.35,
+  "max": 5.6,
+  "description": "SWEEP reach"
+ },
+ {
+  "key": "anim.SWEEP.drive",
+  "default": 0.65,
+  "min": 0.1625,
+  "max": 2.6,
+  "description": "SWEEP drive"
+ },
+ {
+  "key": "anim.THROW_PERSON.damage",
+  "default": 32,
+  "min": 8,
+  "max": 128,
+  "description": "THROW_PERSON damage"
+ },
+ {
+  "key": "anim.THROW_PERSON.startup",
+  "default": 0.08,
+  "min": 0.02,
+  "max": 0.32,
+  "description": "THROW_PERSON startup"
+ },
+ {
+  "key": "anim.THROW_PERSON.active",
+  "default": 0.32,
+  "min": 0.08,
+  "max": 1.28,
+  "description": "THROW_PERSON active"
+ },
+ {
+  "key": "anim.THROW_PERSON.recovery",
+  "default": 0.65,
+  "min": 0.1625,
+  "max": 2.6,
+  "description": "THROW_PERSON recovery"
+ },
+ {
+  "key": "anim.THROW_PERSON.hitStop",
+  "default": 6,
+  "min": 1.5,
+  "max": 24,
+  "description": "THROW_PERSON hitStop"
+ },
+ {
+  "key": "anim.THROW_PROP.damage",
+  "default": 35,
+  "min": 8.75,
+  "max": 140,
+  "description": "THROW_PROP damage"
+ },
+ {
+  "key": "anim.THROW_PROP.startup",
+  "default": 0.08,
+  "min": 0.02,
+  "max": 0.32,
+  "description": "THROW_PROP startup"
+ },
+ {
+  "key": "anim.THROW_PROP.active",
+  "default": 0.22,
+  "min": 0.055,
+  "max": 0.88,
+  "description": "THROW_PROP active"
+ },
+ {
+  "key": "anim.THROW_PROP.recovery",
+  "default": 0.45,
+  "min": 0.1125,
+  "max": 1.8,
+  "description": "THROW_PROP recovery"
+ },
+ {
+  "key": "anim.THROW_PROP.hitStop",
+  "default": 5,
+  "min": 1.25,
+  "max": 20,
+  "description": "THROW_PROP hitStop"
+ },
+ {
+  "key": "anim.HOOK.damage",
+  "default": 14,
+  "min": 3.5,
+  "max": 56,
+  "description": "HOOK damage"
+ },
+ {
+  "key": "anim.HOOK.startup",
+  "default": 0.12,
+  "min": 0.03,
+  "max": 0.48,
+  "description": "HOOK startup"
+ },
+ {
+  "key": "anim.HOOK.active",
+  "default": 0.24,
+  "min": 0.06,
+  "max": 0.96,
+  "description": "HOOK active"
+ },
+ {
+  "key": "anim.HOOK.recovery",
+  "default": 0.4,
+  "min": 0.1,
+  "max": 1.6,
+  "description": "HOOK recovery"
+ },
+ {
+  "key": "anim.HOOK.hitStop",
+  "default": 4,
+  "min": 1,
+  "max": 16,
+  "description": "HOOK hitStop"
+ },
+ {
+  "key": "anim.HOOK.reach",
+  "default": 1.05,
+  "min": 0.2625,
+  "max": 4.2,
+  "description": "HOOK reach"
+ },
+ {
+  "key": "anim.HOOK.drive",
+  "default": 1.1,
+  "min": 0.275,
+  "max": 4.4,
+  "description": "HOOK drive"
+ },
+ {
+  "key": "anim.UPPERCUT.damage",
+  "default": 20,
+  "min": 5,
+  "max": 80,
+  "description": "UPPERCUT damage"
+ },
+ {
+  "key": "anim.UPPERCUT.startup",
+  "default": 0.17,
+  "min": 0.0425,
+  "max": 0.68,
+  "description": "UPPERCUT startup"
+ },
+ {
+  "key": "anim.UPPERCUT.active",
+  "default": 0.29,
+  "min": 0.0725,
+  "max": 1.16,
+  "description": "UPPERCUT active"
+ },
+ {
+  "key": "anim.UPPERCUT.recovery",
+  "default": 0.48,
+  "min": 0.12,
+  "max": 1.92,
+  "description": "UPPERCUT recovery"
+ },
+ {
+  "key": "anim.UPPERCUT.hitStop",
+  "default": 6,
+  "min": 1.5,
+  "max": 24,
+  "description": "UPPERCUT hitStop"
+ },
+ {
+  "key": "anim.UPPERCUT.reach",
+  "default": 1.05,
+  "min": 0.2625,
+  "max": 4.2,
+  "description": "UPPERCUT reach"
+ },
+ {
+  "key": "anim.UPPERCUT.drive",
+  "default": 1.4,
+  "min": 0.35,
+  "max": 5.6,
+  "description": "UPPERCUT drive"
+ },
+ {
+  "key": "anim.BODY_JAB.damage",
+  "default": 9,
+  "min": 2.25,
+  "max": 36,
+  "description": "BODY_JAB damage"
+ },
+ {
+  "key": "anim.BODY_JAB.startup",
+  "default": 0.08,
+  "min": 0.02,
+  "max": 0.32,
+  "description": "BODY_JAB startup"
+ },
+ {
+  "key": "anim.BODY_JAB.active",
+  "default": 0.17,
+  "min": 0.0425,
+  "max": 0.68,
+  "description": "BODY_JAB active"
+ },
+ {
+  "key": "anim.BODY_JAB.recovery",
+  "default": 0.3,
+  "min": 0.075,
+  "max": 1.2,
+  "description": "BODY_JAB recovery"
+ },
+ {
+  "key": "anim.BODY_JAB.hitStop",
+  "default": 4,
+  "min": 1,
+  "max": 16,
+  "description": "BODY_JAB hitStop"
+ },
+ {
+  "key": "anim.BODY_JAB.reach",
+  "default": 1.05,
+  "min": 0.2625,
+  "max": 4.2,
+  "description": "BODY_JAB reach"
+ },
+ {
+  "key": "anim.BODY_JAB.drive",
+  "default": 1.3,
+  "min": 0.325,
+  "max": 5.2,
+  "description": "BODY_JAB drive"
+ },
+ {
+  "key": "anim.BODY_HOOK.damage",
+  "default": 13,
+  "min": 3.25,
+  "max": 52,
+  "description": "BODY_HOOK damage"
+ },
+ {
+  "key": "anim.BODY_HOOK.startup",
+  "default": 0.12,
+  "min": 0.03,
+  "max": 0.48,
+  "description": "BODY_HOOK startup"
+ },
+ {
+  "key": "anim.BODY_HOOK.active",
+  "default": 0.24,
+  "min": 0.06,
+  "max": 0.96,
+  "description": "BODY_HOOK active"
+ },
+ {
+  "key": "anim.BODY_HOOK.recovery",
+  "default": 0.4,
+  "min": 0.1,
+  "max": 1.6,
+  "description": "BODY_HOOK recovery"
+ },
+ {
+  "key": "anim.BODY_HOOK.hitStop",
+  "default": 4,
+  "min": 1,
+  "max": 16,
+  "description": "BODY_HOOK hitStop"
+ },
+ {
+  "key": "anim.BODY_HOOK.reach",
+  "default": 1.05,
+  "min": 0.2625,
+  "max": 4.2,
+  "description": "BODY_HOOK reach"
+ },
+ {
+  "key": "anim.BODY_HOOK.drive",
+  "default": 1.4,
+  "min": 0.35,
+  "max": 5.6,
+  "description": "BODY_HOOK drive"
+ },
+ {
+  "key": "anim.HIGH_KICK.damage",
+  "default": 22,
+  "min": 5.5,
+  "max": 88,
+  "description": "HIGH_KICK damage"
+ },
+ {
+  "key": "anim.HIGH_KICK.startup",
+  "default": 0.23,
+  "min": 0.0575,
+  "max": 0.92,
+  "description": "HIGH_KICK startup"
+ },
+ {
+  "key": "anim.HIGH_KICK.active",
+  "default": 0.31,
+  "min": 0.0775,
+  "max": 1.24,
+  "description": "HIGH_KICK active"
+ },
+ {
+  "key": "anim.HIGH_KICK.recovery",
+  "default": 0.52,
+  "min": 0.13,
+  "max": 2.08,
+  "description": "HIGH_KICK recovery"
+ },
+ {
+  "key": "anim.HIGH_KICK.hitStop",
+  "default": 6,
+  "min": 1.5,
+  "max": 24,
+  "description": "HIGH_KICK hitStop"
+ },
+ {
+  "key": "anim.HIGH_KICK.reach",
+  "default": 1.46,
+  "min": 0.365,
+  "max": 5.84,
+  "description": "HIGH_KICK reach"
+ },
+ {
+  "key": "anim.HIGH_KICK.drive",
+  "default": 0.9,
+  "min": 0.225,
+  "max": 3.6,
+  "description": "HIGH_KICK drive"
+ },
+ {
+  "key": "anim.BACK_KICK.damage",
+  "default": 26,
+  "min": 6.5,
+  "max": 104,
+  "description": "BACK_KICK damage"
+ },
+ {
+  "key": "anim.BACK_KICK.startup",
+  "default": 0.31,
+  "min": 0.0775,
+  "max": 1.24,
+  "description": "BACK_KICK startup"
+ },
+ {
+  "key": "anim.BACK_KICK.active",
+  "default": 0.4,
+  "min": 0.1,
+  "max": 1.6,
+  "description": "BACK_KICK active"
+ },
+ {
+  "key": "anim.BACK_KICK.recovery",
+  "default": 0.68,
+  "min": 0.17,
+  "max": 2.72,
+  "description": "BACK_KICK recovery"
+ },
+ {
+  "key": "anim.BACK_KICK.hitStop",
+  "default": 7,
+  "min": 1.75,
+  "max": 28,
+  "description": "BACK_KICK hitStop"
+ },
+ {
+  "key": "anim.BACK_KICK.reach",
+  "default": 1.55,
+  "min": 0.3875,
+  "max": 6.2,
+  "description": "BACK_KICK reach"
+ },
+ {
+  "key": "anim.BACK_KICK.drive",
+  "default": 1.3,
+  "min": 0.325,
+  "max": 5.2,
+  "description": "BACK_KICK drive"
+ },
+ {
+  "key": "rules.guardDamageMultiplier",
+  "default": 0.2,
+  "min": 0,
+  "max": 1,
+  "description": "damage kept when the defender blocks (0.2 = 80% reduction)"
+ },
+ {
+  "key": "rules.postureOnBlock",
+  "default": 15,
+  "min": 3,
+  "max": 60,
+  "description": "posture damage when a hit is blocked"
+ },
+ {
+  "key": "rules.postureOnHit",
+  "default": 7.5,
+  "min": 1,
+  "max": 30,
+  "description": "posture damage when a hit lands"
+ },
+ {
+  "key": "rules.staggerKnockdownLoad",
+  "default": 2.65,
+  "min": 1,
+  "max": 8,
+  "description": "stagger load that causes a knockdown"
+ },
+ {
+  "key": "rival.decisionDelayMin",
+  "default": 0.18,
+  "min": 0.05,
+  "max": 1,
+  "description": "seconds between CPU rival decisions (min)"
+ }
+]

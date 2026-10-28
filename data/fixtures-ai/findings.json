@@ -1,0 +1,743 @@
+{
+ "summary": "Turtles and rushers are in crisis: turtles quit at 83% (mostly boredom after long draws), rushers quit at 67% (frustration after getting crushed in R2). Round 2 is the choke point—overall win rate drops to 45% and quit rate spikes to 19%. A physics bug (!stuck during BLOCK) appears in 3 turtle logs and likely inflates turtle boredom. Cheesers exploit a sweep-heavy strategy to win fast (avg 42.5s) with low damage taken (meanHpLoss 66.6). (Verification: 0 of 21 claims did not match the recomputed value; 1 cited seeds did not exist in the runs and were removed.)",
+ "findings": [
+  {
+   "id": "f1",
+   "title": "Turtle archetype mass-quits from boredom after drawn-out Round 1",
+   "severity": "high",
+   "kind": "boredom",
+   "narrative": "15 of 18 turtles (83%) quit, nearly all after Round 1 or 2 with reason 'boredom'. Their Round 1 avg duration is 78.7s (vs 43.9s overall) and 10/18 Round 1s end in draws. Three turtles also hit a !stuck@… BLOCK invariant violation, which likely freezes the round and amplifies boredom.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle"
+     },
+     "value": 0.83
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "turtle",
+      "round": 1
+     },
+     "value": 78.7
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "turtle",
+      "round": 1
+     },
+     "value": 0.56
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0001",
+     "round": 1,
+     "seed": 80000,
+     "why": "99s draw with !stuck@30.9 BLOCK"
+    },
+    {
+     "p": "p0003",
+     "round": 1,
+     "seed": 80006,
+     "why": "99s draw, !stuck@46.4 BLOCK, quits boredom"
+    },
+    {
+     "p": "p0002",
+     "round": 1,
+     "seed": 80003,
+     "why": "99s draw, !stuck@33.2 BLOCK"
+    }
+   ],
+   "suggestion": "Add a sudden-death timer (e.g., 60s) or damage-over-time after 45s to force resolution; fix the BLOCK stuck invariant.",
+   "confidence": 0.92,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle"
+      },
+      "value": 0.83
+     },
+     "actual": 0.833,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "turtle",
+       "round": 1
+      },
+      "value": 78.7
+     },
+     "actual": 80.011,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "turtle",
+       "round": 1
+      },
+      "value": 0.56
+     },
+     "actual": 0.556,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Hour 11: The Basics of Attacking: Damage Part II | SF Seminar | Activity Reports | CAPCOM:Shadaloo C.R.I.",
+     "url": "https://game.capcom.com/cfn/sfv/column/131545?lang=en",
+     "snippet": "Images and movies may not represent the final product.  \n PlayStationPlayStation and PS4 are registered trademarks or trademarks of Sony Interactive Entertainment Inc.   \n ©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. a"
+    },
+    {
+     "title": "Sudden Death Is THE WORST Implementation In A ...",
+     "url": "https://www.reddit.com/r/InvincibleVS/comments/1t6vamq/sudden_death_is_the_worst_implementation_in_a",
+     "snippet": "Sudden Death is a horrible idea for Invincible VS and I believe it needs to be deleted and or seriously reworked."
+    },
+    {
+     "title": "Fighting Game Super Bar Bug Fix - Albert Pierre",
+     "url": "https://www.facebook.com/artofalbertpierre2/videos/finally-figured-out-the-cause-of-this-bug-after-months-goes-into-my-understandin/2576937599323991",
+     "snippet": "This glitch was being caused by me setting the code to empty out the green bar to be set to 0 right before the super freeze happens. It empties ...Read more"
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "title": "Rusher archetype collapses in Round 2 — 67% quit from frustration",
+   "severity": "high",
+   "kind": "difficulty",
+   "narrative": "Rushers win Round 1 at 67% but plummet to 4% in Round 2; 16 of 24 (67%) quit right after R2, all 'frustration'. Mean HP loss jumps to 84.2 (worst of any archetype). They enter R2 with low HP and no defensive tools (blk0, par0), so a single knockdown ends the round in ~15s.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "rusher",
+      "round": 1
+     },
+     "value": 0.67
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "rusher",
+      "round": 2
+     },
+     "value": 0.04
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "rusher",
+      "round": 2
+     },
+     "value": 0.67
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "rusher"
+     },
+     "value": 84.2
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0020",
+     "round": 2,
+     "seed": 80035,
+     "why": "17.5s KO, hp0/67, frustration quit"
+    },
+    {
+     "p": "p0032",
+     "round": 2,
+     "seed": 80063,
+     "why": "17.0s KO, hp0/26, frustration quit"
+    }
+   ],
+   "suggestion": "Give rushers a defensive option (parry/dodge) or reduce R2 rival aggression; add HP carry-over or small heal between rounds.",
+   "confidence": 0.9,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "rusher",
+       "round": 1
+      },
+      "value": 0.67
+     },
+     "actual": 0.667,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "rusher",
+       "round": 2
+      },
+      "value": 0.04
+     },
+     "actual": 0.042,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "rusher",
+       "round": 2
+      },
+      "value": 0.67
+     },
+     "actual": 0.667,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "rusher"
+      },
+      "value": 84.2
+     },
+     "actual": 84.196,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Perfect Parry/Dodge difficulty modifiers - Space Marine 2",
+     "url": "https://community.focus-entmt.com/focus-entertainment/space-marine-2/ideas/5711-perfect-parry-dodge-difficulty-modifiers",
+     "snippet": "0badgesSend private message\n\n### Comments\n\nReply\n\nCopied to clipboard!\n\n?\n\nClick here to login\n\nReply\n\nComment\n\n Heading 1\n Heading 2\n Heading 3\n Heading 4\n Heading 5\n Heading 6\n Normal\n\nDrop your image here or browse  \n\nMax. File Size 5mo\n\nDrop your video here or browse  \n\nMax. File Size 5mo\n\nDrop "
+    },
+    {
+     "title": "Sifu Parry Timing: How To Parry And Dodge In Sifu",
+     "url": "https://www.ggrecon.com/guides/sifu-parry-timing",
+     "snippet": "Title: Sifu Parry Timing: How To Parry And Dodge In Sifu\nSifu Parry Timing: How To Parry And Dodge In Sifu    Sifu Parry Timing: How To Parry And Dodge In Sifu. # Sifu Parry Timing: How To Parry And Dodge In Sifu. Going on the defensive is an integral part of Sifu, but it can also be a difficult thi"
+    },
+    {
+     "title": "Design Notes: Block, Dodge, Parry 1.32 – Dice Goblin",
+     "url": "https://dicegoblin.blog/design-notes-block-dodge-parry-1-32",
+     "snippet": "Title: Design Notes: Block, Dodge, Parry 1.32 – Dice Goblin\nBlock, Dodge, Parry is now in version 1.32! Art: Bertdrawsstuff The 1.32 rules are available for free in the Systems Reference Document. If you’d like to support the continuous development of Block, Dodge, Parry, and gain access to all the "
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "title": "Round 2 is a global difficulty spike — win rate 45%, quit rate 19%",
+   "severity": "high",
+   "kind": "balance",
+   "narrative": "Every archetype except cheeser and speedrunner drops win rate in Round 2 (turtle 56→56, masher 54→55, learner 56→65, casual 53→44, explorer 33→27). Overall quit rate right after R2 is 19% (vs 11% after R1, 7% after R3). Round 2 avg duration 39.7s shows fights end fast—usually player KO.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "round": 2
+     },
+     "value": 0.45
+    },
+    {
+     "metric": "quitRate",
+     "scope": {
+      "round": 2
+     },
+     "value": 0.19
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "round": 2
+     },
+     "value": 39.7
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0020",
+     "round": 2,
+     "seed": 80035,
+     "why": "rusher 17.5s KO"
+    },
+    {
+     "p": "p0102",
+     "round": 2,
+     "seed": 80243,
+     "why": "casual 43.5s KO"
+    },
+    {
+     "p": "p0053",
+     "round": 2,
+     "seed": 80115,
+     "why": "masher 41.3s win (rare)"
+    }
+   ],
+   "suggestion": "Flatten the difficulty curve: reduce R2 rival damage/speed or give player a mid-run upgrade.",
+   "confidence": 0.88,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "round": 2
+      },
+      "value": 0.45
+     },
+     "actual": 0.446,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "round": 2
+      },
+      "value": 0.19
+     },
+     "actual": 0.192,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "round": 2
+      },
+      "value": 39.7
+     },
+     "actual": 39.732,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "MY HERO ULTRA RUMBLE - About the adjustments made in the 10/14/2026 maintenance | Bandai Namco Europe",
+     "url": "https://en.bandainamcoent.eu/my-hero-academia/news/my-hero-ultra-rumble-about-the-adjustments-made-the-10142026-maintenance",
+     "snippet": "Aerial Melee Attack\n  + Reduced damage\n Quirk Skill β \"Gyrate (Copy)\"\n  + Reduced damage\n  + Adjusted to knock opponents back more easily\n Quirk Skill γ \"Steal (Copy)\"\n  + Adjusted to only allow use when gauge is at 100%\n  + Reduced effect duration\n  + Reduced reload speed\n\nReason for adjustments:\n\n"
+    },
+    {
+     "title": "The Secret To A Great Fighting Game Balance Update",
+     "url": "https://www.youtube.com/watch?v=t8qi8QWRbGc",
+     "snippet": "As we enter the Patch Season for a multitude of games... let's talk about what actually makes a good balance patch... · | Twitter: ...Read more"
+    },
+    {
+     "title": "the worst way to balance a Fighting Game character",
+     "url": "https://www.youtube.com/watch?v=Y9wJVUsdA20",
+     "snippet": "the scariest archetype in Fighting Games · The Consequence of Lowering the Skill Floor · DLC Characters That Broke the Meta · Untold Story of The ...Read more"
+    }
+   ]
+  },
+  {
+   "id": "f4",
+   "title": "Cheeser sweep-spam exploit — fast wins, low damage, 58% win rate",
+   "severity": "med",
+   "kind": "exploit",
+   "narrative": "Cheesers average 42.5s/round (fastest after speedrunners) with meanHpLoss only 66.6 (best). Their top move is SWEEP (611 rival hits total). p0085 wins all three rounds in 15.1s, 17.5s, 15.4s using almost only SWEEP/JAB. This suggests SWEEP has excessive frame advantage or hitbox priority.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 0.58
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 42.5
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "cheeser"
+     },
+     "value": 66.6
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0085",
+     "round": 1,
+     "seed": 80202,
+     "why": "15.1s KO, SWEEPx4 only"
+    },
+    {
+     "p": "p0085",
+     "round": 2,
+     "seed": 80203,
+     "why": "17.5s KO, SWEEPx3/JABx1"
+    },
+    {
+     "p": "p0085",
+     "round": 3,
+     "seed": 80204,
+     "why": "15.4s KO, SWEEPx3/JABx1"
+    }
+   ],
+   "suggestion": "Increase SWEEP recovery frames or add a rival counter (armor/parry) after blocked SWEEP.",
+   "confidence": 0.8,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 0.58
+     },
+     "actual": 0.583,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 42.5
+     },
+     "actual": 42.481,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "cheeser"
+      },
+      "value": 66.6
+     },
+     "actual": 66.556,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Adjustment Summary - Street Fighter",
+     "url": "https://www.streetfighter.com/6/buckler/assets/images/battle_change/pdf/en/202405ver.pdf",
+     "snippet": "5. The blowback time on the first attack when it hits is increased.\n6. The knockback time when the first attack is blocked changed from 16 to 23 frames.\nNote: This also applies to when the first attack is canceled into a Super Art, etc.\n7. The blowback time on the second attack when it hits is incre"
+    },
+    {
+     "title": "Everything you need to know about the Parry in Street Fighter 6",
+     "url": "https://www.youtube.com/watch?v=UdmbFCeL7Bc",
+     "snippet": "[9:26] blocked he blocked what's going on he's blocking this like you definitely saw earlier in the recovery\n[9:35] frames like I was getting punish counters on this guy right now look at The Frame data it shows clear as day that I hit him during the recovery\n[9:42] frames and he still blocks you kn"
+    },
+    {
+     "title": "The Fighting Game Glossary | infil.net",
+     "url": "https://glossary.infil.net?t=Drive+Parry",
+     "snippet": "# The Fighting Game Glossary by Infil\n\n## Back to top.\n\nTop\n\n Twitter\n Ask.fm\n Donate\n\n An infil.net project\n Design: Arcana by HTML5 UP"
+    }
+   ]
+  },
+  {
+   "id": "f5",
+   "title": "!stuck invariant violation during BLOCK — physics bug affecting turtles",
+   "severity": "high",
+   "kind": "bug",
+   "narrative": "Three distinct turtle seeds (80000, 80003, 80006) log '!stuck@… BLOCK' at 30–46s. All three rounds end in 99s draws and the players quit from boredom. The engine flag '!' marks an invariant violation, so this is a hard bug, not just long rounds.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "turtle",
+      "round": 1
+     },
+     "value": 0.5
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "turtle",
+      "round": 1
+     },
+     "value": 78.7
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0001",
+     "round": 1,
+     "seed": 80000,
+     "why": "!stuck@30.9 BLOCK"
+    },
+    {
+     "p": "p0002",
+     "round": 1,
+     "seed": 80003,
+     "why": "!stuck@33.2 BLOCK"
+    },
+    {
+     "p": "p0003",
+     "round": 1,
+     "seed": 80006,
+     "why": "!stuck@46.4 BLOCK"
+    }
+   ],
+   "suggestion": "Fix the BLOCK state machine so it cannot enter a stuck state; add watchdog to auto-resolve stuck rounds.",
+   "confidence": 0.95,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "turtle",
+       "round": 1
+      },
+      "value": 0.5
+     },
+     "actual": 0.5,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "turtle",
+       "round": 1
+      },
+      "value": 78.7
+     },
+     "actual": 80.011,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "State machine stuck in a state it shouldn't be logically able to ...",
+     "url": "https://adaptivesupport.amd.com/s/question/0D52E00006hpMTXSA2/state-machine-stuck-in-a-state-it-shouldnt-be-logically-able-to-get-stuck-in-i-cant-figure-it-out?language=en_US",
+     "snippet": "Jun 4, 2020 — We got around the problem by adding a extra input or two to the state machine so that it would be coded differently, thus it seemed less ...Read more"
+    },
+    {
+     "title": "Complicated fighting game state machines? - Questions - Defold game engine forum",
+     "url": "https://forum.defold.com/t/complicated-fighting-game-state-machines/8548",
+     "snippet": "in your game object declare a local variable `local state = \"idle\"`\n\n`local state = \"idle\"`\n\nin your game object’s methods define whatever behavior that you want for idle:  \n`if state == \"idle\" then ... end`\n\n`if state == \"idle\" then ... end`\n\nthe state should change on certain events in the game. P"
+    },
+    {
+     "title": "Got a \"clock watchdog timeout\" blue screen? How do I fix and stop this from re-occuring? - Microsoft Q&A",
+     "url": "https://learn.microsoft.com/en-us/answers/questions/1650923/got-a-clock-watchdog-timeout-blue-screen-how-do-i",
+     "snippet": "0 comments No comments\n\n     Sign in to comment\n2. \n\n   PaulH   • \n     0 Reputation points\n\n   2026-05-23T06:21:57.89+00:00 [...] it's a relatively easy fix. [...] I have not heard from you for a couple of days. Please let me know if there is anything that I can help here.\n2. \n\n   Soulking   • \n   "
+    }
+   ]
+  },
+  {
+   "id": "f6",
+   "title": "Explorer archetype underpowered — 33% win rate, 85.4 mean HP loss",
+   "severity": "med",
+   "kind": "balance",
+   "narrative": "12 explorers play 33 rounds but win only 33% overall (R1 33%, R2 27%, R3 40%). They take the most damage (meanHpLoss 85.4) and have the highest koShare (67%). Low patience (avg pa0.5) and no defensive stats (blk0) leave them vulnerable to rush-down.",
+   "claims": [
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "explorer"
+     },
+     "value": 0.33
+    },
+    {
+     "metric": "meanHpLoss",
+     "scope": {
+      "archetype": "explorer"
+     },
+     "value": 85.4
+    },
+    {
+     "metric": "koShare",
+     "scope": {
+      "archetype": "explorer"
+     },
+     "value": 0.67
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0141",
+     "round": 1,
+     "seed": 80349,
+     "why": "50.3s KO, hp0/20"
+    },
+    {
+     "p": "p0144",
+     "round": 1,
+     "seed": 80358,
+     "why": "39.1s KO, hp0/23"
+    },
+    {
+     "p": "p0149",
+     "round": 1,
+     "seed": 80370,
+     "why": "38.9s KO, hp0/6"
+    }
+   ],
+   "suggestion": "Give explorers a mobility tool (dash/backstep) or increase their base HP/armor.",
+   "confidence": 0.75,
+   "verified": [
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "explorer"
+      },
+      "value": 0.33
+     },
+     "actual": 0.333,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "meanHpLoss",
+      "scope": {
+       "archetype": "explorer"
+      },
+      "value": 85.4
+     },
+     "actual": 85.424,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "koShare",
+      "scope": {
+       "archetype": "explorer"
+      },
+      "value": 0.67
+     },
+     "actual": 0.667,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "This might be the CRAZIEST balance change we've ever gotten",
+     "url": "https://www.youtube.com/watch?v=GrEIOosvVuA",
+     "snippet": "# This might be the CRAZIEST balance change we've ever gotten\n## Channel: Ronin!\n59K subscribers\n1.3K likes\n\n### Description\n24,713 views\nPosted: 2026-04-15\nEmbark has just announced that they will be running a test to change health and movement for heavy and light. Will this be good for the game?\n\n"
+    },
+    {
+     "title": "03.17.2026 update Battle Change List | Buckler's Boot Camp | STREET FIGHTER 6 | CAPCOM",
+     "url": "https://www.streetfighter.com/6/buckler/en/battle_change/20260317",
+     "snippet": "We've made adjustments to all characters this time, mainly by making more attacks viable in the neutral and expanding combo options. However, as with previous balance adjustments, we've made changes to moves with high returns that were difficult to deal with, as well as moves that were overly oppres"
+    },
+    {
+     "title": "How Damage Scaling Holds Fighting Games Together | SUPERJUMP",
+     "url": "https://www.superjumpmagazine.com/how-damage-scaling-holds-fighting-games-together",
+     "snippet": "The main reason balancing is so difficult in fighting games is because their appeal comes in the form of player expression. Unlike in linear single-player games where your performance is evaluated by some static algorithm, in fighting games, there is no clear benchmark to reach, since you are tested"
+    }
+   ]
+  },
+  {
+   "id": "f7",
+   "title": "Speedrunner frustration quit spike in Round 3 (29%) despite high skill",
+   "severity": "low",
+   "kind": "boredom",
+   "narrative": "Speedrunners win 60% overall and play fast (27.1s avg), but 4 of 9 (44%) quit—two specifically after Round 3 from 'frustration' (p0135, p0136). They likely hit a skill ceiling where R3 rival reads their optimized patterns. Small N (9 players) so treat as signal, not proof.",
+   "claims": [
+    {
+     "metric": "quitRate",
+     "scope": {
+      "archetype": "speedrunner",
+      "round": 3
+     },
+     "value": 0.29
+    },
+    {
+     "metric": "winRate",
+     "scope": {
+      "archetype": "speedrunner",
+      "round": 3
+     },
+     "value": 0.71
+    },
+    {
+     "metric": "avgDuration",
+     "scope": {
+      "archetype": "speedrunner"
+     },
+     "value": 27.1
+    }
+   ],
+   "seeds": [
+    {
+     "p": "p0135",
+     "round": 3,
+     "seed": 80334,
+     "why": "31.8s win but quits frustration"
+    },
+    {
+     "p": "p0136",
+     "round": 2,
+     "seed": 80336,
+     "why": "25.2s loss, quits frustration"
+    }
+   ],
+   "suggestion": "Add R3 variant that breaks memoized patterns (randomized rival style) to reward adaptation over memorization.",
+   "confidence": 0.6,
+   "verified": [
+    {
+     "claim": {
+      "metric": "quitRate",
+      "scope": {
+       "archetype": "speedrunner",
+       "round": 3
+      },
+      "value": 0.29
+     },
+     "actual": 0.286,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "winRate",
+      "scope": {
+       "archetype": "speedrunner",
+       "round": 3
+      },
+      "value": 0.71
+     },
+     "actual": 0.714,
+     "ok": true
+    },
+    {
+     "claim": {
+      "metric": "avgDuration",
+      "scope": {
+       "archetype": "speedrunner"
+      },
+      "value": 27.1
+     },
+     "actual": 27.076,
+     "ok": true
+    }
+   ],
+   "precedent": [
+    {
+     "title": "Gen Con 2026 Blueprints Announcement Recap - Restoration Games",
+     "url": "https://restorationgames.com/gen-con-2026-blueprints-announcement-recap",
+     "snippet": "The Unmatched game line continues to grow too, with a total of 78 heroes joining the fight by the end of 2026. Our most recent set, Unmatched: Stars and Stripes featured the final decks from the design contest and has earned a Seal of Excellence from the Dice Tower and the Editor’s Choice Award from"
+    },
+    {
+     "title": "Reevaluating Policy Gradient Methods for Imperfect-Information Games",
+     "url": "https://arxiv.org/html/2502.08938v2",
+     "snippet": "ℛ:𝕊×𝔸→ℝ\\mathcal{R}\\colon\\mathbb{S}\\times\\mathbb{A}\\to\\mathbb{R} is the reward function for player 1 (and the cost function for player 2);\n\n𝒯:𝕊×𝔸→Δ⁡(𝕊)\\mathcal{T}\\colon\\mathbb{S}\\times\\mathbb{A}\\to\\Delta(\\mathbb{S}) is the transition function;\n\n𝒪:𝕊→𝕆\\mathcal{O}\\colon\\mathbb{S}\\to\\mathbb{O} i"
+    },
+    {
+     "title": "Best Paper of NIPS2017 - Safe & Nested Subgame Solving for Imperfect-Information Games",
+     "url": "https://www.youtube.com/watch?v=tRiaGahlyy4",
+     "snippet": "[4:55] explore and exploit the bots in any way they could find and they couldn't find a weakness in the bottom and I think that the reason for that is our emphasis on being bust two opponent adaptation of\n[5:04] exploitation and having theoretical guarantees on exploit ability now for the rest of th"
+    }
+   ]
+  }
+ ],
+ "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+ "tokensIn": 35194,
+ "tokensOut": 3122,
+ "corpusTokens": 16596
+}

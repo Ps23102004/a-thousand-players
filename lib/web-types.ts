@@ -1,0 +1,26 @@
+// Web-only shapes (lib/types.ts is read-only for the web agent).
+import type { Archetype, Outcome, ReplayToken, UsageRow } from "./types";
+
+export interface ExploitGenome { rank: number; winRate: number; avgHpLoss: number; label: string; replay: ReplayToken }
+export interface ExploitFile { explanation: string; genomes: ExploitGenome[] }
+
+export interface UsageFile { usage: UsageRow[]; notes: string }
+
+export type DataSource = "run-main" | "fixtures";
+
+/** One tile of the crowd grid. Frames are 5 Hz ints: [x0*10, x1*10, hp0, hp1, state0, state1]. */
+export interface Tile {
+  key: string; name: string; archetype: Archetype | "unknown"; outcome: Outcome; live: boolean; round: number;
+  dt: number; f: number[][]; hits: [t: number, who: 0 | 1][]; href: string;
+}
+
+/** One triaged bug cluster, trimmed for the page: no raw rounds or timelines. `error` set means triage failed for this cluster. */
+export interface BugView {
+  id: string; signature: string; count: number; error?: string;
+  title?: string; isRealBug?: boolean; severity?: "high" | "med" | "low"; rootCause?: string; playerImpact?: string; confidence?: number;
+  patches: { file: string; find: string; replace: string }[];
+  verdict?: string; fixedRounds?: number; verifyRounds?: number; attempts?: number;
+  regression?: { personas: number; shipped: RegressionSide; patched: RegressionSide };
+  replay: string;
+}
+export interface RegressionSide { rounds: number; winRate: number; avgT: number; bugRounds: number }

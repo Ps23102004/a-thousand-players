@@ -1,0 +1,32 @@
+{
+  "name": "a-thousand-players",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "A crowd of Nemotron-driven players that plays, breaks and fixes your browser game.",
+  "scripts": {
+    "predev": "node scripts/sync-game.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/sync-game.mjs",
+    "build": "next build",
+    "engine:test": "node engine/test-engine.mjs 16",
+    "crowd": "node engine/crowd.mjs",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.21.0",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.186.1",
+    "undici": "^8.12.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
