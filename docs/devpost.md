@@ -19,6 +19,8 @@ All calls go to Nebius Token Factory through its OpenAI-compatible chat completi
 - **Nemotron Super-VL** looks at replay frames and describes what it sees (5.2 s for one frame). In the Eyes panel it gets three frames captured from the live replay. On the one bug round we tried, it missed the floating fighter that the engine flagged, so it is a description aid and not a detector.
 - **Nemotron Ultra 550B** reads the whole crowd at once. For the main run, that was 220,334 prompt tokens covering 1000 players and 2831 rounds, in one call, with no chunking. Ultra also does bug triage: it reads a timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a find/replace patch. In the hosted app this runs live: the **Triage this** button on a Repro match makes one Ultra call (about 27K prompt tokens, 3 to 4 s), code applies the patch to a temp copy of the game and replays the exact seed, and the page shows fixed or not fixed, decided by the replay, not the model.
 
+**Tavily** runs live in the hosted app: the **Find precedent** button on a Repro match sends the oracle's description (server-built query, developer sites only) and shows the top 3 writeups.
+
 Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking": false}`). These are structured tasks, and with thinking on, short answers could come back empty.
 
 ## What is verified and what is synthetic

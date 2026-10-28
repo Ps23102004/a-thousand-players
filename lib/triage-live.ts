@@ -124,6 +124,8 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
 
   // 1. Shipped game, recorded tuning: the baseline bug count plus the 10 Hz window around the first bug event (as engine/bugs.mjs).
   const baseline = await playRound(join(root, "engine"), { ...job, window: [Math.max(0, firstBug[0] - 4), firstBug[0] + 2] });
+  // No Ultra call when the replay does not show the bug: any patch would then be credited as a fix it is not.
+  if (!baseline.ev.some(isBug)) throw new TriageError(409, "This round did not reproduce its bug on replay, so there is nothing to triage and no model was called.");
   // Ultra sees the source, not the tuning. A rule the replay forces to 0 (rules.mountReleaseFix for rounds recorded before that fix) makes any
   // patch inside that guard a no-op, so the override is the first line of evidence.
   const overrides = Object.entries(tuning ?? {});

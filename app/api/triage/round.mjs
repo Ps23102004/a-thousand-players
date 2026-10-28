@@ -7,12 +7,14 @@ import { pathToFileURL } from 'node:url';
 // Network lock, applied before any game code loads. The patched game is model-written; Node 22's permission model (set by the parent)
 // blocks file access outside the scratch copy, child processes, workers and process.binding, but not the network. Every TCP/TLS/HTTP
 // path (including fetch and process.getBuiltinModule('net')) ends in net.Socket.prototype.connect, so disabling it, UDP and DNS here
-// closes egress; syncBuiltinESMExports makes `import('node:net')` see the same disabled functions. Verified against 13 escape routes.
+// closes egress; syncBuiltinESMExports makes `import('node:net')` see the same disabled functions. Verified against 16 escape routes (TCP, TLS, HTTP, fetch, DNS lookup and Resolver, inspector).
 import net from 'node:net'; import dgram from 'node:dgram'; import dns from 'node:dns'; import { syncBuiltinESMExports } from 'node:module';
 const deny = () => { throw new Error('sandbox: network is disabled in replays'); };
 net.Socket.prototype.connect = deny; net.connect = net.createConnection = deny; net.Server.prototype.listen = deny;
 dgram.Socket.prototype.bind = dgram.Socket.prototype.send = deny; dgram.createSocket = deny;
-for (const o of [dns, dns.promises]) for (const k of Object.keys(o)) if (typeof o[k] === 'function' && k !== 'Resolver') o[k] = deny;
+// dns.Resolver talks to name servers over UDP directly (a DNS exfiltration path), so its methods are disabled and the class itself is replaced.
+for (const R of [dns.Resolver, dns.promises.Resolver]) for (const k of Object.getOwnPropertyNames(R.prototype)) if (k !== 'constructor') R.prototype[k] = deny;
+for (const o of [dns, dns.promises]) for (const k of Object.keys(o)) if (typeof o[k] === 'function') o[k] = deny;
 for (const k of ['fetch', 'WebSocket', 'EventSource']) delete globalThis[k];
 syncBuiltinESMExports();
 

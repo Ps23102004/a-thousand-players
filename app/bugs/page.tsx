@@ -9,6 +9,7 @@ const VERDICT: Record<string, { label: string; cls: string }> = {
   "fixed-by-hand": { label: "fixed by hand (Ultra failed)", cls: "chip-ok" },
   "partially-fixed": { label: "partly fixed", cls: "chip-warn" },
   "not-fixed": { label: "not fixed", cls: "chip-warn" },
+  "did-not-reproduce": { label: "bug did not reproduce, no verdict", cls: "chip-warn" },
   "patch-did-not-apply": { label: "patch did not apply", cls: "chip-warn" },
 };
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;

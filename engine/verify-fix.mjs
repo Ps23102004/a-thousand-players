@@ -44,7 +44,9 @@ if (allApplied && regressN > 0) {
     bugRounds: rs.filter(r => r.ev.some(e => ['crash', 'stuck', 'oob', 'nan', 'clip', 'airborne', 'softlock'].includes(e[1]))).length });
   regression = { personas: regressN, shipped: stat(base), patched: stat(patched) };
 }
-const verdict = !allApplied ? 'patch-did-not-apply' : fixedRounds === rounds.length ? 'fixed' : fixedRounds > 0 ? 'partially-fixed' : 'not-fixed';
+// A patch can only be credited for a bug the unpatched game still shows; otherwise "fixed" would be vacuous.
+const reproduced = before.some(b => b.bugs.some(c => codes.has(c)));
+const verdict = !allApplied ? 'patch-did-not-apply' : !reproduced ? 'did-not-reproduce' : fixedRounds === rounds.length ? 'fixed' : fixedRounds > 0 ? 'partially-fixed' : 'not-fixed';
 const report = { bug: bugId, signature: bug.signature, verdict, applied, rounds: rounds.length, fixedRounds, before, after, regression };
 mkdirSync(`${dir}/fixes`, { recursive: true });
 writeFileSync(`${dir}/fixes/${bugId}.verify.json`, JSON.stringify(report, null, 1));

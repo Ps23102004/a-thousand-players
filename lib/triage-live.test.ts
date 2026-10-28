@@ -129,24 +129,29 @@ test("a patched replay cannot reach the network, even by routes a keyword screen
   const net = await import("node:net");
   const { readFileSync, writeFileSync, rmSync } = await import("node:fs");
   const { join } = await import("node:path");
-  let connections = 0;
+  const dgram = await import("node:dgram");
+  let connections = 0, packets = 0;
+  const udp = dgram.createSocket("udp4"); udp.on("message", () => packets++);
+  await new Promise<void>((r) => udp.bind(0, "127.0.0.1", r));
+  const port = udp.address().port;
   const server = net.createServer((c) => { connections++; c.end(); });
-  await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
-  const port = (server.address() as { port: number }).port;
+  await new Promise<void>((r) => server.listen(port, "127.0.0.1", r));
   const persona = JSON.parse(readFileSync("data/run-main/personas.json", "utf8")).find((p: { id: string }) => p.id === "p0537");
   const job = { seed: 634310, fighter: "kai" as const, tuning: null, persona };
   const attacks = [
     `await new Promise((r, j) => process.getBuiltinModule("net").connect(${port}, "127.0.0.1", r).on("error", j));`,
     `const n = await (function(){}).constructor('return import("node:n" + "et")')(); await new Promise((r, j) => n.connect(${port}, "127.0.0.1", r).on("error", j));`,
     `await globalThis["\\u0066etch"]("http://127.0.0.1:${port}");`,
+    `const d = process.getBuiltinModule("dns"); const r = new d.Resolver({ timeout: 300, tries: 1 }); r.setServers(["127.0.0.1:${port}"]); await new Promise((res, j) => r.resolveTxt("exfil.example", (e) => e ? j(e) : res()));`,
   ];
   const s = makeScratch(process.cwd());
   try {
     const src = join(s, "game/src/tuning.js"), orig = readFileSync(src, "utf8");
     for (const a of attacks) {
       writeFileSync(src, orig + "\n" + a);
-      await assert.rejects(playRound(join(s, "engine"), job), /network is disabled|not a function|fetch is not defined/, a.slice(0, 40));
+      await assert.rejects(playRound(join(s, "engine"), job), /network is disabled|not a function|not a constructor|fetch is not defined/, a.slice(0, 40));
     }
-  } finally { rmSync(s, { recursive: true, force: true }); server.close(); }
-  assert.equal(connections, 0, "no attack reached the local server");
+  } finally { rmSync(s, { recursive: true, force: true }); server.close(); udp.close(); }
+  assert.equal(connections, 0, "no attack reached the local TCP server");
+  assert.equal(packets, 0, "no DNS packet reached the local UDP server");
 });

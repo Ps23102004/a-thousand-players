@@ -114,7 +114,7 @@ test('reverting the shipped props.js fix in the scratch copy brings the old cras
   assert.deepEqual(r.out.applied, [{ file: 'props.js', ok: true }]);
   assert.equal(r.report.before[0].crash, null, 'the shipped game no longer crashes on this round');
   assert.match(r.report.after[0].crash, /^RuntimeError: unreachable in throwProp \(props\.js:\d+\)$/);
-  assert.equal(r.out.verdict, 'not-fixed');
+  assert.equal(r.out.verdict, 'did-not-reproduce', 'the bug was absent before the patch, so the verdict cannot be a fix');
 });
 
 test('the report on disk matches stdout fields and records signature, applied patches and per-round before/after', () => {
@@ -147,8 +147,8 @@ test('regression crowd: a no-op patch plays the same crowd as the shipped game; 
   assert.ok(reverted.regression.patched.rounds < reverted.regression.shipped.rounds, 'the crashed session ends early');
 });
 
-test('observation: a bug that does not reproduce on the shipped game is still reported "fixed" by any applicable patch', { todo: 'verify-fix.mjs: verdict ignores `before`; if the unpatched replay shows no bug either, "fixed" is vacuous (e.g. the zt-crash round after the props.js fix, or old rounds recorded with rules.mountReleaseFix=0)' }, () => {
+test('a bug that does not reproduce on the shipped game is reported "did-not-reproduce", never "fixed"', () => {
   const clean = verify(CRASH, [HARMLESS]);
-  assert.deepEqual(clean.report.before[0].bugs, [], 'precondition: shipped replay is clean');
-  assert.notEqual(clean.out.verdict, 'fixed', 'a fix cannot be credited for a bug that did not reproduce');
+  assert.deepEqual(clean.report.before[0].bugs, [], 'precondition: shipped replay is clean (the props.js fix is in)');
+  assert.equal(clean.out.verdict, 'did-not-reproduce', 'a fix cannot be credited for a bug that did not reproduce');
 });

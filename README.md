@@ -52,7 +52,7 @@ All numbers below come from files in `data/run-main/`.
 | Nemotron Super 120B | `nvidia/nemotron-3-super-120b-a12b` | Turns English into things the engine runs: bug report to oracle predicate, patch notes to tuning overrides; explains why exploit strategies win |
 | Nemotron Super-VL | `nvidia/Nemotron-3.5-Super-VL` | Looks at replay frames and describes what it sees |
 | Nemotron Ultra 550B | `nvidia/Nemotron-3-Ultra-550b-a55b` | Reads every play log at once and writes the report; proposes root causes and patches in bug triage |
-| Tavily | (search API) | Finds design precedent for each suggested fix |
+| Tavily | (search API) | Finds design precedent for each suggested fix; at runtime, the **Find precedent** button on a Repro match searches developer sites for writeups of the oracle's bug (`app/api/precedent/route.ts`) |
 
 Settings, latencies and token counts for each call are in [`ai/README.md`](ai/README.md).
 
