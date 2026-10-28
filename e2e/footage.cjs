@@ -214,26 +214,35 @@ const SCENES = {
     await scrollTo(page.locator("table").first(), 1800, 200);
     mark("matching rounds table");
     for (const r of await rows.all()) await highlight(page, r, 2200);
-    // Prefer seed 634310 (p0537 round 1): its live triage was observed "fixed".
-    const want = page.locator("tbody tr", { has: page.locator("a.chip", { hasText: "seed 634310" }) });
-    const row = (await want.count()) ? want.first() : rows.first();
-    const btn = row.getByRole("button", { name: /Triage round/ });
-    const [tres] = await Promise.all([
-      page.waitForResponse((r) => r.url().endsWith("/api/triage"), { timeout: 120_000 }),
-      click(page, btn),
-    ]);
-    mark("triage response received");
-    live.triage = { status: tres.status(), body: await tres.json().catch(() => null) };
-    const verdict = page.locator("td[aria-live] .finding .chips .chip").first();
-    await verdict.waitFor({ timeout: 30_000 }).catch(() => {});
-    mark(`triage HTTP ${tres.status()}: ${live.triage.body?.verdict ?? live.triage.body?.error ?? "?"}`);
-    if (await verdict.count()) {
-      await scrollTo(verdict, 1500, 200);
-      await highlight(page, verdict, 4000);
-      await scrollTo(page.locator("td[aria-live] .label", { hasText: "Replay of seed" }), 2500, 300);
-      mark("replay-decided verdict");
-      await wait(page, 5000);
-    } else await wait(page, 4000);
+    // Triage both matches in one take (2 Ultra calls); the first is p0537 round 1 (seed 634310).
+    live.triages = [];
+    for (const [i, seed] of ["634310", "497239"].entries()) {
+      const want = page.locator("tbody tr", { has: page.locator("a.chip", { hasText: `seed ${seed}` }) });
+      if (!(await want.count())) { mark(`no match row for seed ${seed}`); continue; }
+      const tag = i ? "second triage" : "triage";
+      await scrollTo(want.first(), 1500, 200);
+      mark(`${tag}: row seed ${seed}`);
+      const [tres] = await Promise.all([
+        page.waitForResponse((r) => r.url().endsWith("/api/triage"), { timeout: 120_000 }),
+        click(page, want.first().getByRole("button", { name: /Triage (round|again)|Triage this/ })),
+      ]);
+      const body = await tres.json().catch(() => null);
+      live.triages.push({ seed, status: tres.status(), body });
+      const verdict = page.locator("td[aria-live] .finding .chips .chip").nth(0);
+      await page.locator("td[aria-live] .finding .chips .chip, td[aria-live] .notice-error").first().waitFor({ timeout: 30_000 }).catch(() => {});
+      mark(`${tag} HTTP ${tres.status()}: ${body?.verdict ?? body?.error ?? "?"}`);
+      if (await verdict.count()) {
+        const chip = page.locator("td[aria-live] .finding .chips .chip", { hasText: /fixed|credited|legitimate|did not apply/ }).first();
+        await scrollTo(chip, 1500, 200);
+        await highlight(page, chip, 4000);
+        const rep = page.locator("td[aria-live] .label", { hasText: "Replay of seed" });
+        if (await rep.count()) await scrollTo(rep, 2500, 300);
+        mark(`${tag}: verdict visible`);
+        await wait(page, 6000);
+      } else await wait(page, 4000);
+      mark(`${tag}: hold end`);
+    }
+    live.triage = live.triages[0];
     const prec = page.getByRole("button", { name: "Find precedent (Tavily)" });
     if (process.env.FOOTAGE_PRECEDENT === "1" && (await prec.count())) {
       const [pres] = await Promise.all([page.waitForResponse((r) => r.url().endsWith("/api/precedent"), { timeout: 60_000 }), click(page, prec.first())]);
