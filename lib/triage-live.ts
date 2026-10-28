@@ -2,9 +2,9 @@
 // game/src -> the exact seed replayed before and after. Plain Node (fs, child_process); the model call is injected (`ask`) so the
 // apply/replay half is testable without credits. Each replay runs in its own process: see app/api/triage/round.mjs.
 import { execFile } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { triageBug, type BugCluster, type Patch, type Triage } from "@/ai";
 import { fighterFor } from "./replay-token";
 import type { Ev, Outcome, Persona, RunLine, Tuning } from "./types";
@@ -40,9 +40,18 @@ const WORKER = join(process.cwd(), "app/api/triage/round.mjs");
 const errorLine = (stderr: string) => stderr.split("\n").map((l) => l.trim()).find((l) => /^\w*Error\b/.test(l)) ?? stderr.trim().split("\n")[0];
 
 /** Plays one round in a fresh Node process. engineDir decides which game/src the engine imports: the shipped one or a patched scratch copy. */
+// The patched game is model-written code, so its process gets no secrets (minimal env) and runs under Node's permission model:
+// it may read only the worker, the engine, the game copy and node_modules; no child processes, workers, addons or file writes.
+// ponytail: Node 22's permission model does not block network; the patch screen in applyPatches refuses fetch/sockets instead.
+export function sandboxArgs(engineDir: string): string[] {
+  const base = realpathSync(dirname(engineDir)); // permission checks use real paths (/var -> /private/var on macOS)
+  const reads = [WORKER, join(base, "engine"), join(base, "game"), join(base, "node_modules")];
+  return ["--permission", ...reads.map((r) => `--allow-fs-read=${r}`)];
+}
+
 export function playRound(engineDir: string, job: RoundJob, timeoutMs = 30_000): Promise<RoundResult> {
   return new Promise((resolve, reject) => {
-    execFile(process.execPath, [WORKER, engineDir, JSON.stringify(job)], { timeout: timeoutMs, maxBuffer: 1e7 }, (err, stdout, stderr) => {
+    execFile(process.execPath, [...sandboxArgs(engineDir), WORKER, engineDir, JSON.stringify(job)], { timeout: timeoutMs, maxBuffer: 1e7, env: { PATH: process.env.PATH ?? "", NODE_ENV: "production" } }, (err, stdout, stderr) => {
       if (err) return reject(new Error(errorLine(stderr) || err.message));
       try { resolve(JSON.parse(stdout.trim().split("\n").pop()!) as RoundResult); } catch { reject(new Error("the replay printed no result")); }
     });
@@ -50,23 +59,31 @@ export function playRound(engineDir: string, job: RoundJob, timeoutMs = 30_000):
 }
 
 // ---------- scratch copy + patch ----------
-/** Temp copy of game/src beside a copy of engine/*.mjs (its '../game/src' imports then pick up the patch); node_modules is linked so three and Rapier resolve. */
+// The only files the engine loads from node_modules. They are copied, not symlinked: under Node's permission model, resolving a
+// symlink stats every parent folder (/private, /private/var, ...), which would need read access to the whole disk.
+const ENGINE_DEPS = ["three/package.json", "three/build/three.module.js", "three/build/three.core.js", "@dimforge/rapier3d-compat/package.json", "@dimforge/rapier3d-compat/dist/rapier.mjs"];
+
+/** Temp copy of game/src beside a copy of engine/*.mjs (its '../game/src' imports then pick up the patch), plus copies of the engine's two dependencies. */
 export function makeScratch(root: string): string {
-  const dir = mkdtempSync(join(tmpdir(), "triage-"));
+  const dir = mkdtempSync(join(realpathSync(tmpdir()), "triage-")) // real path: /var is a symlink on macOS, and the sandbox cannot resolve through it;
   cpSync(join(root, "game/src"), join(dir, "game/src"), { recursive: true });
   mkdirSync(join(dir, "engine"));
   for (const f of readdirSync(join(root, "engine")).filter((f) => f.endsWith(".mjs"))) cpSync(join(root, "engine", f), join(dir, "engine", f));
-  symlinkSync(join(root, "node_modules"), join(dir, "node_modules"), "dir");
+  for (const f of ENGINE_DEPS) { mkdirSync(dirname(join(dir, "node_modules", f)), { recursive: true }); cpSync(join(root, "node_modules", f), join(dir, "node_modules", f)); }
   return dir;
 }
 
 export interface Applied { file: string; ok: boolean; why?: string }
+// A gameplay fix never needs these. A patch may keep ones already in the text it replaces, but not add new ones.
+const UNSAFE = /\b(process|require|import|fetch|eval|Function|globalThis|child_process|XMLHttpRequest|WebSocket|Deno|Bun|setTimeout|setInterval)\b/g;
+export const addsUnsafe = (find: string, replace: string) => (replace.match(UNSAFE)?.length ?? 0) > (find.match(UNSAFE)?.length ?? 0);
 /** Same rules as engine/verify-fix.mjs: a patch applies only to a game/src/*.js file and only if `find` matches exactly once. */
 export function applyPatches(srcDir: string, patches: Patch[]): Applied[] {
   return patches.map((p) => {
     if (!/^[\w.-]+\.js$/.test(p.file) || !existsSync(join(srcDir, p.file))) return { file: p.file, ok: false, why: "not a game/src/*.js file" };
     const path = join(srcDir, p.file), src = readFileSync(path, "utf8"), n = src.split(p.find).length - 1;
     if (n !== 1) return { file: p.file, ok: false, why: n === 0 ? "find text not found" : `find text matches ${n} times` };
+    if (addsUnsafe(p.find, p.replace)) return { file: p.file, ok: false, why: "patch adds process, module, network or eval access; refused" };
     writeFileSync(path, src.replace(p.find, () => p.replace));
     return { file: p.file, ok: true };
   });
@@ -90,7 +107,8 @@ function modelError(e: unknown, timeoutMs: number): TriageError {
   if (typeof err?.status === "number") return new TriageError(502, `Token Factory returned HTTP ${err.status} for the Ultra call.`);
   if (/NEBIUS_API_KEY/.test(msg)) return new TriageError(503, "NEBIUS_API_KEY is not set on the server, so no model can be called.");
   if (/failed validation/.test(msg)) return new TriageError(502, `Ultra answered, but the answer failed validation: ${msg.replace(/^.*last: /, "")}. One call, no retry; press the button again.`);
-  return new TriageError(502, `The Ultra call failed: ${msg.slice(0, 200)}`);
+  console.error("live triage: Ultra call failed:", msg);
+  return new TriageError(502, "The Ultra call failed. Try again in a minute.");
 }
 
 /**
@@ -138,7 +156,8 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
           after = side(await playRound(join(scratch, "engine"), job));
           verdict = after.bugEvents === 0 ? "fixed" : "not-fixed";
         } catch (e) {
-          afterError = `The patched game did not run: ${(e as Error).message.slice(0, 200)}`;
+          console.error("live triage: patched replay failed:", (e as Error).message);
+          afterError = "The patched game did not run (it threw or timed out), so the patch does not fix the bug.";
           verdict = "not-fixed";
         }
       }

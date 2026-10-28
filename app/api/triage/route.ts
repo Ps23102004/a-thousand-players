@@ -28,6 +28,6 @@ export async function POST(req: Request) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("triage route failed:", message);
     if (e instanceof TriageError) return Response.json({ error: message }, { status: e.status });
-    return Response.json({ error: `Triage stopped before a verdict: ${message.slice(0, 200)}` }, { status: 500 });
+    return Response.json({ error: "Triage stopped before a verdict. Try again in a minute." }, { status: 500 });
   }
 }

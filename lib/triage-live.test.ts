@@ -84,7 +84,7 @@ test("triageRound: fixed / patch-did-not-apply / not-a-bug / broken patch, with 
 
   const broken = await triageRound(input, { ask: ask({ patches: [{ file: "ground.js", find: "export const GROUND_RULES", replace: "export const GROUND_RULES = (" }] }) });
   assert.equal(broken.verdict, "not-fixed");
-  assert.match(broken.afterError ?? "", /did not run: SyntaxError/);
+  assert.match(broken.afterError ?? "", /patched game did not run/);
 });
 
 test("triageRound turns model failures into readable errors with a status", async () => {
@@ -95,4 +95,31 @@ test("triageRound turns model failures into readable errors with a status", asyn
   await assert.rejects(triageRound(input, { ask: fails(Object.assign(new Error("HTTP 429: slow down"), { status: 429 })) }), (e: TriageError) => e.status === 503);
   await assert.rejects(triageRound(input, { ask: fails(new Error("triage answer failed validation 1 time; last: patch 0: find text occurs 0 times")) }), (e: TriageError) => e.status === 502 && /find text occurs 0 times/.test(e.message));
   await assert.rejects(triageRound({ ...input, run: { ...bug4, ev: [[1, "hit", 0]] } }, { ask: ask({}) }), (e: TriageError) => e.status === 422);
+});
+
+// ---------- sandbox for model-written patches (security review 2026-10-28) ----------
+test("patch screen refuses patches that add process, module, network or eval access", async () => {
+  const { addsUnsafe } = await import("./triage-live");
+  assert.equal(addsUnsafe("x = 1;", "x = fetch('http://x');"), true);
+  assert.equal(addsUnsafe("if (a) {", "if (a) { process.exit(1);"), true);
+  assert.equal(addsUnsafe("y = 2;", "y = globalThis.z;"), true);
+  assert.equal(addsUnsafe("import { a } from './b.js';", "import { a } from './b.js';"), false, "keeping an existing import is fine");
+  assert.equal(addsUnsafe("if (prop.rigidBody) {", "if (prop.rigidBody && !prop.isBroken) {"), false);
+});
+
+test("a patched replay runs without secrets and cannot read files outside its scratch copy", async () => {
+  const { makeScratch, playRound } = await import("./triage-live");
+  const { readFileSync, writeFileSync, rmSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const persona = JSON.parse(readFileSync("data/run-main/personas.json", "utf8")).find((p: { id: string }) => p.id === "p0537");
+  const job = { seed: 634310, fighter: "kai" as const, tuning: null, persona };
+  const s = makeScratch(process.cwd());
+  try {
+    const src = join(s, "game/src/tuning.js"), orig = readFileSync(src, "utf8");
+    writeFileSync(src, orig + `\nif (Object.keys(process.env).some((k) => /KEY|TOKEN|SECRET/.test(k))) throw new Error("secret visible");`);
+    const ok = await playRound(join(s, "engine"), job);
+    assert.ok(ok.out, "benign patched replay runs and sees no secret-named env vars");
+    writeFileSync(src, orig + `\nconst fs = await import("node:fs"); fs.readFileSync(${JSON.stringify(join(process.cwd(), "package.json"))}, "utf8");`);
+    await assert.rejects(playRound(join(s, "engine"), job), /restricted|permission/i, "reading a file outside the scratch copy is blocked");
+  } finally { rmSync(s, { recursive: true, force: true }); }
 });
