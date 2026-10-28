@@ -1,7 +1,7 @@
 // Web-only shapes (lib/types.ts is read-only for the web agent).
 import type { Archetype, Outcome, ReplayToken, UsageRow } from "./types";
 
-export interface ExploitGenome { rank: number; winRate: number; avgHpLoss: number; label: string; replay: ReplayToken }
+export interface ExploitGenome { rank: number; winRate: number; avgHpLoss: number; label: string; hits?: Record<string, number>; replay: ReplayToken }
 export interface ExploitFile { explanation: string; genomes: ExploitGenome[] }
 
 export interface UsageFile { usage: UsageRow[]; notes: string }

@@ -16,9 +16,9 @@
   },
   {
    "model": "nvidia/nemotron-3-super-120b-a12b",
-   "calls": 1,
-   "tokensIn": 1276,
-   "tokensOut": 183,
+   "calls": 2,
+   "tokensIn": 2579,
+   "tokensOut": 479,
    "usdEstimate": 0
   }
  ],

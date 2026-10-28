@@ -28,7 +28,7 @@ All numbers below come from files in `data/run-main/`.
   | bug2 | `oob+airborne+softlock` | 4 | Triage failed: Ultra's patch `find` text did not occur in `ground.js` after 3 tries. |
   | bug3 | `crash: RuntimeError: unreachable in throwProp (props.js:303)` | 3 | Triage failed: the answer was missing required fields after 3 tries. |
 
-- **Exploit search** (`exploit.json`): 32 strategies over 2 generations, 30 rounds each (960 rounds). The best strategy ("Mid Grapple Cheese") won 30 of 30 rounds (win rate 1.0) against the CPU.
+- **Exploit search** (`exploit.json`): 32 strategies over 2 generations, 30 rounds each (960 rounds). The best strategy ("Mid Grapple Cheese") won 30 of 30 rounds (win rate 1.0) against the CPU. The recorded hits show how: 117 SWEEP hits, 49 GROUND strikes. Every top strategy wins the same way, sweep (which the CPU never crouch-blocks) into knockdown into mount, whatever Nano's rule text said it was doing.
 
 ## Honest limits
 
@@ -36,6 +36,7 @@ All numbers below come from files in `data/run-main/`.
 - **Crowd players are not LLM-driven move by move.** Nano writes each persona's policy, and the engine runs that policy natively. Driving all 1000 players with model calls on every decision was measured as too slow and too costly. The live "spotlight" player (`ai/spotlight.ts`, Nano picks each action) is implemented and measured but is not part of the main crowd run.
 - **Findings are sampled, not proofs of absence.** If the crowd did not hit a bug, that does not mean the bug is not there.
 - **Only the claims and seeds are machine-checked.** Ultra's prose can still contain wrong numbers. On a test fixture it wrote "10/18 Round 1s end in draws" when there were 3. Trust the verified claims, not the narrative.
+- **Super's exploit explanation was wrong until it was grounded.** Given only the strategies' rule text and the CPU code, Super explained the wins as "recovery-state grabs". The recorded hits say sweep into mount. The prompt now includes the measured hit tally per strategy, and the `explanation` field starts with that tally, written by code. Super's prose after it names the sweep and the guard rule, but still over-reads the grabs.
 - **One game adapter.** The adapter contract is documented below, but Market Brawl is the only game that implements it.
 - **Prices are estimates.** Only Ultra has a dollar estimate, at an unverified aggregator price ($1/M input, $3/M output). Other models report tokens only.
 

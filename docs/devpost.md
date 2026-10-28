@@ -15,7 +15,7 @@ The players are synthetic. The findings are hypotheses to replay and check, not 
 All calls go to Nebius Token Factory through its OpenAI-compatible chat completions API. Each model has a job that needs it:
 
 - **Nemotron Nano 30B** writes persona policies in bulk (1000 personas in 289 s over 69 calls). It can also pick each action live for a spotlight player (implemented and measured, not part of the main run) (median 3.5 s per uncached call, 3 tokens out), and it proposes and evolves exploit strategies (32 strategies over 2 generations).
-- **Nemotron Super 120B** turns English into things the engine can run: a bug report becomes an oracle predicate, and patch notes become tuning overrides (0.7 to 1.6 s per report). It also explains why the winning exploit strategies work.
+- **Nemotron Super 120B** turns English into things the engine can run: a bug report becomes an oracle predicate, and patch notes become tuning overrides (0.7 to 1.6 s per report). It also explains why the winning exploit strategies work, once the prompt includes the hits the engine recorded; from the rule text alone it guessed a wrong mechanism (see "What is verified").
 - **Nemotron Super-VL** looks at replay frames and describes what it sees (5.2 s for one frame).
 - **Nemotron Ultra 550B** reads the whole crowd at once. For the main run, that was 220,334 prompt tokens covering 1000 players and 2831 rounds, in one call, with no chunking. Ultra also does bug triage: it reads a timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a find/replace patch.
 
@@ -31,6 +31,7 @@ Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking":
 
 **Synthetic, or not checked:**
 - **The players.** Quitting and boredom come from a simple mood model with traits written by Nano. Crowd players run their policies natively. They are not driven by an LLM decision by decision.
+- **Super's exploit explanation.** From strategy text alone it blamed "recovery-state grabs"; the recorded hits (117 SWEEP, 49 GROUND for the top strategy) show sweep into mount. The page now shows the measured hit tally beside each strategy, and Super's text is grounded in it.
 - **Ultra's prose.** Only claims and seeds are checked. On a fixture, the narrative text included a made-up count.
 - **Prices.** Only Ultra has a dollar estimate, at an unverified aggregator price. Main-run total: $0.59 across 14 Ultra calls.
 
