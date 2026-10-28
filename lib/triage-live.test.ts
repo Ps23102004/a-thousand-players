@@ -164,3 +164,11 @@ test("a patch that only flips a rule the replay forces off is not credited as a 
   assert.equal(r.verdict, "reused-shipped-fix");
   assert.equal(r.after, null, "no replay is run for it");
 });
+
+test("live triage gives Ultra two attempts, so a patch that fails validation gets one corrected retry", async () => {
+  const input = { run: bug4, persona: personas.get("p0653")!, tuning: RECORDED, sameSignature: [bug4] };
+  let opts: { attempts?: number } | undefined;
+  const spy = async (...a: unknown[]) => { opts = a[3] as { attempts?: number }; throw new Error("triage answer failed validation 2 times; last: patch 0: find text occurs 0 times"); };
+  await assert.rejects(triageRound(input, { ask: spy as never }), (e: TriageError) => e.status === 502 && /2 tries/.test(e.message) && !/no retry/.test(e.message));
+  assert.equal(opts?.attempts, 2);
+});

@@ -45,7 +45,7 @@ export default function MatchRow({ m }: { m: ReproMatch }) {
           <div className="chips">
             <a className="chip" href={m.href}>▶ seed {m.seed}</a>
             <button className="chip" type="button" onClick={triage} disabled={busy} style={{ cursor: busy ? "wait" : "pointer", opacity: busy ? 0.6 : 1 }} aria-label={`Triage round ${m.round} of ${m.name} with Nemotron Ultra`}>
-              {busy ? "Ultra is reading the code..." : result ? "Triage again" : "Triage this (Ultra)"}
+              {busy ? "Ultra is reading the code (up to 2 tries)..." : result ? "Triage again" : "Triage this (Ultra)"}
             </button>
           </div>
         </td>

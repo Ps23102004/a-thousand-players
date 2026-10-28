@@ -4,7 +4,7 @@ import { isBug, signatureOf, TriageError, triageRound, validateTriageBody } from
 
 // Live triage of one recorded round: ONE Nemotron Ultra call (the only model call). The round is looked up server-side from
 // {p, round}; evidence, the patch and both replays are computed here, in child processes. Nothing is stored; game/src is never modified.
-export const maxDuration = 60; // evidence replay + a 40 s model budget + two replays
+export const maxDuration = 120; // evidence replay + up to 2 Ultra tries of 40 s each + two replays
 const TIMEOUT_MS = Number(process.env.TRIAGE_TIMEOUT_MS) || 40_000;
 
 export async function POST(req: Request) {

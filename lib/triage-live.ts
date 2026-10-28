@@ -103,11 +103,11 @@ const side = (r: RoundResult): TriageLiveSide => {
 function modelError(e: unknown, timeoutMs: number): TriageError {
   const err = e as { name?: string; status?: number; message?: string };
   const msg = err?.message ?? String(e);
-  if (err?.name === "TimeoutError") return new TriageError(504, `Nemotron Ultra did not answer within ${Math.round(timeoutMs / 1000)} s. This flow makes one call with no retry; press the button again.`);
+  if (err?.name === "TimeoutError") return new TriageError(504, `Nemotron Ultra did not answer within ${Math.round(timeoutMs / 1000)} s. Each of its ${LIVE_ATTEMPTS} tries has that limit; press the button again.`);
   if (err?.status === 429) return new TriageError(503, "Token Factory is rate-limiting Nemotron Ultra (HTTP 429). Try again in a minute.");
   if (typeof err?.status === "number") return new TriageError(502, `Token Factory returned HTTP ${err.status} for the Ultra call.`);
   if (/NEBIUS_API_KEY/.test(msg)) return new TriageError(503, "NEBIUS_API_KEY is not set on the server, so no model can be called.");
-  if (/failed validation/.test(msg)) return new TriageError(502, `Ultra answered, but the answer failed validation: ${msg.replace(/^.*last: /, "")}. One call, no retry; press the button again.`);
+  if (/failed validation/.test(msg)) return new TriageError(502, `Ultra answered, but the answer failed validation: ${msg.replace(/^.*last: /, "")}. It failed on both of its ${LIVE_ATTEMPTS} tries; press the button again for a new answer.`);
   console.error("live triage: Ultra call failed:", msg);
   return new TriageError(502, "The Ultra call failed. Try again in a minute.");
 }
@@ -116,6 +116,10 @@ function modelError(e: unknown, timeoutMs: number): TriageError {
  * The whole flow for one recorded round. Throws TriageError (with an HTTP status) when the model call fails; replay or
  * patch problems are reported inside the result instead, because the root cause Ultra wrote is still worth showing.
  */
+// A patch that fails validation (find text not in the source, missing fields) goes back to Ultra once with the error, as the offline
+// triage does with 3. Each attempt has its own timeout, so the worst case is about 2 x timeoutMs.
+export const LIVE_ATTEMPTS = 2;
+
 export async function triageRound({ run, persona, tuning, sameSignature }: TriageInput, { root = process.cwd(), ask = triageBug, timeoutMs = 40_000 }: TriageDeps = {}): Promise<TriageLiveResult> {
   const t0 = Date.now();
   const firstBug = run.ev.find(isBug);
@@ -142,7 +146,7 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
     representative: { p: run.p, round: run.round, seed: run.seed, label: "recorded" }, timeline,
   };
   let triage: Triage;
-  try { triage = await ask(cluster, join(root, "game/src"), "", { attempts: 1, timeoutMs, retries: 0 }); }
+  try { triage = await ask(cluster, join(root, "game/src"), "", { attempts: LIVE_ATTEMPTS, timeoutMs, retries: 0 }); }
   catch (e) { throw modelError(e, timeoutMs); }
   const t2 = Date.now();
 
