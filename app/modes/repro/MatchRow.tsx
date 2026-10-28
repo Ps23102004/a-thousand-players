@@ -85,7 +85,7 @@ export default function MatchRow({ m }: { m: ReproMatch }) {
                   </p>
                   <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: 6 }}>
                     Both replays use the recorded tuning {JSON.stringify(result.tuning)} so the round reproduces as recorded; the shipped game&apos;s own hand fix for mount release is switched off by it.
-                    One seed, no regression crowd: &quot;fixed&quot; means this one round runs clean, not that the game is fixed.
+                    {result.verdict === "fixed" && <> One seed, no regression crowd: &quot;fixed&quot; means this one round runs clean, not that the game is fixed.</>}
                     Timings: replay {secs(result.ms.replayBefore)}, model {secs(result.ms.model)}, patch + replay {secs(result.ms.replayAfter)}.
                   </p>
                 </div>

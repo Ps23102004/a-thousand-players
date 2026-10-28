@@ -216,7 +216,7 @@ const SCENES = {
     for (const r of await rows.all()) await highlight(page, r, 2200);
     // Triage both matches in one take (2 Ultra calls); the first is p0537 round 1 (seed 634310).
     live.triages = [];
-    for (const [i, seed] of ["634310", "497239"].entries()) {
+    for (const [i, seed] of (process.env.FOOTAGE_FIRST_ONLY === "1" ? ["634310"] : ["634310", "497239"]).entries()) {
       const want = page.locator("tbody tr", { has: page.locator("a.chip", { hasText: `seed ${seed}` }) });
       if (!(await want.count())) { mark(`no match row for seed ${seed}`); continue; }
       const tag = i ? "second triage" : "triage";
