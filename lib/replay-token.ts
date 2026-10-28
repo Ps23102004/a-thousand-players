@@ -23,3 +23,10 @@ export function decodeToken(s: string | null | undefined): ReplayToken | null {
     return null;
   }
 }
+
+/** Which fighter a persona plays. Same FNV-1a rule as engine/crowd-worker-lib.mjs, so a link replays the round that was recorded. */
+export function fighterFor(personaId: string): "kai" | "rook" {
+  let h = 2166136261;
+  for (let i = 0; i < personaId.length; i++) { h ^= personaId.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0) % 2 ? "rook" : "kai";
+}

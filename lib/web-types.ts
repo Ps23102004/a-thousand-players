@@ -1,5 +1,5 @@
 // Web-only shapes (lib/types.ts is read-only for the web agent).
-import type { Archetype, Outcome, ReplayToken, UsageRow } from "./types";
+import type { Archetype, Ev, Oracle, Outcome, ReplayToken, UsageRow } from "./types";
 
 export interface ExploitGenome { rank: number; winRate: number; avgHpLoss: number; label: string; hits?: Record<string, number>; replay: ReplayToken }
 export interface ExploitFile { explanation: string; genomes: ExploitGenome[] }
@@ -24,3 +24,7 @@ export interface BugView {
   replay: string;
 }
 export interface RegressionSide { rounds: number; winRate: number; avgT: number; bugRounds: number }
+
+export interface ReproMatch { p: string; name: string; archetype: string; round: number; seed: number; t: number; out: Outcome; events: Ev[]; href: string }
+export interface ReproResult { total: number; matched: number; examples: ReproMatch[] }
+export interface ReproResponse extends ReproResult { oracle: Oracle }

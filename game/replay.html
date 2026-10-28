@@ -92,7 +92,7 @@ async function start() {
   acc = 0; seen = 0; $('ticker').textContent = ''; $('end').classList.remove('show');
   $('pname').textContent = (token.persona ? `${token.persona.name} · ${token.persona.archetype}` : 'RECORDED INPUT') + ` (${sim.player.name})`;
   $('rname').textContent = `${sim.rival.name} · built-in CPU`;
-  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? 'patched tuning' : 'shipped tuning'} · deterministic re-simulation`;
+  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? (Object.keys(token.tuning).every(k => k === 'rules.mountReleaseFix') ? 'build as recorded (before the mount-release fix)' : 'patched tuning') : 'shipped tuning'} · deterministic re-simulation`;
 }
 function seekTo(t) { while (!sim.done && sim.time() < t) sim.step(ctrl.step(sim)); }
 function tickerAdd(e) {

@@ -3,9 +3,10 @@ import "server-only";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { computeSummary, parseRunsJsonl } from "./stats";
-import { encodeToken } from "./replay-token";
-import type { Findings, Persona, RunLine, SessionEnd, Summary, Trace, TraceFile } from "./types";
-import type { BugView, DataSource, ExploitFile, Tile, UsageFile } from "./web-types";
+import { encodeToken, fighterFor } from "./replay-token";
+import { matchOracle } from "./oracle";
+import type { Ev, Findings, Oracle, Persona, RunLine, SessionEnd, Summary, Trace, TraceFile, Tuning } from "./types";
+import type { BugView, DataSource, ExploitFile, ReproMatch, ReproResult, Tile, UsageFile } from "./web-types";
 
 const ROOT = process.cwd();
 const RUN_MAIN = join(ROOT, "data/run-main");
@@ -24,6 +25,12 @@ export interface Dataset {
 }
 
 let cached: { stamp: string; data: Dataset } | null = null;
+
+/** Tuning that makes a replay match how the shipped data was recorded (see data/run-main/meta.json); null for fixtures or new data. */
+export function recordedTuning(): Tuning | null {
+  const path = join(getSource() === "run-main" ? RUN_MAIN : FIXTURES, "meta.json");
+  return existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")).recordedWith ?? null) : null;
+}
 
 export function getSource(): DataSource {
   return existsSync(join(RUN_MAIN, "runs.jsonl")) ? "run-main" : "fixtures";
@@ -66,7 +73,7 @@ export function replayHref(p: string, round: number): string {
   const key = `${p}:${round}`;
   const run = runs.get(key);
   const token = encodeToken({
-    seed: run?.seed ?? 0, tuning: null, fighter: "kai", maxT: Math.ceil(run?.t ?? 99), persona: personas.get(p),
+    seed: run?.seed ?? 0, tuning: recordedTuning(), fighter: fighterFor(p), maxT: Math.ceil(run?.t ?? 99), persona: personas.get(p),
   });
   return `/replay?key=${encodeURIComponent(key)}&t=${token}`;
 }
@@ -130,7 +137,7 @@ export function getTriage(): BugView[] {
   const data = raw.map((b): BugView => {
     const rep = b.representative;
     // Token built from the representative round's own seed; runs.jsonl may not hold it (sweep rounds live elsewhere), so no runs lookup.
-    const token = encodeToken({ seed: rep.seed, tuning: null, fighter: "kai", maxT: Math.ceil(rep.t ?? 99), persona: personas.get(rep.p) });
+    const token = encodeToken({ seed: rep.seed, tuning: recordedTuning(), fighter: fighterFor(rep.p), maxT: Math.ceil(rep.t ?? 99), persona: personas.get(rep.p) });
     const t = b.triage, v = b.verify;
     return {
       id: b.id, signature: b.signature, count: b.count, error: b.error,
@@ -142,4 +149,22 @@ export function getTriage(): BugView[] {
   });
   triageCache = { stamp, data };
   return data;
+}
+
+/** Runs the oracle over every recorded round (base tuning) and returns the count plus up to `limit` examples, earliest trigger first. */
+export function findOracleMatches(oracle: Oracle, limit = 8): ReproResult {
+  const { runs, personas } = getData();
+  const hits: { run: RunLine; events: Ev[] }[] = [];
+  let total = 0;
+  for (const run of runs.values()) {
+    total++;
+    const events = matchOracle(oracle, run);
+    if (events) hits.push({ run, events });
+  }
+  hits.sort((a, b) => a.events[0][0] - b.events[0][0]);
+  const examples = hits.slice(0, limit).map(({ run, events }) => ({
+    p: run.p, name: personas.get(run.p)?.name ?? run.p, archetype: personas.get(run.p)?.archetype ?? "unknown",
+    round: run.round, seed: run.seed, t: run.t, out: run.out, events: events.slice(0, 4), href: replayHref(run.p, run.round),
+  }));
+  return { total, matched: hits.length, examples };
 }

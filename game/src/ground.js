@@ -1,4 +1,5 @@
 import { playAnimation } from './animation.js';
+import { RULES } from './tuning.js';
 
 export const GROUND_RULES = Object.freeze({fallTime:.48,getUpWindow:2.4,mountRange:1.65,promptTime:1.25,reverseTime:.40,maxStrikes:3});
 const keys=['KeyJ','KeyK','KeyL'];
@@ -81,7 +82,7 @@ export const setMountObstacles=fn=>{obstacles=fn};
 function releaseSpot(base,aim){
  const at=s=>({x:Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1*s)),z:Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1*s))});
  const clear=c=>obstacles().every(p=>{if(p.isBroken)return true;const t=p.rigidBody?.translation();return !t||Math.hypot(t.x-c.x,t.z-c.z)>1});
- return [at(1),at(-1)].find(clear)||at(1);
+ return (RULES.mountReleaseFix&&[at(1),at(-1)].find(clear))||at(1);
 }
 export function releaseMount(m,{separate=true}={}) {
  if(!m||m.closed)return;m.closed=true;
@@ -90,7 +91,7 @@ export function releaseMount(m,{separate=true}={}) {
   f.mount=null;f.collider?.setSensor(false);f.rigidBody?.setGravityScale(1,true);stop(f);
   // A body held still for the mount can be asleep; waking it by changing gravity leaves its floor contact stale, so it sinks
   // through the floor for ~0.3 s and is then ejected upward (next to the wall that ends outside the arena).
-  f.rigidBody?.sleep();f.rigidBody?.wakeUp();f.attackQueue=[];f.animSpeed=1;
+  if(RULES.mountReleaseFix){f.rigidBody?.sleep();f.rigidBody?.wakeUp()}f.attackQueue=[];f.animSpeed=1;
  }
  if(separate){const s=releaseSpot(base,aim);m.top.rigidBody?.setTranslation({x:s.x,y:.82,z:s.z},true)}
  m.top.ground=null;resetPose(m.top);

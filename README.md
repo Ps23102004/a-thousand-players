@@ -11,7 +11,8 @@ Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Braw
 3. **Report.** Nemotron Ultra reads every play log in one context and returns findings. Each finding has structured claims and the seeds of rounds that show it. Code then recomputes every claim from the raw runs and removes any seed that does not exist.
 4. **Bug triage.** Invariant checks in the engine (`engine/bugs.mjs`) group broken rounds into bug clusters. Ultra proposes a root cause and a patch. `engine/verify-fix.mjs` applies the patch to a scratch copy of the game, replays the exact seeds, and runs a regression crowd.
 5. **Exploit search.** Nano proposes bot strategies, the engine plays each one, Nano evolves the best ones, and Super writes an explanation of why they win.
-6. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed.
+6. **Repro.** A player writes a bug report in plain English. Nemotron Super turns it into an oracle, a predicate over the engine's event log. Plain code (`lib/oracle.ts`, no model) runs the oracle over all 2831 recorded rounds and links the rounds that trip it. The sample report about floating up and leaving the arena finds exactly the two recorded rounds with that bug. Zero matches does not prove a bug is absent, and the model's oracle varies a little between calls.
+7. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 42 of 42 sampled recorded rounds replay event for event that way.
 
 ## Results from the main run
 

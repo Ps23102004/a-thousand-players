@@ -38,7 +38,7 @@ export class RejectedInput extends Error {}
 
 const ORACLE_PROMPT = `Turn a player's bug report about a 1v1 fighting game into an executable oracle: a predicate over the events the headless engine logs for a round.
 Events: invariant violations stuck (a fighter frozen in one state or animation on the ground), oob (out of bounds), nan, clip (through geometry), airborne (stuck in the air), softlock (nobody can act); outcomes player_ko, rival_ko, timeout; gameplay hit, block, parry, knockdown, throw, prop, combo, mount.
-Atom fields: event (required), who (0 = the player, 1 = the CPU rival), minCount (integer >= 1), minDuration (seconds the condition lasts, > 0), withinSeconds ([start, end] of round time; rounds last 5-100 s), arg (only a move or fighter state name in CAPS that the report names, e.g. "SWEEP", "BLOCK"; never a position).
+Atom fields: event (required), who (0 = the player, 1 = the CPU rival), minCount (integer >= 1), minDuration (seconds the condition lasts, > 0), withinSeconds ([start, end] of round time; rounds last 5-100 s), arg (only on hit, throw, stuck, softlock or crash: the move name or fighter state in CAPS that the report names, e.g. "SWEEP", "KNOCKDOWN"; every other event carries no arg, so never set one on them, and express "while blocking" as its own atom with event block).
 Include only the fields the report supports; omit a field instead of writing a default such as 0, -1 or [0, 300].
 Answer with ONE fenced json block: {"description": "one sentence", "combine": "all"|"any", "atoms": [ ... ]}.
 If the text is not a report about this game's behavior, answer {"error": "why"} instead.`;

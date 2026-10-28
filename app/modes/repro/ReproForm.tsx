@@ -1,6 +1,7 @@
 "use client";
 import AiForm from "@/components/AiForm";
-import type { Oracle, OracleAtom } from "@/lib/types";
+import type { OracleAtom } from "@/lib/types";
+import type { ReproResponse } from "@/lib/web-types";
 
 const who = (w?: 0 | 1) => (w === 0 ? "the player" : w === 1 ? "the rival" : "either fighter");
 function describe(a: OracleAtom): string {
@@ -14,19 +15,48 @@ function describe(a: OracleAtom): string {
 
 export default function ReproForm() {
   return (
-    <AiForm<Oracle>
-      endpoint="/api/repro" field="report" label="Bug report" cta="Write the oracle"
+    <AiForm<ReproResponse>
+      endpoint="/api/repro" field="report" label="Bug report" cta="Find it in the crowd"
       placeholder="Describe what went wrong, the way a player would."
-      example="My guy got stuck blocking after I got knocked down near the wall and couldn't do anything for like 3 seconds."
-      render={(o) => (
-        <div className="panel">
-          <h2 style={{ fontSize: "1.2rem", marginBottom: 8 }}>Oracle</h2>
-          <p style={{ marginBottom: 12 }}>{o.description}</p>
-          <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 8 }}>
-            A round reproduces the bug when {o.combine === "all" ? "all" : "any"} of these hold:
-          </p>
-          <ol style={{ margin: "0 0 16px", paddingLeft: 20 }}>{o.atoms.map((a, i) => <li key={i}>{describe(a)}</li>)}</ol>
-          <details><summary>Raw JSON</summary><pre>{JSON.stringify(o, null, 2)}</pre></details>
+      example="My guy floated up in the air while blocking after the other fighter let go of me near the wall, and then he flew out of the arena."
+      render={({ oracle: o, total, matched, examples }) => (
+        <div style={{ display: "grid", gap: 20 }}>
+          <div className="panel">
+            <h2 style={{ fontSize: "1.2rem", marginBottom: 8 }}>Oracle (written by Nemotron Super)</h2>
+            <p style={{ marginBottom: 12 }}>{o.description}</p>
+            <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 8 }}>
+              A round reproduces the bug when {o.combine === "all" ? "all" : "any"} of these hold:
+            </p>
+            <ol style={{ margin: "0 0 16px", paddingLeft: 20 }}>{o.atoms.map((a, i) => <li key={i}>{describe(a)}</li>)}</ol>
+            <details><summary>Raw JSON</summary><pre>{JSON.stringify(o, null, 2)}</pre></details>
+          </div>
+          <div className="panel">
+            <h2 style={{ fontSize: "1.2rem", marginBottom: 8 }}>
+              {matched ? `${matched} of ${total.toLocaleString()} recorded rounds trip this oracle` : `No recorded round trips this oracle (${total.toLocaleString()} checked)`}
+            </h2>
+            <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 12 }}>
+              Plain code, not the model, runs the oracle over the recorded rounds. Zero matches does not prove the bug is absent:
+              the crowd may never have reached it, and each round keeps at most 220 events.
+            </p>
+            {examples.length > 0 && (
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Player</th><th className="num">Round</th><th>Trigger</th><th>Outcome</th><th>Replay</th></tr></thead>
+                  <tbody>
+                    {examples.map((m) => (
+                      <tr key={`${m.p}:${m.round}`}>
+                        <td>{m.name} <span style={{ color: "var(--muted)" }}>({m.archetype})</span></td>
+                        <td className="num">{m.round}</td>
+                        <td className="mono" style={{ fontSize: "0.85em" }}>{m.events.map((e) => `${e[1]}${e[3] !== undefined ? ` ${e[3]}` : ""} @${e[0]}s`).join(", ")}</td>
+                        <td>{m.out} at {m.t}s</td>
+                        <td><a className="chip" href={m.href}>▶ seed {m.seed}</a></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
     />

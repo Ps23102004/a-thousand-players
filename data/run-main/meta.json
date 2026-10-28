@@ -1,0 +1,6 @@
+{
+ "recordedWith": {
+  "rules.mountReleaseFix": 0
+ },
+ "note": "These rounds were recorded before the mount-release fix (commit d896219). Replay links carry this tuning so they reproduce the recorded round, bugs included."
+}
