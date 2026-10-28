@@ -6,7 +6,7 @@ Indie developers rarely get enough playtesters. A Thousand Players gives them a 
 
 Every finding cites seeds, and any seed replays the same match in the real 3D game in the browser. Code re-checks every number Ultra claims before showing it. When the engine catches a broken round, Ultra proposes a patch, and the engine applies it to a scratch copy of the game and replays the exact seeds to see if the bug is gone.
 
-Our test bed is Market Brawl, a student's Three.js + Rapier fighting game. In the main run, 1000 players played 2831 rounds. Ultra returned 8 findings, and 31 of 31 structured claims matched the recomputed data. One bug fix was verified by replay.
+Our test bed is Market Brawl, a student's Three.js + Rapier fighting game. In the main run, 1000 players played 2831 rounds. Ultra returned 8 findings, and 31 of 31 structured claims matched the recomputed data. Two bug fixes (bug3, bug4) were verified by replay.
 
 The players are synthetic. The findings are hypotheses to replay and check, not a replacement for real people.
 
