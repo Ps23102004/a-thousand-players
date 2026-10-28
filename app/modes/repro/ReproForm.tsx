@@ -3,6 +3,7 @@ import AiForm from "@/components/AiForm";
 import type { OracleAtom } from "@/lib/types";
 import type { ReproResponse } from "@/lib/web-types";
 import MatchRow from "./MatchRow";
+import PrecedentButton from "./PrecedentButton";
 
 const who = (w?: 0 | 1) => (w === 0 ? "the player" : w === 1 ? "the rival" : "either fighter");
 function describe(a: OracleAtom): string {
@@ -50,6 +51,7 @@ export default function ReproForm() {
                 </table>
               </div>
             )}
+            {matched > 0 && <div style={{ marginTop: 16 }}><PrecedentButton description={o.description} /></div>}
           </div>
         </div>
       )}

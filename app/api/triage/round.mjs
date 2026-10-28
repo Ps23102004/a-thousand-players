@@ -4,6 +4,17 @@
 //   node app/api/triage/round.mjs <engineDir> '{"seed":529060,"fighter":"kai","tuning":{"rules.mountReleaseFix":0},"persona":{...},"window":[14.5,20.5]}'
 // Prints one JSON line: { out, t, hp, ev, crash, timeline }.
 import { pathToFileURL } from 'node:url';
+// Network lock, applied before any game code loads. The patched game is model-written; Node 22's permission model (set by the parent)
+// blocks file access outside the scratch copy, child processes, workers and process.binding, but not the network. Every TCP/TLS/HTTP
+// path (including fetch and process.getBuiltinModule('net')) ends in net.Socket.prototype.connect, so disabling it, UDP and DNS here
+// closes egress; syncBuiltinESMExports makes `import('node:net')` see the same disabled functions. Verified against 13 escape routes.
+import net from 'node:net'; import dgram from 'node:dgram'; import dns from 'node:dns'; import { syncBuiltinESMExports } from 'node:module';
+const deny = () => { throw new Error('sandbox: network is disabled in replays'); };
+net.Socket.prototype.connect = deny; net.connect = net.createConnection = deny; net.Server.prototype.listen = deny;
+dgram.Socket.prototype.bind = dgram.Socket.prototype.send = deny; dgram.createSocket = deny;
+for (const o of [dns, dns.promises]) for (const k of Object.keys(o)) if (typeof o[k] === 'function' && k !== 'Resolver') o[k] = deny;
+for (const k of ['fetch', 'WebSocket', 'EventSource']) delete globalThis[k];
+syncBuiltinESMExports();
 
 const [engineDir, jobJson] = process.argv.slice(2);
 const job = JSON.parse(jobJson);

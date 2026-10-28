@@ -390,7 +390,7 @@ test("attachPrecedent: one Tavily search per finding, top 3 results, snippets cu
   assert.equal(out.findings[0].precedent![0].snippet.length, 300);
   assert.equal(out.findings[1].precedent, undefined);
   assert.equal(out.summary, "s");
-  assert.equal(precedentQuery(fs.findings[2]), "fighting game exploit add whitespace here design fix postmortem");
+  assert.equal(precedentQuery(fs.findings[2]), "fighting game dominant strategy nerf and counterplay: add whitespace here (developer postmortem, GDC talk, design article or patch notes)");
   assert.ok(precedentQuery(finding("x", "y".repeat(1000))).length <= 380);
 });
 

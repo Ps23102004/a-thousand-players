@@ -42,7 +42,8 @@ const errorLine = (stderr: string) => stderr.split("\n").map((l) => l.trim()).fi
 /** Plays one round in a fresh Node process. engineDir decides which game/src the engine imports: the shipped one or a patched scratch copy. */
 // The patched game is model-written code, so its process gets no secrets (minimal env) and runs under Node's permission model:
 // it may read only the worker, the engine, the game copy and node_modules; no child processes, workers, addons or file writes.
-// ponytail: Node 22's permission model does not block network; the patch screen in applyPatches refuses fetch/sockets instead.
+// Node 22's permission model does not block network; app/api/triage/round.mjs disables sockets, UDP, DNS and fetch before any game
+// code loads. The keyword screen in applyPatches is only a first filter (a keyword list can be bypassed), not the boundary.
 export function sandboxArgs(engineDir: string): string[] {
   const base = realpathSync(dirname(engineDir)); // permission checks use real paths (/var -> /private/var on macOS)
   const reads = [WORKER, join(base, "engine"), join(base, "game"), join(base, "node_modules")];

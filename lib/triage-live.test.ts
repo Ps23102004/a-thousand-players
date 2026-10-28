@@ -123,3 +123,30 @@ test("a patched replay runs without secrets and cannot read files outside its sc
     await assert.rejects(playRound(join(s, "engine"), job), /restricted|permission/i, "reading a file outside the scratch copy is blocked");
   } finally { rmSync(s, { recursive: true, force: true }); }
 });
+
+test("a patched replay cannot reach the network, even by routes a keyword screen misses", async () => {
+  const { makeScratch, playRound } = await import("./triage-live");
+  const net = await import("node:net");
+  const { readFileSync, writeFileSync, rmSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  let connections = 0;
+  const server = net.createServer((c) => { connections++; c.end(); });
+  await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+  const port = (server.address() as { port: number }).port;
+  const persona = JSON.parse(readFileSync("data/run-main/personas.json", "utf8")).find((p: { id: string }) => p.id === "p0537");
+  const job = { seed: 634310, fighter: "kai" as const, tuning: null, persona };
+  const attacks = [
+    `await new Promise((r, j) => process.getBuiltinModule("net").connect(${port}, "127.0.0.1", r).on("error", j));`,
+    `const n = await (function(){}).constructor('return import("node:n" + "et")')(); await new Promise((r, j) => n.connect(${port}, "127.0.0.1", r).on("error", j));`,
+    `await globalThis["\\u0066etch"]("http://127.0.0.1:${port}");`,
+  ];
+  const s = makeScratch(process.cwd());
+  try {
+    const src = join(s, "game/src/tuning.js"), orig = readFileSync(src, "utf8");
+    for (const a of attacks) {
+      writeFileSync(src, orig + "\n" + a);
+      await assert.rejects(playRound(join(s, "engine"), job), /network is disabled|not a function|fetch is not defined/, a.slice(0, 40));
+    }
+  } finally { rmSync(s, { recursive: true, force: true }); server.close(); }
+  assert.equal(connections, 0, "no attack reached the local server");
+});
