@@ -1,6 +1,7 @@
 // Shared guard for the API routes that spend model credits: rate limit, input check, and a clear 501 while ai/ is a stub.
 import "server-only";
 import { createLimiter } from "./rate-limit";
+import { RejectedInput } from "../ai/nl";
 
 const check = createLimiter(10, 200);
 const MAX_INPUT = 4000;
@@ -32,6 +33,8 @@ export async function aiRoute<T>(req: Request, field: string, run: (text: string
   try {
     return Response.json(await run(text.trim()));
   } catch (e) {
+    // The model judged the input off-topic (e.g. not a bug report): a user problem with a reason, not a server failure.
+    if (e instanceof RejectedInput) return Response.json({ error: `The model did not accept this input: ${e.message.slice(0, 300)}` }, { status: 422 });
     const message = e instanceof Error ? e.message : String(e);
     if (/not implemented/i.test(message)) {
       return Response.json({ error: "This mode's model call is not wired up yet (the AI layer is still a stub). Nothing was sent to a model." }, { status: 501 });

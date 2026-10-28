@@ -150,13 +150,11 @@ test("repro: 400/413 before any model call; 502 when the model fails", async () 
   assert.equal(r.json.error, "The model call failed. Try again in a minute.");
 });
 
-test("BUG (documented): a model refusal (not a bug report) comes back as 502 'try again' instead of a 4xx with the reason", async () => {
+test("a model refusal (not a bug report) comes back as 422 with the model's reason, not a 502", async () => {
   respond = () => reply(fenced({ error: "This is a cake recipe, not a report about the game." }));
   const r = await send(repro.POST, req({ report: "how do I bake a cake" }));
-  // RejectedInput is a user-input problem, but aiRoute maps every error to 502 and drops the model's reason.
-  // Expected behavior would be e.g. 422 with the reason; this asserts the current behavior so a fix shows up as a test change.
-  assert.equal(r.status, 502);
-  assert.ok(!r.json.error.includes("cake recipe"));
+  assert.equal(r.status, 422);
+  assert.ok(r.json.error.includes("cake recipe"));
   assert.equal(calls.length, 1, "a refusal is not retried");
 });
 
