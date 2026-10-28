@@ -1,0 +1,9 @@
+{
+ "patches": [
+  {
+   "file": "ground.js",
+   "find": "if(separate){m.top.rigidBody?.setTranslation({x:Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),y:.82,z:Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1))},true)}",
+   "replace": "if(separate){const tx=Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),tz=Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1));m.top.rigidBody?.setTranslation({x:tx,y:.82,z:tz},true);m.top.rigidBody?.setLinvel({x:0,y:0,z:0},true)}"
+  }
+ ]
+}

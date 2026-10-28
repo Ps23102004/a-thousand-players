@@ -1,0 +1,9 @@
+{
+ "patches": [
+  {
+   "file": "props.js",
+   "find": "  if (prop.rigidBody) {\n    prop.rigidBody.setTranslation({ x: throwX, y: throwY, z: throwZ }, true);\n    prop.rigidBody.setLinvel({ x: dir.x*Math.abs(velX), y: velY, z: dir.z*Math.abs(velX) }, true);\n    prop.rigidBody.setAngvel({ x: 0, y: 0, z: -fighter.facing * 12 }, true);\n  }",
+   "replace": "  if (prop.rigidBody && !prop.isBroken) {\n    prop.rigidBody.setTranslation({ x: throwX, y: throwY, z: throwZ }, true);\n    prop.rigidBody.setLinvel({ x: dir.x*Math.abs(velX), y: velY, z: dir.z*Math.abs(velX) }, true);\n    prop.rigidBody.setAngvel({ x: 0, y: 0, z: -fighter.facing * 12 }, true);\n  }"
+  }
+ ]
+}

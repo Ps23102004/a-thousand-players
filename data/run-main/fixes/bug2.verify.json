@@ -1,0 +1,176 @@
+{
+ "bug": "bug2",
+ "signature": "oob+airborne+softlock",
+ "verdict": "not-fixed",
+ "applied": [
+  {
+   "file": "ground.js",
+   "ok": true
+  }
+ ],
+ "rounds": 4,
+ "fixedRounds": 0,
+ "before": [
+  {
+   "p": "p0537",
+   "round": 1,
+   "seed": 634310,
+   "label": "base",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    18,
+    98
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0731",
+   "round": 2,
+   "seed": 497239,
+   "label": "base",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    24,
+    100
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0537",
+   "round": 1,
+   "seed": 634310,
+   "label": "sweep-nerf",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    18,
+    98
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0731",
+   "round": 2,
+   "seed": 497239,
+   "label": "sweep-nerf",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    24,
+    100
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  }
+ ],
+ "after": [
+  {
+   "p": "p0537",
+   "round": 1,
+   "seed": 634310,
+   "label": "base",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    18,
+    98
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0731",
+   "round": 2,
+   "seed": 497239,
+   "label": "base",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    24,
+    100
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0537",
+   "round": 1,
+   "seed": 634310,
+   "label": "sweep-nerf",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    18,
+    98
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  },
+  {
+   "p": "p0731",
+   "round": 2,
+   "seed": 497239,
+   "label": "sweep-nerf",
+   "out": "loss",
+   "t": 99,
+   "hp": [
+    24,
+    100
+   ],
+   "bugs": [
+    "airborne",
+    "oob",
+    "softlock"
+   ],
+   "crash": null
+  }
+ ],
+ "regression": {
+  "personas": 200,
+  "shipped": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  },
+  "patched": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  }
+ }
+}

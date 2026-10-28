@@ -1,0 +1,122 @@
+{
+ "bug": "bug3",
+ "signature": "crash:RuntimeError: unreachable in throwProp (props.js:303)",
+ "verdict": "fixed",
+ "applied": [
+  {
+   "file": "props.js",
+   "ok": true
+  }
+ ],
+ "rounds": 3,
+ "fixedRounds": 3,
+ "before": [
+  {
+   "p": "p0233",
+   "round": 2,
+   "seed": 901214,
+   "label": "sweep-nerf",
+   "out": "draw",
+   "t": 11.32,
+   "hp": [
+    8,
+    79
+   ],
+   "bugs": [
+    "crash"
+   ],
+   "crash": "RuntimeError: unreachable in throwProp (props.js:303)"
+  },
+  {
+   "p": "p0611",
+   "round": 1,
+   "seed": 163831,
+   "label": "sweep-nerf",
+   "out": "draw",
+   "t": 19.2,
+   "hp": [
+    22,
+    22
+   ],
+   "bugs": [
+    "crash"
+   ],
+   "crash": "RuntimeError: unreachable in throwProp (props.js:303)"
+  },
+  {
+   "p": "p0754",
+   "round": 2,
+   "seed": 529346,
+   "label": "sweep-nerf",
+   "out": "draw",
+   "t": 12.78,
+   "hp": [
+    16,
+    39
+   ],
+   "bugs": [
+    "crash"
+   ],
+   "crash": "RuntimeError: unreachable in throwProp (props.js:303)"
+  }
+ ],
+ "after": [
+  {
+   "p": "p0233",
+   "round": 2,
+   "seed": 901214,
+   "label": "sweep-nerf",
+   "out": "loss",
+   "t": 11.37,
+   "hp": [
+    0,
+    79
+   ],
+   "bugs": [],
+   "crash": null
+  },
+  {
+   "p": "p0611",
+   "round": 1,
+   "seed": 163831,
+   "label": "sweep-nerf",
+   "out": "win",
+   "t": 19.8,
+   "hp": [
+    22,
+    0
+   ],
+   "bugs": [],
+   "crash": null
+  },
+  {
+   "p": "p0754",
+   "round": 2,
+   "seed": 529346,
+   "label": "sweep-nerf",
+   "out": "loss",
+   "t": 15.58,
+   "hp": [
+    0,
+    33
+   ],
+   "bugs": [],
+   "crash": null
+  }
+ ],
+ "regression": {
+  "personas": 200,
+  "shipped": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  },
+  "patched": {
+   "rounds": 555,
+   "winRate": 0.314,
+   "avgT": 12.04,
+   "bugRounds": 4
+  }
+ }
+}

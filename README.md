@@ -25,8 +25,8 @@ All numbers below come from files in `data/run-main/`.
   |---|---|---|---|
   | bug4 | `stuck:KNOCKDOWN+airborne+softlock` | 1 | **Fixed and replay-verified.** Seed 529060 ran to the 99 s time limit before the patch and ends by KO at 18.73 s with no bug events after it. Regression crowd of 200 personas: bug rounds 4 before, 3 after. |
   | bug1 | `airborne` | 21 | Ultra proposed a patch; it applied cleanly but fixed 0 of 8 replayed rounds. **Not fixed.** |
-  | bug2 | `oob+airborne+softlock` | 4 | Triage failed: Ultra's patch `find` text did not occur in `ground.js` after 3 tries. |
-  | bug3 | `crash: RuntimeError: unreachable in throwProp (props.js:303)` | 3 | Triage failed: the answer was missing required fields after 3 tries. |
+  | bug2 | `oob+airborne+softlock` | 4 | **Not fixed.** On the retry, Ultra's patch applied but the replayed seeds still showed the bug (0 of 4 fixed, 2 attempts). The root cause it named (stale aim offset in `releaseMount`) is a hypothesis, not a confirmed cause. |
+  | bug3 | `crash: RuntimeError: unreachable in throwProp (props.js:303)` | 3 | **Fixed and replay-verified, 3 of 3 seeds.** Ultra guarded `throwProp` against a prop whose body was already freed. The first two triage runs failed because Ultra ignored the answer format; adding a concrete format example to the prompt fixed that. The regression crowd (200 personas) did not contain this crash, so it shows no change (4 bug rounds before and after). |
 
 - **Exploit search** (`exploit.json`): 32 strategies over 2 generations, 30 rounds each (960 rounds). The best strategy ("Mid Grapple Cheese") won 30 of 30 rounds (win rate 1.0) against the CPU. The recorded hits show how: 117 SWEEP hits, 49 GROUND strikes. Every top strategy wins the same way, sweep (which the CPU never crouch-blocks) into knockdown into mount, whatever Nano's rule text said it was doing.
 

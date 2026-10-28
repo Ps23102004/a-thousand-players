@@ -2,10 +2,10 @@
  "usage": [
   {
    "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
-   "calls": 14,
-   "tokensIn": 555498,
-   "tokensOut": 9983,
-   "usdEstimate": 0.5855
+   "calls": 27,
+   "tokensIn": 892282,
+   "tokensOut": 16225,
+   "usdEstimate": 0.941
   },
   {
    "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",

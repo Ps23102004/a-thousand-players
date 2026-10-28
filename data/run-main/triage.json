@@ -349,7 +349,52 @@
    "15.70s player[KAI x=-14.68 y=10.75 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait",
    "15.80s player[KAI x=-14.68 y=10.54 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait"
   ],
-  "error": "triage answer failed validation 3 times; last: patch 0: find text occurs 0 times in ground.js; it must match exactly once (copy it exactly, including spacing)"
+  "triage": {
+   "title": "Mounted fighter launches into orbit",
+   "isRealBug": true,
+   "severity": "high",
+   "rootCause": "ground.js:82 releases the top fighter with a teleport that adds aim offset to the bottom's position, but the bottom is already moving away during GETUP. The aim vector is stale and the teleport can place the top far outside the arena, after which gravity is re-enabled and the fighter falls forever.",
+   "playerImpact": "The player's character flies out of bounds and keeps rising, soft-locking the round.",
+   "patches": [
+    {
+     "file": "ground.js",
+     "find": "if(separate){m.top.rigidBody?.setTranslation({x:Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),y:.82,z:Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1))},true)}",
+     "replace": "if(separate){const tx=Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),tz=Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1));m.top.rigidBody?.setTranslation({x:tx,y:.82,z:tz},true);m.top.rigidBody?.setLinvel({x:0,y:0,z:0},true)}"
+    }
+   ],
+   "confidence": 0.9,
+   "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "tokensIn": 27051,
+   "tokensOut": 346
+  },
+  "verify": {
+   "verdict": "not-fixed",
+   "fixedRounds": 0,
+   "rounds": 4,
+   "applied": [
+    {
+     "file": "ground.js",
+     "ok": true
+    }
+   ],
+   "regression": {
+    "personas": 200,
+    "shipped": {
+     "rounds": 555,
+     "winRate": 0.314,
+     "avgT": 12.04,
+     "bugRounds": 4
+    },
+    "patched": {
+     "rounds": 555,
+     "winRate": 0.314,
+     "avgT": 12.04,
+     "bugRounds": 4
+    }
+   }
+  },
+  "attempts": 2,
+  "history": "Attempt 1: \"Mounted fighter launches into orbit\" patch [{\"file\":\"ground.js\",\"find\":\"if(separate){m.top.rigidBody?.setTranslation({x:Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),y:.82,z:Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1))},true)}\",\"replace\":\"if(separate){const nx=Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),nz=Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1));m.top.rigidBody?.setTranslation({x:nx,y:0.82,z:nz},true);m.top.rigidBody?.setLinvel({x:0,y:0,z:0},true)}\"}] -> not-fixed; bug events per replayed round after the patch: airborne+oob+softlock, airborne+oob+softlock, airborne+oob+softlock, airborne+oob+softlock\n"
  },
  {
   "id": "bug3",
@@ -461,7 +506,51 @@
    "11.30s player[ROOK x=-7.5 y=0.65 IDLE/carrying(BROKEN crate) hp=8] cpu[KAI x=-6.42 y=0.8 STARTUP hp=79] crates[broken; x=7.5 y=0.3] keys=prop",
    "CRASH unreachable"
   ],
-  "error": "triage answer failed validation 3 times; last: title, rootCause and isRealBug are required"
+  "triage": {
+   "title": "Crash in throwProp when prop has no rigidBody",
+   "isRealBug": true,
+   "severity": "high",
+   "rootCause": "props.js:303 calls prop.rigidBody.setTranslation without checking if rigidBody exists. The prop was already broken (debris cleanup removed its rigidBody at line 328) but the CPU still tried to throw it at 10.85s.",
+   "playerImpact": "Game crashes with 'unreachable in throwProp' during a prop throw after the prop was shattered.",
+   "patches": [
+    {
+     "file": "props.js",
+     "find": "  if (prop.rigidBody) {\n    prop.rigidBody.setTranslation({ x: throwX, y: throwY, z: throwZ }, true);\n    prop.rigidBody.setLinvel({ x: dir.x*Math.abs(velX), y: velY, z: dir.z*Math.abs(velX) }, true);\n    prop.rigidBody.setAngvel({ x: 0, y: 0, z: -fighter.facing * 12 }, true);\n  }",
+     "replace": "  if (prop.rigidBody && !prop.isBroken) {\n    prop.rigidBody.setTranslation({ x: throwX, y: throwY, z: throwZ }, true);\n    prop.rigidBody.setLinvel({ x: dir.x*Math.abs(velX), y: velY, z: dir.z*Math.abs(velX) }, true);\n    prop.rigidBody.setAngvel({ x: 0, y: 0, z: -fighter.facing * 12 }, true);\n  }"
+    }
+   ],
+   "confidence": 0.9,
+   "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "tokensIn": 25170,
+   "tokensOut": 386
+  },
+  "verify": {
+   "verdict": "fixed",
+   "fixedRounds": 3,
+   "rounds": 3,
+   "applied": [
+    {
+     "file": "props.js",
+     "ok": true
+    }
+   ],
+   "regression": {
+    "personas": 200,
+    "shipped": {
+     "rounds": 555,
+     "winRate": 0.314,
+     "avgT": 12.04,
+     "bugRounds": 4
+    },
+    "patched": {
+     "rounds": 555,
+     "winRate": 0.314,
+     "avgT": 12.04,
+     "bugRounds": 4
+    }
+   }
+  },
+  "attempts": 1
  },
  {
   "id": "bug4",

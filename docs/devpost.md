@@ -27,7 +27,7 @@ Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking":
 - **Determinism.** `npm run engine:test` plays 16 seeds twice each. Final-state hashes and event lists matched for all 16 (`mismatches=0`).
 - **Report claims.** Every structured claim Ultra makes (metric, scope, value) is recomputed from the raw runs. Main run: 31 of 31 matched. 13 seeds that Ultra cited did not exist in the runs and were removed.
 - **Planted fixtures.** On a 1000-player fixture with four planted stories, Ultra found all four, including the single sweep-spamming player out of 1000. 23 of 24 claims were verified, and the one failure was a real error that the verifier caught.
-- **One bug fix.** For bug4 (a knocked-down fighter stuck mid-fall until the 99 s time limit), Ultra's patch made the replayed seed end by KO at 18.73 s with no bug events. In a regression crowd of 200 personas, bug rounds went from 4 to 3.
+- **Two bug fixes.** bug3: Ultra's `throwProp` guard made all 3 crashing seeds run clean. bug4 (below): For bug4 (a knocked-down fighter stuck mid-fall until the 99 s time limit), Ultra's patch made the replayed seed end by KO at 18.73 s with no bug events. In a regression crowd of 200 personas, bug rounds went from 4 to 3.
 
 **Synthetic, or not checked:**
 - **The players.** Quitting and boredom come from a simple mood model with traits written by Nano. Crowd players run their policies natively. They are not driven by an LLM decision by decision.
@@ -37,7 +37,8 @@ Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking":
 
 ## What is not done
 
-- **Two bugs failed triage.** bug2 (out of bounds, 4 rounds): Ultra's patch text did not match the source after 3 tries. bug3 (a crash in `throwProp`, 3 rounds): the answer was missing required fields after 3 tries.
+- **bug2 is not fixed.** Out of bounds after a mount release (4 rounds): after the format fix, Ultra's patch applied but the replayed seeds still failed (0 of 4), after 2 attempts.
+- **bug3 fix was verified only on its own seeds.** The `throwProp` crash fix passed 3 of 3 replays. The 200-persona regression crowd never hits that crash, so it cannot show a side effect.
 - **One bug patch did not work.** bug1 (fighter floats up after a mount release, 21 rounds): the patch applied cleanly but fixed 0 of 8 replayed rounds.
 - **One game.** The adapter contract is documented, but Market Brawl is the only game that implements it.
 - **No proof of absence.** The crowd samples the game. A bug it never hit may still exist.
