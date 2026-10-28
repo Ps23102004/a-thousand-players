@@ -33,7 +33,7 @@ Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking":
 - **The players.** Quitting and boredom come from a simple mood model with traits written by Nano. Crowd players run their policies natively. They are not driven by an LLM decision by decision.
 - **Super's exploit explanation.** From strategy text alone it blamed "recovery-state grabs"; the recorded hits (117 SWEEP, 49 GROUND for the top strategy) show sweep into mount. The page now shows the measured hit tally beside each strategy, and Super's text is grounded in it.
 - **Ultra's prose.** Only claims and seeds are checked. On a fixture, the narrative text included a made-up count.
-- **Prices.** Only Ultra has a dollar estimate, at an unverified aggregator price. Main-run total: $0.59 across 14 Ultra calls.
+- **Prices.** Only Ultra has a dollar estimate, at an unverified aggregator price. `usage.json` records 27 Ultra calls (892,282 tokens in, 16,225 out, about $0.94 including bug triage). Its Nano and Super rows cover only the exploit and oracle calls, not the persona run, so they understate those models.
 
 ## What is not done
 
