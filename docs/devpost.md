@@ -37,9 +37,9 @@ Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking":
 
 ## What is not done
 
-- **bug2 is not fixed.** Out of bounds after a mount release (4 rounds): after the format fix, Ultra's patch applied but the replayed seeds still failed (0 of 4), after 2 attempts.
+- **bug2 was fixed by hand, not by Ultra.** Out of bounds after a mount release (4 rounds): Ultra's patch failed twice (0 of 4). Replaying the seed tick by tick showed two causes in the mount-release code, a spawn inside a crate and a stale floor contact. The fix makes all 4 seeds run clean and cuts regression bug rounds from 4 to 1. The stale-contact part is a workaround with a visible side effect (the fighter rests 0.07 m low), and the underlying Rapier behavior is not understood.
 - **bug3 fix was verified only on its own seeds.** The `throwProp` crash fix passed 3 of 3 replays. The 200-persona regression crowd never hits that crash, so it cannot show a side effect.
-- **One bug patch did not work.** bug1 (fighter floats up after a mount release, 21 rounds): the patch applied cleanly but fixed 0 of 8 replayed rounds.
+- **bug1 is only partly fixed.** Fighter floats up after a mount release, 21 rounds: Ultra's patch fixed 0 of 8 replayed rounds. The hand fix for bug2 clears 5 of the 8; 3 still show the bug.
 - **One game.** The adapter contract is documented, but Market Brawl is the only game that implements it.
 - **No proof of absence.** The crowd samples the game. A bug it never hit may still exist.
 - **Ultra's 1M-token context is unproven here.** About 300K prompt tokens worked. A 900K probe hit the per-minute token quota.

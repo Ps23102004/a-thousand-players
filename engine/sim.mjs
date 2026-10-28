@@ -14,7 +14,7 @@ import { ANIMATIONS, updateAnimation } from '../game/src/animation.js';
 import { checkHitCollisions, resolveDamageAndImpulse, updateHitStop } from '../game/src/combat.js';
 import { initPlayerControls, updatePlayer, clearInputKeys } from '../game/src/player.js';
 import { updateRivalAI, resetRivalAI } from '../game/src/ai.js';
-import { updateGround, updateMount } from '../game/src/ground.js';
+import { updateGround, updateMount, setMountObstacles } from '../game/src/ground.js';
 import { updateGrapple } from '../game/src/grapple.js';
 import { RULES, RULE_DEFAULTS } from '../game/src/tuning.js';
 
@@ -113,6 +113,7 @@ export async function createSim(opts = {}) {
     sim.player = createFighterRig(scene, world, true, -1.0, fighterName);
     sim.rival = createFighterRig(scene, world, false, 1.0, fighterName === 'kai' ? 'rook' : 'kai');
     sim.props = [createCardboardBox(scene, world, -7.5, 0.4), createCardboardBox(scene, world, 7.5, 0.4)];
+    setMountObstacles(() => sim.props);
     sim.player.inputEnabled = false;
     const off = withWindow(keyTarget, () => initPlayerControls(sim.player));
     cleanup = () => withWindow(keyTarget, off);

@@ -73,13 +73,26 @@ export function beginMount(top,bottom,{rng=Math.random}={}) {
  top.state='MOUNT';bottom.state='PINNED';chooseMount(m);poseMount(m);
  emit(top,'mount',{actor:top,defender:bottom});return m;
 }
+// Props the released fighter must not be placed inside (set by the match: main.js, engine/sim.mjs).
+let obstacles=()=>[];
+export const setMountObstacles=fn=>{obstacles=fn};
+// Landing spot for the top fighter: 1.1 m in front of the pinned one, else behind; a spot inside a crate would be
+// ejected upward by the solver at ~7 m/s (crate next to the wall launched the fighter out of the arena).
+function releaseSpot(base,aim){
+ const at=s=>({x:Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1*s)),z:Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1*s))});
+ const clear=c=>obstacles().every(p=>{if(p.isBroken)return true;const t=p.rigidBody?.translation();return !t||Math.hypot(t.x-c.x,t.z-c.z)>1});
+ return [at(1),at(-1)].find(clear)||at(1);
+}
 export function releaseMount(m,{separate=true}={}) {
  if(!m||m.closed)return;m.closed=true;
  const base=pos(m.bottom),aim=m.bottom.aim||{x:m.bottom.facing,z:0};
  for(const f of [m.top,m.bottom]){
-  f.mount=null;f.collider?.setSensor(false);f.rigidBody?.setGravityScale(1,true);stop(f);f.attackQueue=[];f.animSpeed=1;
+  f.mount=null;f.collider?.setSensor(false);f.rigidBody?.setGravityScale(1,true);stop(f);
+  // A body held still for the mount can be asleep; waking it by changing gravity leaves its floor contact stale, so it sinks
+  // through the floor for ~0.3 s and is then ejected upward (next to the wall that ends outside the arena).
+  f.rigidBody?.sleep();f.rigidBody?.wakeUp();f.attackQueue=[];f.animSpeed=1;
  }
- if(separate){m.top.rigidBody?.setTranslation({x:Math.max(-9.8,Math.min(9.8,base.x+aim.x*1.1)),y:.82,z:Math.max(-1.35,Math.min(1.35,base.z+aim.z*1.1))},true)}
+ if(separate){const s=releaseSpot(base,aim);m.top.rigidBody?.setTranslation({x:s.x,y:.82,z:s.z},true)}
  m.top.ground=null;resetPose(m.top);
  if(m.bottom.ground){m.bottom.ground.phase='GETUP';m.bottom.ground.elapsed=0;m.bottom.ground.duration=.8;m.bottom.state='GETUP'}else resetPose(m.bottom);
 }

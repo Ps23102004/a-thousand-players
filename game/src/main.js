@@ -9,7 +9,7 @@ import { checkHitCollisions, resolveDamageAndImpulse, updateHitStop } from './co
 import { initPlayerControls, updatePlayer, clearInputKeys } from './player.js';
 import { updateRivalAI, resetRivalAI } from './ai.js';
 import { createTownfolkCrowd, updateCrowd, handleCombatEventForCrowd } from './crowd.js';
-import { updateGround, updateMount, releaseMount } from './ground.js';
+import { updateGround, updateMount, releaseMount, setMountObstacles } from './ground.js';
 import { combatFraming } from './camera.js';
 import { updateGrapple, releaseGrapple } from './grapple.js';
 import { initAudio, playSound, setSoundEnabled } from './audio.js';
@@ -91,6 +91,7 @@ class GameApp {
       }
     };
     this.props = [createCardboardBox(this.scene, this.world, -7.5, 0.4), createCardboardBox(this.scene, this.world, 7.5, 0.4)];
+    setMountObstacles(() => this.props);
     this.controlsCleanup = initPlayerControls(this.player);
     $('player-name').textContent = this.player.name; $('rival-name').textContent = this.rival.name;
     updateHitStop(1); resetRivalAI(); clearInputKeys();
