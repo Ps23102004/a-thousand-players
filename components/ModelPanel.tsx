@@ -2,7 +2,7 @@ import type { UsageRow } from "@/lib/types";
 import type { UsageFile } from "@/lib/web-types";
 
 const ROLES: { name: string; match: RegExp; id: string; role: string }[] = [
-  { name: "Nemotron Nano", match: /nano/i, id: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", role: "Writes every persona's policy in bulk and picks each action for the live spotlight players." },
+  { name: "Nemotron Nano", match: /nano/i, id: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", role: "Writes every persona's policy in bulk and proposes exploit strategies. Can also pick each action for a spotlight player (implemented, not in the main run)." },
   { name: "Nemotron Super", match: /super(?!.*vl)/i, id: "nvidia/nemotron-3-super-120b-a12b", role: "Turns English into things the engine runs: bug reports into oracles, patch notes into tuning." },
   { name: "Nemotron Super-VL", match: /vl/i, id: "nvidia/Nemotron-3.5-Super-VL", role: "Looks at replay frames and says what it sees, to confirm or caption a finding." },
   { name: "Nemotron Ultra", match: /ultra/i, id: "nvidia/Nemotron-3-Ultra-550b-a55b", role: "Reads every play log in one long-context call and writes the findings, citing seeds." },

@@ -48,8 +48,12 @@ export function validatePatches(raw: unknown, root = "game/src"): Patch[] {
   });
 }
 
+/** attempts: answers that fail validation are sent back with the error up to this many times (3 offline, 1 live). timeoutMs/retries go to chat(). */
+export interface TriageOpts { attempts?: number; timeoutMs?: number; retries?: number }
+
 /** Ultra reads the evidence + source and proposes a root cause and a minimal patch; code checks the patch applies. */
-export async function triageBug(bug: BugCluster, root = "game/src", history = ""): Promise<Triage> {
+export async function triageBug(bug: BugCluster, root = "game/src", history = "", opts: TriageOpts = {}): Promise<Triage> {
+  const attempts = opts.attempts ?? 3;
   const rep = bug.representative;
   const user = `Bug signature: ${bug.signature}\nSeen in ${bug.count} recorded rounds, e.g. ${bug.rounds.slice(0, 4).map((r) => `${r.p} round ${r.round} seed ${r.seed}`).join("; ")}.\n` +
     `Invariant definitions: ${INVARIANTS}\n\nEvidence timeline (re-simulated from ${rep.p} round ${rep.round} seed ${rep.seed}; "keys" is the player's current intent):\n${bug.timeline.join("\n")}\n\n` +
@@ -60,8 +64,8 @@ export async function triageBug(bug: BugCluster, root = "game/src", history = ""
     `"confidence": 0.0-1.0}. Use [] for patches when isRealBug is false. At most 3 patches.` +
     (history ? `\n\nEarlier attempts, each verified by applying the patch and replaying the exact seeds (find a DIFFERENT root cause):\n${history}` : "");
   let feedback = "", lastError = "";
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const r = await chat({ model: ULTRA, system: SYSTEM, user: user + feedback, maxTokens: 6000, thinking: false, temperature: 0.1 });
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const r = await chat({ model: ULTRA, system: SYSTEM, user: user + feedback, maxTokens: 6000, thinking: false, temperature: 0.1, timeoutMs: opts.timeoutMs, retries: opts.retries });
     try {
       const o = extractJson(r.content) as Record<string, unknown>;
       if (typeof o?.title !== "string" || typeof o.rootCause !== "string" || typeof o.isRealBug !== "boolean") throw new Error("title, rootCause and isRealBug are required");
@@ -76,5 +80,5 @@ export async function triageBug(bug: BugCluster, root = "game/src", history = ""
         `Each patch is {"file","find","replace"} where find is a short exact excerpt of the source (no line-number prefixes, no diff markers) that appears once in that file. Example:\n${SCHEMA_EXAMPLE}`;
     }
   }
-  throw new Error(`triage answer failed validation 3 times; last: ${lastError}`);
+  throw new Error(`triage answer failed validation ${attempts} time${attempts === 1 ? "" : "s"}; last: ${lastError}`);
 }

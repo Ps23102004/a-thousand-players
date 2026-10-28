@@ -95,7 +95,9 @@ main { padding-bottom: 64px; }
 .btn:disabled { opacity: 0.5; cursor: wait; }
 .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
 .btn-ghost:hover { background: var(--panel-2); color: var(--text); }
-.chip { display: inline-flex; align-items: center; gap: 6px; font: 500 0.75rem var(--font-mono); padding: 4px 8px; border-radius: 2px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); text-decoration: none; white-space: nowrap; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 500 0.75rem var(--font-mono); padding: 4px 8px; border-radius: 2px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); text-decoration: none; white-space: nowrap; max-width: 100%; }
+.chip { overflow-wrap: anywhere; } /* long signatures (crash messages) wrap instead of widening the page on phones */
+.finding-top .chip { white-space: normal; }
 a.chip:hover { border-color: var(--accent); color: var(--text); }
 .chip-ok { border-color: rgba(140, 207, 31, 0.45); color: #c5ef7f; }
 .chip-warn { border-color: rgba(242, 179, 61, 0.5); color: var(--amber); }

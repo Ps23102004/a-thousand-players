@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: "Bugs · A Thousand Players" };
 
 const VERDICT: Record<string, { label: string; cls: string }> = {
   fixed: { label: "fix verified", cls: "chip-ok" },
+  "fixed-by-hand": { label: "fixed by hand (Ultra failed)", cls: "chip-ok" },
   "partially-fixed": { label: "partly fixed", cls: "chip-warn" },
   "not-fixed": { label: "not fixed", cls: "chip-warn" },
   "patch-did-not-apply": { label: "patch did not apply", cls: "chip-warn" },
@@ -25,7 +26,7 @@ function BugCard({ b }: { b: BugView }) {
           <span className="chip">{b.signature}</span>
           <span className="chip">{b.count} rounds</span>
         </div>
-        <h3 id={`${b.id}-title`}>{b.id}: no triage</h3>
+        <h2 id={`${b.id}-title`} style={{ fontSize: "1.2rem" }}>{b.id}: no triage</h2>
         <p className="notice notice-error">{b.error}</p>
         <a className="chip" href={b.replay}>▶ replay representative round</a>
       </article>
@@ -43,7 +44,7 @@ function BugCard({ b }: { b: BugView }) {
         <span className="chip">{b.count} rounds hit it</span>
         {b.confidence !== undefined && <span className="chip">confidence {Math.round(b.confidence * 100)}%</span>}
       </div>
-      <h3 id={`${b.id}-title`}>{b.title}</h3>
+      <h2 id={`${b.id}-title`} style={{ fontSize: "1.2rem" }}>{b.title}</h2>
 
       <div><div className="label">Root cause</div><p>{b.rootCause}</p></div>
       {b.playerImpact && <div><div className="label">Player impact</div><p>{b.playerImpact}</p></div>}
@@ -76,7 +77,7 @@ function BugCard({ b }: { b: BugView }) {
 
 export default function BugsPage() {
   const bugs = getTriage();
-  const fixed = bugs.filter((b) => b.verdict === "fixed").length;
+  const fixed = bugs.filter((b) => b.verdict === "fixed" || b.verdict === "fixed-by-hand").length;
   const failed = bugs.filter((b) => b.error).length;
   return (
     <section className="section wrap" aria-labelledby="bugs-title">

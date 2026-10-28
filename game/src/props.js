@@ -1,4 +1,4 @@
-import { startKnockdown } from './ground.js';
+import { startKnockdown } from './ground.js'; import { RULES } from './tuning.js';
 import { direction } from './movement.js';
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
@@ -299,7 +299,7 @@ export function throwProp(prop, fighter, velX = 14, velY = 3.5) {
   const throwX = pPos.x + dir.x * .9, throwZ=pPos.z+dir.z*.9;
   const throwY = pPos.y + 0.8;
 
-  if (prop.rigidBody) {
+  if (prop.rigidBody && !(RULES.throwPropGuard && prop.isBroken)) { // a crate shattered while carried has no rigid body left; touching it traps Rapier
     prop.rigidBody.setTranslation({ x: throwX, y: throwY, z: throwZ }, true);
     prop.rigidBody.setLinvel({ x: dir.x*Math.abs(velX), y: velY, z: dir.z*Math.abs(velX) }, true);
     prop.rigidBody.setAngvel({ x: 0, y: 0, z: -fighter.facing * 12 }, true);

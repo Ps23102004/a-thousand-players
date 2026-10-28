@@ -6,5 +6,7 @@ export { analyzeCrowd } from "./report";
 export { attachPrecedent } from "./precedent";
 export { bugReportToOracle, patchNotesToTuning } from "./nl";
 export { describeFrames } from "./vision";
+export { triageBug } from "./triage";
+export type { BugCluster, Patch, Triage, TriageOpts } from "./triage";
 export { chooseAction } from "./spotlight";
 export { getUsage } from "./usage";

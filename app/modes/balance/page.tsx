@@ -14,7 +14,7 @@ export default function BalancePage() {
       <h1 id="balance-title" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", margin: "10px 0 16px" }}>If you ship this patch, what changes?</h1>
       <p className="lede" style={{ marginBottom: 32 }}>
         Nemotron Super turns patch notes into concrete tuning values, checked against the game&apos;s allowed ranges.
-        The same crowd then replays with the new values so you can compare before and after.
+        This page shows the values only. Replaying the crowd with them is a command line step (<code>node engine/crowd.mjs --tuning &lt;file&gt;</code>). One recorded example: nerfing the sweep moved the cheeser win rate from 92% to 82% and the casual win rate from 6% to 9%, so the CPU rival&apos;s missing low block is the real cause.
       </p>
       <BalanceForm baseline={baseline} />
     </section>

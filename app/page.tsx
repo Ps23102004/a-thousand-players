@@ -84,7 +84,7 @@ export default function Home() {
           <li><strong>The players are synthetic.</strong>They are decision tables written by a language model, not people. They do not feel anything.</li>
           <li><strong>Quitting is a hypothesis.</strong>Frustration and boredom come from a simple mood model. Use it to decide what to test with humans, not instead of them.</li>
           <li><strong>Sampled, not proven.</strong>A finding means the crowd hit it. No finding does not mean the bug or exploit is absent.</li>
-          <li><strong>Only the policy players are cheap.</strong>The crowd runs compiled policies. Only the spotlight tiles are picked move by move by Nano live.</li>
+          <li><strong>Only the policy players are cheap.</strong>The crowd runs compiled policies, not a model call per move. A live spotlight player that Nano drives move by move is implemented and measured, but it is not part of the main run.</li>
           <li><strong>One game adapter.</strong>Market Brawl is the only game wired in. Another game needs its own adapter.</li>
         </ul>
       </section>

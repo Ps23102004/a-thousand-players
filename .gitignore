@@ -10,3 +10,7 @@ next-env.d.ts
 public/game/
 public/engine/
 .work/
+
+# local tooling and test output
+.serena/
+e2e/test-results/

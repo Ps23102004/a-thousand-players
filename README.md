@@ -2,7 +2,7 @@
 
 A crowd of Nemotron-driven synthetic players plays your browser game by the thousand, finds where it breaks, and backs every finding with a seed you can replay in the real game.
 
-Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied unchanged into `game/`. All models run on Nebius Token Factory.
+Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied into `game/` with two small changes (a rules file for tuning, and a mount-release fix that can be switched off). All models run on Nebius Token Factory.
 
 ## What it does
 
@@ -20,6 +20,7 @@ Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Braw
 All numbers below come from files in `data/run-main/`.
 
 - **Crowd** (`summary.json`): 1000 players, 1000 sessions, 2831 rounds, 891 wins and 1940 losses for the players (win rate 31.5%). Session end reasons: 708 frustration, 250 satisfied, 42 hit the round cap.
+- **Throughput** (measured 2026-10-28, `node engine/crowd.mjs --personas data/run-main/personas.json --out .work/tp --traces 0`): 1000 players, 2,828 rounds in 15.2 s on 11 worker threads of a 12-core Mac, 186 rounds per second, with other jobs running. This is the current game build, so it differs slightly from the recorded 2,831 rounds. It reports one game crash, the unpatched `throwProp` bug (bug3).
 - **Report** (`findings.json`): Ultra read the whole crowd in one call (220,334 prompt tokens including the system prompt; the corpus estimate was 219,064; 4,439 tokens out) and returned 8 findings. **31 of 31 structured claims matched the recomputed value. 13 cited seeds did not exist in the runs and were removed.**
 - **Bug triage** (`triage.json`, `fixes/`): 4 bug clusters.
 
@@ -84,6 +85,12 @@ ai/cli/triage.ts    if not fixed, send the replay result back to Ultra once and 
 ```
 
 A patch is applied only if its `find` text matches the target file exactly once. The game in `game/` is never modified by triage.
+
+### Live triage from the Repro page
+
+Every Repro match has a **Triage this (Ultra)** button, the one place the hosted app calls Nemotron Ultra at runtime. `POST /api/triage {p, round}` looks the round up in the recorded data (the client sends no seed, patch or code), replays the seed in a child Node process to build the same 10 Hz evidence window `engine/bugs.mjs` uses, makes **one** Ultra call through `ai/triage.ts` (no validation retry, 40 s budget), applies the patch to a temp copy of `game/src`, replays the exact seed once more with the patch, and reports a verdict decided by code: **fixed** (no bug events in the patched replay), **not fixed**, **patch did not apply**, or **not a bug** (Ultra said the invariant fired on legitimate play). About 6 s end to end on a laptop (Ultra answered in 3 to 4 s on a 27K-token prompt). Both replays use the recorded tuning (`rules.mountReleaseFix: 0`) so the round reproduces as recorded; the result says so.
+
+Limits: one seed and no regression crowd, so "fixed" means that one round runs clean. Ultra's answer varies between calls: on the two known bug2 seeds it fixed one (a crate-clearance check at mount release) and missed the other; on bug4 its live root cause was wrong and the replay said so. The rate limit and daily cap of the other model routes apply.
 
 ## Running it
 
@@ -150,7 +157,7 @@ Only Market Brawl implements it today.
 ## Layout
 
 ```
-game/        Market Brawl, unchanged
+game/        Market Brawl (two small changes: tuning rules, mount-release fix)
 engine/      headless deterministic sim, crowd runner, bug detection, fix verification
 ai/          Nemotron layer (Token Factory client, personas, report, verification, triage, exploit)
 app/ components/ lib/   Next.js web app

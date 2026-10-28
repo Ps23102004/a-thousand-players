@@ -2,6 +2,7 @@
 import AiForm from "@/components/AiForm";
 import type { OracleAtom } from "@/lib/types";
 import type { ReproResponse } from "@/lib/web-types";
+import MatchRow from "./MatchRow";
 
 const who = (w?: 0 | 1) => (w === 0 ? "the player" : w === 1 ? "the rival" : "either fighter");
 function describe(a: OracleAtom): string {
@@ -37,21 +38,14 @@ export default function ReproForm() {
             <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 12 }}>
               Plain code, not the model, runs the oracle over the recorded rounds. Zero matches does not prove the bug is absent:
               the crowd may never have reached it, and each round keeps at most 220 events.
+              &quot;Triage this&quot; sends one matched round to Nemotron Ultra live (one call, about 20-40 s): it reads a timeline re-simulated from the seed plus the game source and proposes a patch, which code applies to a scratch copy and replays on the same seed.
             </p>
             {examples.length > 0 && (
               <div className="table-wrap">
                 <table>
-                  <thead><tr><th>Player</th><th className="num">Round</th><th>Trigger</th><th>Outcome</th><th>Replay</th></tr></thead>
+                  <thead><tr><th>Player</th><th className="num">Round</th><th>Trigger</th><th>Outcome</th><th>Replay / triage</th></tr></thead>
                   <tbody>
-                    {examples.map((m) => (
-                      <tr key={`${m.p}:${m.round}`}>
-                        <td>{m.name} <span style={{ color: "var(--muted)" }}>({m.archetype})</span></td>
-                        <td className="num">{m.round}</td>
-                        <td className="mono" style={{ fontSize: "0.85em" }}>{m.events.map((e) => `${e[1]}${e[3] !== undefined ? ` ${e[3]}` : ""} @${e[0]}s`).join(", ")}</td>
-                        <td>{m.out} at {m.t}s</td>
-                        <td><a className="chip" href={m.href}>▶ seed {m.seed}</a></td>
-                      </tr>
-                    ))}
+                    {examples.map((m) => <MatchRow key={`${m.p}:${m.round}`} m={m} />)}
                   </tbody>
                 </table>
               </div>

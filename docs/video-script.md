@@ -1,12 +1,12 @@
 # Video script (target 2:50, hard limit 3:00)
 
-Record the screen at 1080p, voice over after. Every number below comes from `data/run-main/` or the README; do not add numbers that are not in them.
+Record the screen at 1080p, voice over after. Every number below comes from `data/run-main/` or the README (the fifteen-second figure is the Throughput line in the README); do not add numbers that are not in them.
 Replace `[URL]` with the hosted demo URL once there is one. Do not record the hosted pages before the URL exists; record `npm run dev` and re-record the last 15 seconds on the hosted site.
 
 | Time | On screen | Voice over |
 |---|---|---|
-| 0:00 | Home page, crowd grid of 3D-less tiles playing | "I built a fighting game for a class. Then a thousand synthetic players broke it in fourteen seconds." |
-| 0:12 | Terminal: `npm run crowd`, rounds/s counter; then the Crowd section numbers | "Nemotron Nano wrote a thousand player personas. A headless copy of the real game ran them for 2,831 rounds, about nine and a half hours of play, at 60 frames a second on eleven CPU cores." |
+| 0:00 | Home page, crowd grid of 3D-less tiles playing | "I built a fighting game for a class. Then a thousand synthetic players broke it in about fifteen seconds." |
+| 0:12 | Terminal: `npm run crowd`, rounds/s counter; then the Crowd section numbers | "Nemotron Nano wrote a thousand player personas. A headless copy of the real game ran them for 2,831 rounds, about nine and a half hours of play, at 60 frames a second on a twelve-core Mac." |
 | 0:30 | Findings page, one finding with its green verified claims | "Then Nemotron Ultra read every play log in one call, 220 thousand tokens, and wrote eight findings. Code recomputed each of its 31 claims from the raw data. All 31 matched. It also deleted 13 seeds Ultra had made up." |
 | 0:52 | Charts: casual win rate 6%, quit rate; cheeser win rate 92% | "The story: casual players win 6% of rounds and 97% quit. Players who spam one move win 92%." |
 | 1:05 | Click a seed, 3D replay plays in the browser, badge shows deterministic re-simulation | "Every finding is a seed. Click it and the real game replays the exact round in your browser. Same inputs, same match." |

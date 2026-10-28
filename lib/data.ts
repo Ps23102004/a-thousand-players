@@ -137,13 +137,21 @@ export function getTriage(): BugView[] {
   const data = raw.map((b): BugView => {
     const rep = b.representative;
     // Token built from the representative round's own seed; runs.jsonl may not hold it (sweep rounds live elsewhere), so no runs lookup.
-    const token = encodeToken({ seed: rep.seed, tuning: recordedTuning(), fighter: fighterFor(rep.p), maxT: Math.ceil(rep.t ?? 99), persona: personas.get(rep.p) });
+    // Rounds from a patched run (label = data/patches/<label>.json) must replay with that patch too.
+    const patchPath = rep.label && rep.label !== "base" ? join(ROOT, "data/patches", `${rep.label}.json`) : "";
+    const patchTuning = patchPath && /^[\w-]+$/.test(rep.label) && existsSync(patchPath) ? JSON.parse(readFileSync(patchPath, "utf8")) : {};
+    const token = encodeToken({ seed: rep.seed, tuning: { ...recordedTuning(), ...patchTuning }, fighter: fighterFor(rep.p), maxT: Math.ceil(rep.t ?? 99), persona: personas.get(rep.p) });
     const t = b.triage, v = b.verify;
+    // A fix made by hand after the model failed (fixes/<id>.manual.json) replaces the failed model verdict; the record says how it was checked.
+    const manualPath = join(dir, "fixes", `${b.id}.manual.json`);
+    const manual = existsSync(manualPath) ? JSON.parse(readFileSync(manualPath, "utf8")) : null;
+    const m = manual?.replay?.[b.id]?.match(/^(\d+)\/(\d+)/);
     return {
       id: b.id, signature: b.signature, count: b.count, error: b.error,
       title: t?.title, isRealBug: t?.isRealBug, severity: t?.severity, rootCause: t?.rootCause, playerImpact: t?.playerImpact, confidence: t?.confidence,
       patches: t?.patches ?? [],
-      verdict: v?.verdict, fixedRounds: v?.fixedRounds, verifyRounds: v?.rounds, attempts: b.attempts, regression: v?.regression,
+      verdict: manual && m ? "fixed-by-hand" : v?.verdict, fixedRounds: manual && m ? +m[1] : v?.fixedRounds, verifyRounds: manual && m ? +m[2] : v?.rounds, attempts: b.attempts,
+      regression: manual?.regression ?? v?.regression,
       replay: `/replay?key=${encodeURIComponent(`${rep.p}:${rep.round}`)}&t=${token}`,
     };
   });

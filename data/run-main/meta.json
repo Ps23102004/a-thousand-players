@@ -1,6 +1,7 @@
 {
  "recordedWith": {
-  "rules.mountReleaseFix": 0
+  "rules.mountReleaseFix": 0,
+  "rules.throwPropGuard": 0
  },
- "note": "These rounds were recorded before the mount-release fix (commit d896219). Replay links carry this tuning so they reproduce the recorded round, bugs included."
+ "note": "These rounds were recorded before the mount-release fix (commit d896219) and the throwProp guard (bug3). Replay links carry these rules off so they reproduce the recorded round, bugs included."
 }

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Market Brawl Replay</title>
+<link rel="icon" href="data:,">
 <style>
   :root { --ink: #f3e9d8; --dim: #9fb0ae; --bg: #0f1a22; --accent: #ec684a; --mint: #7fd6b9; --gold: #e3c99e; }
   * { box-sizing: border-box; }
@@ -92,7 +93,7 @@ async function start() {
   acc = 0; seen = 0; $('ticker').textContent = ''; $('end').classList.remove('show');
   $('pname').textContent = (token.persona ? `${token.persona.name} · ${token.persona.archetype}` : 'RECORDED INPUT') + ` (${sim.player.name})`;
   $('rname').textContent = `${sim.rival.name} · built-in CPU`;
-  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? (Object.keys(token.tuning).every(k => k === 'rules.mountReleaseFix') ? 'build as recorded (before the mount-release fix)' : 'patched tuning') : 'shipped tuning'} · deterministic re-simulation`;
+  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? (Object.keys(token.tuning).every(k => k === 'rules.mountReleaseFix' || k === 'rules.throwPropGuard') ? 'build as recorded (before the bug fixes)' : 'patched tuning') : 'shipped tuning'} · deterministic re-simulation`;
 }
 function seekTo(t) { while (!sim.done && sim.time() < t) sim.step(ctrl.step(sim)); }
 function tickerAdd(e) {
