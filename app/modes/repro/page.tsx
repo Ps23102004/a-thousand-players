@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import SourceTag from "@/components/SourceTag";
 import ReproForm from "./ReproForm";
+import { FreshPlay } from "./FreshPlay";
+import results from "@/data/reprobot/results.json";
+import type { ReproResults } from "@/ai/reprobot";
 
 export const metadata: Metadata = { title: "Repro mode · A Thousand Players" };
 
@@ -15,6 +18,7 @@ export default function ReproPage() {
         Rounds that trip the oracle become replayable reproductions.
       </p>
       <ReproForm />
+      <FreshPlay results={results as ReproResults} />
     </section>
   );
 }

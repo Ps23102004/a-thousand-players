@@ -1,0 +1,10 @@
+{
+  "placeholder": true,
+  "model": "nano",
+  "requestedRounds": 20,
+  "rounds": [],
+  "reproduced": 0,
+  "totals": { "nanoCalls": 0, "cacheHits": 0, "fallbacks": 0 },
+  "budgetHit": false,
+  "maxCalls": 40
+}
