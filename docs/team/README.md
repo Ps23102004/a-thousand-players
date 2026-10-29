@@ -22,6 +22,7 @@ A crowd of Nemotron-written synthetic players plays a browser game, finds where 
 | [REQUIREMENTS.md](REQUIREMENTS.md) | Every hackathon rule, judging criterion, prize and judge tip we know, with our status for each and who owns it. |
 | [LEGAL-AND-LICENSES.md](LEGAL-AND-LICENSES.md) | Licenses, third-party material, ownership and paperwork questions, with what is known and what is open. |
 | [SUBMISSION-RUNBOOK.md](SUBMISSION-RUNBOOK.md) | The step-by-step list for the final day, in order. |
+| [CREDITS-AND-PROGRAM.md](CREDITS-AND-PROGRAM.md) | The Nebius Builder Program and partner credits: what each is worth, the steps for Parth to click through, and ready-to-paste product text. |
 | [SUGGESTIONS.md](SUGGESTIONS.md) | The shared suggestion inbox with a template. |
 
 ## How we work in the repo

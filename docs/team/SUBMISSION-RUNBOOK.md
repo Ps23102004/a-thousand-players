@@ -12,6 +12,7 @@ Legend: **P** Parth, **AM** Aman, **AS** Aashna. "Evidence" is what you paste in
 | 2 | Aman and Aashna create free **Devpost accounts** (needed to be added to the team) and register for the hackathon ("Join Hackathon"). | AM, AS | Screenshot of the registered state. |
 | 3 | Aman: eligibility check for all three (LEGAL L7), Representative named (L8). | AM | Written confirmations in `aman/work.md`. |
 | 4 | Aman: re-read the live rules and updates pages, mark each row in REQUIREMENTS.md "re-checked <date>". Decide and recommend the **track**. | AM | Updated REQUIREMENTS.md on a branch. |
+| 4b | **Claim the credits** (Token Factory promo code, Builder Program Register, Tavily) using `CREDITS-AND-PROGRAM.md`; note the balances. The hosted app must stay usable through Dec 15. | P | Balances in a work log. |
 | 5 | **Deploy the app** (Vercel): import the repo, set `NEBIUS_API_KEY` and `TAVILY_API_KEY` as environment variables (never in the repo), Node 22. | P | The live URL. |
 | 6 | **Smoke-test the hosted app** from a logged-out browser (see `aashna/README.md`, "Smoke test"). | AS | Checklist with pass/fail per page and per live route, plus screenshots. |
 | 7 | Aman: write the Devpost text additions (Built With, track, AI disclosure, what existed before and what is new, testing instructions) in `docs/devpost.md`. | AM | PR merged. |
