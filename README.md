@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests-134%20engine%20%2B%20252%20TS%20%2B%2080%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
-**Demo video (3 min):** link added at submission. **Live demo:** link added at submission. A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
+**Demo video (3 min):** link added at submission. **Live demo:** https://a-thousand-players.vercel.app (no login). A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
 
 Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, four bug fixes that can each be switched off so recorded rounds still replay as recorded, and an optional CPU low-block rule (off). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/`. All models run on Nebius Token Factory; Tavily does the web search.
 
