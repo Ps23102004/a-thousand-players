@@ -38,6 +38,6 @@ Replace `[URL]` with the hosted demo URL once there is one. Do not record the ho
 
 1. `npm run dev`, open `/`, `/bugs`, `/modes/exploit`, `/modes/repro`, and a `/replay?key=p0537%3A1` page in tabs. Let the replay finish once so the shaders are warm.
 2. Run the Repro sample report once to confirm it still returns two rounds. The oracle can vary between calls.
-3. Check the daily call cap in the rate limiter is not used up (200 calls a day, 10 a minute per address).
+3. Check the daily call cap in the rate limiter is not used up (per-route daily caps and 10 a minute per address, `lib/ai-route.ts`).
 4. Never show `.env`. Keep the terminal to the crowd command and its output.
 5. The YouTube video must be public and 3:00 or shorter.

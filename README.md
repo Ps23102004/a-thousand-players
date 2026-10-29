@@ -1,10 +1,10 @@
 # A Thousand Players
 
-> A crowd of Nemotron-driven synthetic players plays your browser game by the thousand, finds where it breaks, and backs every finding with a seed you can replay in the real game.
+> A crowd of synthetic players, written by Nemotron, plays your browser game by the thousand, finds where it breaks, and backs every finding with a seed you can replay in the real game.
 
 ![Demo: the crowd, the findings, a replayed bug, live triage](docs/media/demo-preview.gif)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests-134%20engine%20%2B%20251%20TS%20%2B%2080%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests-134%20engine%20%2B%20252%20TS%20%2B%2080%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
 **Demo video (3 min):** link added at submission. **Live demo:** link added at submission. A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
 
@@ -110,7 +110,7 @@ All numbers below come from files in `data/run-main/`.
 - **"31 of 31 claims verified" checks the report against code-computed tables.** Ultra's claims are rates by archetype and round, which code also computes for the prompt header, so the check proves Ultra read the numbers correctly, not that it discovered them. The stronger test is the planted fixture: four stories hidden in 1000 players, all four found.
 - **Fix status in the shipped game.** Four rule fixes are in `game/src`, each behind a rule (default on) so recorded rounds still replay as recorded: `mountReleaseFix` (bug2, by hand; also clears 5 of the 8 bug1 rounds), `throwPropGuard` (bug3, Ultra's patch), `grabReleaseFix` (the other 3 bug1 rounds, by hand) and `knockdownOnPropFix` (bug4, a narrower hand fix). Ultra's own bug4 patch removes a height guard entirely and is not shipped; Ultra's bug1 patch fixed 0 of 8. On the shipped game all 16 replayed bug rounds (8 bug1, 4 bug2, 3 bug3, 1 bug4) run clean.
 - **Ultra reads a summary, not every play log.** Per-round timed events (knockdown, throw, prop, mount) were trimmed to fit the 220,000-token budget: with the current `ai/corpus.ts`, 989 players are shown without timed events and 11 with outcome only (0 omitted; the aggregates cover all 2,831 rounds). The 989 keep their bug events; the 11 outcome-only players show results only.
-- **The rate limit is per server instance.** Counts live in memory, so on Vercel each instance has its own 10 per minute and 200 per day. The cached example answers keep the demo working when a limit is hit.
+- **The rate limit is per server instance.** Counts live in memory, so on Vercel each instance has its own counts: 10 requests per minute per address on every route, plus a daily cap per route (`lib/ai-route.ts`: repro 80, balance 40, eyes 40, triage 40, precedent 100, advisor 20). The cached example answers keep the demo working when a limit is hit.
 - **One game adapter.** The adapter contract is documented below, but Market Brawl is the only game that implements it.
 - **Prices are estimates.** Only Ultra has a dollar estimate, at an unverified aggregator price ($1/M input, $3/M output). Other models report tokens only.
 
@@ -182,9 +182,9 @@ A patch is applied only if its `find` text matches the target file exactly once.
 
 ### Live triage from the Repro page
 
-Every Repro match has a **Triage this (Ultra)** button, the one place the hosted app calls Nemotron Ultra at runtime. `POST /api/triage {p, round}` looks the round up in the recorded data (the client sends no seed, patch or code), replays the seed in a child Node process to build the same 10 Hz evidence window `engine/bugs.mjs` uses, makes up to **two** Ultra calls through `ai/triage.ts` (the second only when the first answer fails validation, with the error sent back; 40 s each), applies the patch to a temp copy of `game/src`, replays the exact seed once more with the patch, and reports a verdict decided by code: **fixed** (no bug events in the patched replay), **not fixed**, **patch did not apply**, or **not a bug** (Ultra said the invariant fired on legitimate play). About 6 s end to end on a laptop (Ultra answered in 3 to 4 s on a 27K-token prompt). Both replays use the recorded tuning (`rules.mountReleaseFix: 0`) so the round reproduces as recorded; the result says so.
+Every Repro match has a **Triage this (Ultra)** button, the one place the hosted app calls Nemotron Ultra at runtime. `POST /api/triage {p, round}` looks the round up in the recorded data (the client sends no seed, patch or code), replays the seed in a child Node process to build the same 10 Hz evidence window `engine/bugs.mjs` uses, makes up to **two** Ultra calls through `ai/triage.ts` (the second only when the first answer fails validation, with the error sent back; 40 s each), applies the patch to a temp copy of `game/src`, replays the exact seed once more with the patch, and reports a verdict decided by code: **fixed** (no bug events in the patched replay), **not fixed**, **patch did not apply**, or **not a bug** (Ultra said the invariant fired on legitimate play). 4.9 to 7.1 s end to end in three recorded live runs (the Ultra call itself 2.6 to 6.0 s on a 27K-token prompt; `docs/evidence/triage-live/`). Both replays use the recorded tuning (`rules.mountReleaseFix: 0`) so the round reproduces as recorded; the result says so.
 
-Limits: one seed and no regression crowd, so "fixed" means that one round runs clean. Ultra's answer varies between calls: on the two known bug2 seeds it fixed one (a crate-clearance check at mount release) and missed the other; on bug4 its live root cause was wrong and the replay said so. The rate limit and daily cap of the other model routes apply.
+Limits: one seed and no regression crowd, so "fixed" means that one round runs clean. Ultra's answer varies between calls: on the two known bug2 seeds it missed one, and the one patch that passed the other only re-enabled a fix the game already ships, so it is not credited (`docs/calibration.md`); on bug4 its live root cause was wrong and the replay said so. The rate limit and daily cap of the other model routes apply.
 
 ## Testing
 

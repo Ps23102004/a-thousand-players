@@ -1,0 +1,257 @@
+{
+  "repro": {
+    "status": 200,
+    "body": {
+      "oracle": {
+        "description": "The player floats upward while blocking after being released by the rival near the wall, then flies out of bounds.",
+        "combine": "all",
+        "atoms": [
+          {
+            "event": "airborne",
+            "who": 0,
+            "minCount": 1,
+            "withinSeconds": [
+              0,
+              100
+            ]
+          },
+          {
+            "event": "block",
+            "who": 0,
+            "minCount": 1,
+            "withinSeconds": [
+              0,
+              100
+            ]
+          },
+          {
+            "event": "oob",
+            "who": 0,
+            "minCount": 1,
+            "withinSeconds": [
+              0,
+              100
+            ]
+          }
+        ]
+      },
+      "total": 2831,
+      "matched": 2,
+      "examples": [
+        {
+          "p": "p0537",
+          "name": "Mona",
+          "archetype": "casual",
+          "round": 1,
+          "seed": 634310,
+          "t": 99,
+          "out": "loss",
+          "events": [
+            [
+              0.37,
+              "block",
+              0
+            ],
+            [
+              4.33,
+              "block",
+              0
+            ],
+            [
+              13.8,
+              "airborne",
+              0
+            ],
+            [
+              14.3,
+              "oob",
+              0,
+              -10.5
+            ]
+          ],
+          "href": "/replay?key=p0537%3A1&t=eyJzZWVkIjo2MzQzMTAsInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA1MzciLCJuYW1lIjoiTW9uYSIsImFyY2hldHlwZSI6ImNhc3VhbCIsInNraWxsIjowLjI0LCJyZWFjdGlvbl90aWNrcyI6NDAsInBhdGllbmNlIjowLjE1LCJmcnVzdHJhdGlvbl90b2xlcmFuY2UiOjAuMzUsImJpbyI6Ik5pZ2h0IHdhcmQgbnVyc2UsIGZpZ2h0cyBmb3IgYSBxdWljayB0aHJpbGwsIHF1aXRzIGltbWVkaWF0ZWx5IGFmdGVyIGJlaW5nIGhpdCIsInJ1bGVzIjpbeyJyaXZhbCI6ImFjdGl2ZSIsIndlaWdodHMiOnsicHVuY2giOjh9fSx7IndlaWdodHMiOnsicmV0cmVhdCI6OX19XX19"
+        },
+        {
+          "p": "p0731",
+          "name": "Kai",
+          "archetype": "casual",
+          "round": 2,
+          "seed": 497239,
+          "t": 99,
+          "out": "loss",
+          "events": [
+            [
+              1.87,
+              "block",
+              0
+            ],
+            [
+              5.95,
+              "block",
+              0
+            ],
+            [
+              11.78,
+              "block",
+              0
+            ],
+            [
+              12,
+              "airborne",
+              0
+            ]
+          ],
+          "href": "/replay?key=p0731%3A2&t=eyJzZWVkIjo0OTcyMzksInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA3MzEiLCJuYW1lIjoiS2FpIiwiYXJjaGV0eXBlIjoiY2FzdWFsIiwic2tpbGwiOjAuMzMsInJlYWN0aW9uX3RpY2tzIjozMywicGF0aWVuY2UiOjAuMzUsImZydXN0cmF0aW9uX3RvbGVyYW5jZSI6MC40NSwiYmlvIjoiU2thdGXigJFwYXJrIHJlZ3VsYXIsIHByZWZlcnMgcXVpY2sgc3RyaWtlcyB0aGVuIHJldHJlYXQiLCJydWxlcyI6W3siZGlzdCI6ImNsb3NlIiwicml2YWwiOiJhY3RpdmUiLCJ3ZWlnaHRzIjp7InB1bmNoIjo3LCJraWNrIjo2fX0seyJyaXZhbCI6InJlY292ZXJ5Iiwid2VpZ2h0cyI6eyJqdW1wIjo1fX0seyJ3ZWlnaHRzIjp7InJldHJlYXQiOjh9fV19fQ"
+        }
+      ]
+    }
+  },
+  "triage": {
+    "status": 200,
+    "body": {
+      "p": "p0537",
+      "round": 1,
+      "seed": 634310,
+      "signature": "oob+airborne+softlock",
+      "sameSignature": 2,
+      "tuning": {
+        "rules.mountReleaseFix": 0,
+        "rules.throwPropGuard": 0
+      },
+      "verdict": "fixed",
+      "triage": {
+        "title": "Mounted fighter launches out of arena when crate breaks",
+        "isRealBug": true,
+        "severity": "high",
+        "rootCause": "ground.js:94-96 releases the mount without waking the rigid body when RULES.mountReleaseFix=0, leaving floor contact stale; the fighter sinks through the floor and is ejected upward next to the wall, then flies out of bounds (oob) while airborne.",
+        "playerImpact": "The player is launched far outside the arena and floats helplessly until the round ends.",
+        "patches": [
+          {
+            "file": "ground.js",
+            "find": "if(RULES.mountReleaseFix){f.rigidBody?.sleep();f.rigidBody?.wakeUp()}f.attackQueue=[];f.animSpeed=1;",
+            "replace": "f.rigidBody?.sleep();f.rigidBody?.wakeUp();f.attackQueue=[];f.animSpeed=1;"
+          }
+        ],
+        "confidence": 0.9,
+        "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+        "tokensIn": 27178,
+        "tokensOut": 231
+      },
+      "applied": [
+        {
+          "file": "ground.js",
+          "ok": true
+        }
+      ],
+      "before": {
+        "out": "loss",
+        "t": 99,
+        "bugs": [
+          "airborne",
+          "oob",
+          "softlock"
+        ],
+        "bugEvents": 3,
+        "crash": null
+      },
+      "after": {
+        "out": "loss",
+        "t": 12.43,
+        "bugs": [],
+        "bugEvents": 0,
+        "crash": null
+      },
+      "timeline": [
+        "TUNING rules.mountReleaseFix=0 rules.throwPropGuard=0 (this replay forces these values; code guarded by a rule that is 0 here does not run, so a fix must not depend on it)",
+        "9.80s player[KAI x=-8.23 y=0.82 MOUNT/mount:CHOOSE hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CHOOSE hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "9.90s player[KAI x=-8.23 y=0.82 MOUNT/mount:CHOOSE hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CHOOSE hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.00s player[KAI x=-8.23 y=0.82 MOUNT/mount:CHOOSE hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CHOOSE hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.10s player[KAI x=-8.23 y=0.82 MOUNT/mount:CHOOSE hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CHOOSE hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.20s player[KAI x=-8.23 y=0.82 MOUNT/mount:CHOOSE hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CHOOSE hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.30s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.40s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.50s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.60s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.70s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.80s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "10.90s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.00s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.10s player[KAI x=-8.23 y=0.82 MOUNT/mount:CONTEST hp=18] cpu[ROOK x=-8.23 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=98] crates[x=-9.87 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.20s player[KAI x=-9.34 y=1.33 IDLE hp=18] cpu[ROOK x=-8.23 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-9.47 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.30s player[KAI x=-9.74 y=1.74 BLOCK hp=18] cpu[ROOK x=-8.23 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-8.98 y=0.34; x=7.5 y=0.3] keys=retreat",
+        "11.40s player[KAI x=-9.5 y=2.32 BLOCK hp=18] cpu[ROOK x=-8.22 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-8.89 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.50s player[KAI x=-9.6 y=2.97 BLOCK hp=18] cpu[ROOK x=-8.21 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-8.89 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.60s player[KAI x=-9.96 y=3.45 BLOCK hp=18] cpu[ROOK x=-8.21 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-8.89 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.70s player[KAI x=-9.63 y=3.84 BLOCK hp=18] cpu[ROOK x=-8.21 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-8.89 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.80s player[KAI x=-9.5 y=4.47 BLOCK hp=18] cpu[ROOK x=-8.21 y=0.8 GETUP/ground:GETUP hp=98] crates[x=-8.89 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "11.90s player[KAI x=-9.69 y=5.09 BLOCK hp=18] cpu[ROOK x=-8.21 y=0.8 STARTUP hp=98] crates[x=-8.88 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "12.00s player[KAI x=-9.88 y=5.48 BLOCK hp=18] cpu[ROOK x=-8.29 y=0.8 STARTUP hp=98] crates[x=-8.96 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "12.10s player[KAI x=-9.56 y=5.96 BLOCK hp=18] cpu[ROOK x=-8.36 y=0.8 ACTIVE hp=98] crates[x=-9.03 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "12.20s player[KAI x=-9.52 y=6.62 BLOCK hp=18] cpu[ROOK x=-8.38 y=0.8 RECOVERY hp=98] crates[x=-9.1 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "12.30s player[KAI x=-9.8 y=7.19 BLOCK hp=18] cpu[ROOK x=-8.38 y=0.8 RECOVERY hp=98] crates[x=-9.17 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "12.40s player[KAI x=-9.76 y=7.54 BLOCK hp=18] cpu[ROOK x=-8.41 y=0.8 STARTUP hp=98] crates[x=-9.23 y=0.3; x=7.5 y=0.3] keys=retreat",
+        "12.40s EVENT prop by CPU",
+        "12.50s player[KAI x=-9.51 y=8.1 BLOCK hp=18] cpu[ROOK x=-8.45 y=0.8 ACTIVE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "12.60s player[KAI x=-9.42 y=8.66 ACTIVE hp=18] cpu[ROOK x=-8.49 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "12.70s player[KAI x=-9.32 y=8.94 RECOVERY hp=18] cpu[ROOK x=-8.49 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "12.80s player[KAI x=-9.32 y=9.04 IDLE hp=18] cpu[ROOK x=-8.51 y=0.8 STARTUP hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "12.90s player[KAI x=-9.32 y=9.02 IDLE hp=18] cpu[ROOK x=-8.68 y=0.8 ACTIVE hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "13.00s player[KAI x=-9.32 y=8.93 IDLE hp=18] cpu[ROOK x=-8.82 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "13.10s player[KAI x=-9.32 y=8.79 IDLE hp=18] cpu[ROOK x=-8.82 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "13.20s player[KAI x=-9.32 y=8.63 IDLE hp=18] cpu[ROOK x=-8.67 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=punch",
+        "13.30s player[KAI x=-9.51 y=8.57 BLOCK hp=18] cpu[ROOK x=-8.54 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "13.40s player[KAI x=-9.75 y=8.81 BLOCK hp=18] cpu[ROOK x=-8.52 y=0.8 STARTUP hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "13.50s player[KAI x=-9.82 y=9.07 BLOCK hp=18] cpu[ROOK x=-8.58 y=0.8 ACTIVE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "13.60s player[KAI x=-9.53 y=9.6 BLOCK hp=18] cpu[ROOK x=-8.6 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "13.70s player[KAI x=-9.55 y=10.26 BLOCK hp=18] cpu[ROOK x=-8.6 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "13.80s EVENT airborne by player",
+        "13.80s player[KAI x=-9.86 y=10.79 BLOCK hp=18] cpu[ROOK x=-8.64 y=0.8 STARTUP hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "13.90s player[KAI x=-9.7 y=11.15 BLOCK hp=18] cpu[ROOK x=-8.71 y=0.8 ACTIVE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.00s player[KAI x=-9.5 y=11.74 BLOCK hp=18] cpu[ROOK x=-8.77 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.10s player[KAI x=-9.63 y=12.39 BLOCK hp=18] cpu[ROOK x=-8.77 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.20s player[KAI x=-10.06 y=12.82 BLOCK hp=18] cpu[ROOK x=-8.77 y=0.8 STARTUP hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.30s EVENT oob by player -10.5",
+        "14.30s player[KAI x=-10.5 y=13 BLOCK hp=18] cpu[ROOK x=-8.84 y=0.8 ACTIVE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.40s player[KAI x=-10.94 y=13.04 BLOCK hp=18] cpu[ROOK x=-8.88 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.50s player[KAI x=-11.38 y=12.98 BLOCK hp=18] cpu[ROOK x=-8.88 y=0.8 RECOVERY hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.60s player[KAI x=-11.82 y=12.87 BLOCK hp=18] cpu[ROOK x=-8.97 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.70s player[KAI x=-12.26 y=12.72 BLOCK hp=18] cpu[ROOK x=-9.16 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.80s player[KAI x=-12.7 y=12.55 BLOCK hp=18] cpu[ROOK x=-9.32 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "14.90s player[KAI x=-13.14 y=12.36 BLOCK hp=18] cpu[ROOK x=-9.51 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "15.00s player[KAI x=-13.58 y=12.17 BLOCK hp=18] cpu[ROOK x=-9.6 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "15.10s player[KAI x=-14.02 y=11.97 BLOCK hp=18] cpu[ROOK x=-9.73 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "15.20s player[KAI x=-14.46 y=11.77 BLOCK hp=18] cpu[ROOK x=-9.91 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=retreat",
+        "15.30s player[KAI x=-14.68 y=11.57 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait",
+        "15.40s player[KAI x=-14.68 y=11.36 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait",
+        "15.50s player[KAI x=-14.68 y=11.16 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait",
+        "15.60s player[KAI x=-14.68 y=10.95 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait",
+        "15.70s player[KAI x=-14.68 y=10.75 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait",
+        "15.80s player[KAI x=-14.68 y=10.54 IDLE hp=18] cpu[ROOK x=-9.98 y=0.8 IDLE hp=98] crates[broken; x=7.5 y=0.3] keys=wait"
+      ],
+      "ms": {
+        "replayBefore": 1007,
+        "model": 3266,
+        "replayAfter": 1090,
+        "total": 5363
+      },
+      "href": "/replay?key=p0537%3A1&t=eyJzZWVkIjo2MzQzMTAsInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA1MzciLCJuYW1lIjoiTW9uYSIsImFyY2hldHlwZSI6ImNhc3VhbCIsInNraWxsIjowLjI0LCJyZWFjdGlvbl90aWNrcyI6NDAsInBhdGllbmNlIjowLjE1LCJmcnVzdHJhdGlvbl90b2xlcmFuY2UiOjAuMzUsImJpbyI6Ik5pZ2h0IHdhcmQgbnVyc2UsIGZpZ2h0cyBmb3IgYSBxdWljayB0aHJpbGwsIHF1aXRzIGltbWVkaWF0ZWx5IGFmdGVyIGJlaW5nIGhpdCIsInJ1bGVzIjpbeyJyaXZhbCI6ImFjdGl2ZSIsIndlaWdodHMiOnsicHVuY2giOjh9fSx7IndlaWdodHMiOnsicmV0cmVhdCI6OX19XX19"
+    }
+  },
+  "precedent": {
+    "status": 200,
+    "body": {
+      "results": [
+        {
+          "title": "Godot 4.6 Collision Bug? CharacterBody2D “Sticking” Explained & Fixed",
+          "url": "https://www.youtube.com/watch?v=7M47Hu9EzYM",
+          "snippet": "[17:51] looking at. It's a top down view. So by say leaving the motion mode as grounded, we are saying that there's gravity involved. And if the player goes up,\n[18:00] which is negative Y on the screen, they're going to fall back down with gravity. What we have to do is we have to change grounded i"
+        },
+        {
+          "title": "Fix 1.21.x pathfinder collision bug by slightly expanding client hitbox by invisbleia · Pull Request #364 · PrismarineJS/mineflayer-pathfinder · GitHub",
+          "url": "https://github.com/PrismarineJS/mineflayer-pathfinder/pull/364",
+          "snippet": "|  |\n\n| // By slightly increasing the client's physical half-width, the client stops just barely |\n| // short of perfectly aligning with walls. This leaves a micro-gap on the server, |\n| // bypassing the floating-point edge case that causes movement rejection. |\n| if (bot.physics && bot.physics.play"
+        }
+      ]
+    }
+  }
+}

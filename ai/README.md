@@ -9,7 +9,7 @@ Other code imports only `ai/index.ts`. Numbers below were measured on 2026-10-28
 | `analyzeCrowd` | Ultra 550B | thinking off, temperature 0.2, max_tokens 12000, answer in one fenced json block | 150-player fixture: 35.2K prompt tokens, 3.1K out, **9.8 s**. 1000-player fixture (2,556 rounds): **224.4K prompt tokens**, 3.5K out, **16.7 s**, est. $0.23 at the unverified price |
 | `attachPrecedent` | Tavily | basic depth, 4 results, keep 3 | 7 searches, about 4.5 s total with 4 in flight |
 | `bugReportToOracle` | Super 120B | thinking off, temperature 0.1, max_tokens 1500, one retry with the validation error | 0.7-1.6 s per report |
-| `patchNotesToTuning` | Super 120B | same as above; the full tuning table (82 keys) is in the prompt | 1.3 s |
+| `patchNotesToTuning` | Super 120B | same as above; the full tuning table (85 keys) is in the prompt | 1.3 s |
 | `describeFrames` | Super-VL | thinking off, max_tokens 600, PNGs as `image_url` data URLs | 5.2 s for one 1.6K-token frame |
 | `chooseAction` | Nano 30B | thinking off, max_tokens 6, temperature 0.5, 15 s timeout, no retries | median 3.5 s per uncached call, 3 tokens out; 30% cache hit rate (12/40) on a 40-step synthetic sequence, 0 fallbacks |
 

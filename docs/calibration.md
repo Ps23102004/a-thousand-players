@@ -21,7 +21,7 @@ Model calls spent: Ultra 12 of 12 approved, Super 11 of 20, Super-VL 6 of 6 (`ge
 Outcome = the replay verdict decided by code: `fixed` counts 1; `not-fixed` and `reused-shipped-fix` (the patch edits, deletes or forces on a rule the replay forces off) count 0. Rows are scored with the current check (`editsForcedRule` in `lib/triage-live.ts`, which looks only at the changed part of a patch); re-running it on the recorded footage and controlled patches changed 2 rows: the old p0537:1 footage (fixed to reused-shipped-fix) and p0731:2 (reused-shipped-fix to not-fixed). Only the first changes any number below. Sources:
 
 - `data/run-main/triage.json`: the offline triage (`ai/cli/triage.ts`), final attempt per cluster, verdict from `engine/verify-fix.mjs`.
-- `footage/*.live.json`: live "Triage this" responses recorded for the demo video.
+- `docs/evidence/triage-live/*.live.json`: live "Triage this" responses recorded for the demo video (copied from the gitignored `footage/`).
 - 12 controlled calls: `ai/cli/calibrate-triage.ts` runs the live flow (`lib/triage-live.ts`) over 13 recorded bug rounds (the three known seeds, the three throwProp crash rounds of the sweep-nerf run, and seven `airborne` rounds) with **one** Ultra call per round (no validation retry, so each call is one data point) and stops at 12 calls.
 
 | source | round | stated confidence | replay verdict |
@@ -30,10 +30,10 @@ Outcome = the replay verdict decided by code: `fixed` counts 1; `not-fixed` and 
 | offline triage.json | bug2 | 0.90 | not-fixed |
 | offline triage.json | bug3 | 0.90 | fixed |
 | offline triage.json | bug4 | 0.95 | fixed |
-| footage/08-repro.live.json | p0731:2 | 0.92 | not-fixed |
-| footage/08-repro.old.live.json | p0537:1 | 0.90 | reused-shipped-fix (was scored fixed: the patch deletes the `if(RULES.mountReleaseFix)` guard around the shipped fix, and the replay forces that rule to 0) |
-| footage/08-repro.v3.live.json | p0537:1 | 0.92 | reused-shipped-fix |
-| footage/08-repro.v3.live.json | p0537:1 | 0.92 | reused-shipped-fix |
+| docs/evidence/triage-live/run-a.live.json | p0731:2 | 0.92 | not-fixed |
+| docs/evidence/triage-live/run-old.live.json | p0537:1 | 0.90 | reused-shipped-fix (was scored fixed: the patch deletes the `if(RULES.mountReleaseFix)` guard around the shipped fix, and the replay forces that rule to 0) |
+| docs/evidence/triage-live/run-v3.live.json | p0537:1 | 0.92 | reused-shipped-fix |
+| docs/evidence/triage-live/run-v3.live.json | p0537:1 | 0.92 | reused-shipped-fix |
 | calibrate-triage | p0537:1 | 0.90 | reused-shipped-fix |
 | calibrate-triage | p0731:2 | 0.85 | not-fixed (reused-shipped-fix under the old whole-patch check) |
 | calibrate-triage | p0653:2 | 0.95 | not-fixed |
@@ -42,7 +42,7 @@ Outcome = the replay verdict decided by code: `fixed` counts 1; `not-fixed` and 
 | calibrate-triage | p0129:3 | 0.85 | not-fixed |
 | calibrate-triage | p0306:4 | 0.85 | not-fixed |
 
-No verdict, confidence not returned (the patch's `find` text was not in the file): 5 controlled calls (p0233:2, p0611:1, p0754:2 crash rounds in `props.js`; p0069:1 in `grapple.js`; p0355:2 in `player.js`) and 2 HTTP 502 responses in `footage/08-repro.live.json`.
+No verdict, confidence not returned (the patch's `find` text was not in the file): 5 controlled calls (p0233:2, p0611:1, p0754:2 crash rounds in `props.js`; p0069:1 in `grapple.js`; p0355:2 in `player.js`) and 2 HTTP 502 responses in `docs/evidence/triage-live/run-a.live.json`.
 
 | stated confidence | n | mean stated | observed fixed rate | 95% Wilson interval |
 | --- | --- | --- | --- | --- |

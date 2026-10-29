@@ -1,0 +1,261 @@
+{
+  "repro": {
+    "status": 200,
+    "body": {
+      "oracle": {
+        "description": "The player floats upward while blocking after being released by the rival near the wall, then flies out of bounds.",
+        "combine": "all",
+        "atoms": [
+          {
+            "event": "airborne",
+            "who": 0,
+            "minCount": 1,
+            "withinSeconds": [
+              0,
+              100
+            ]
+          },
+          {
+            "event": "block",
+            "who": 0,
+            "minCount": 1,
+            "withinSeconds": [
+              0,
+              100
+            ]
+          },
+          {
+            "event": "oob",
+            "who": 0,
+            "minCount": 1,
+            "withinSeconds": [
+              0,
+              100
+            ]
+          }
+        ]
+      },
+      "total": 2831,
+      "matched": 2,
+      "examples": [
+        {
+          "p": "p0537",
+          "name": "Mona",
+          "archetype": "casual",
+          "round": 1,
+          "seed": 634310,
+          "t": 99,
+          "out": "loss",
+          "events": [
+            [
+              0.37,
+              "block",
+              0
+            ],
+            [
+              4.33,
+              "block",
+              0
+            ],
+            [
+              13.8,
+              "airborne",
+              0
+            ],
+            [
+              14.3,
+              "oob",
+              0,
+              -10.5
+            ]
+          ],
+          "href": "/replay?key=p0537%3A1&t=eyJzZWVkIjo2MzQzMTAsInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA1MzciLCJuYW1lIjoiTW9uYSIsImFyY2hldHlwZSI6ImNhc3VhbCIsInNraWxsIjowLjI0LCJyZWFjdGlvbl90aWNrcyI6NDAsInBhdGllbmNlIjowLjE1LCJmcnVzdHJhdGlvbl90b2xlcmFuY2UiOjAuMzUsImJpbyI6Ik5pZ2h0IHdhcmQgbnVyc2UsIGZpZ2h0cyBmb3IgYSBxdWljayB0aHJpbGwsIHF1aXRzIGltbWVkaWF0ZWx5IGFmdGVyIGJlaW5nIGhpdCIsInJ1bGVzIjpbeyJyaXZhbCI6ImFjdGl2ZSIsIndlaWdodHMiOnsicHVuY2giOjh9fSx7IndlaWdodHMiOnsicmV0cmVhdCI6OX19XX19"
+        },
+        {
+          "p": "p0731",
+          "name": "Kai",
+          "archetype": "casual",
+          "round": 2,
+          "seed": 497239,
+          "t": 99,
+          "out": "loss",
+          "events": [
+            [
+              1.87,
+              "block",
+              0
+            ],
+            [
+              5.95,
+              "block",
+              0
+            ],
+            [
+              11.78,
+              "block",
+              0
+            ],
+            [
+              12,
+              "airborne",
+              0
+            ]
+          ],
+          "href": "/replay?key=p0731%3A2&t=eyJzZWVkIjo0OTcyMzksInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA3MzEiLCJuYW1lIjoiS2FpIiwiYXJjaGV0eXBlIjoiY2FzdWFsIiwic2tpbGwiOjAuMzMsInJlYWN0aW9uX3RpY2tzIjozMywicGF0aWVuY2UiOjAuMzUsImZydXN0cmF0aW9uX3RvbGVyYW5jZSI6MC40NSwiYmlvIjoiU2thdGXigJFwYXJrIHJlZ3VsYXIsIHByZWZlcnMgcXVpY2sgc3RyaWtlcyB0aGVuIHJldHJlYXQiLCJydWxlcyI6W3siZGlzdCI6ImNsb3NlIiwicml2YWwiOiJhY3RpdmUiLCJ3ZWlnaHRzIjp7InB1bmNoIjo3LCJraWNrIjo2fX0seyJyaXZhbCI6InJlY292ZXJ5Iiwid2VpZ2h0cyI6eyJqdW1wIjo1fX0seyJ3ZWlnaHRzIjp7InJldHJlYXQiOjh9fV19fQ"
+        }
+      ]
+    }
+  },
+  "triages": [
+    {
+      "seed": "634310",
+      "status": 502,
+      "body": {
+        "error": "Ultra answered, but the answer failed validation: patch 0: find text occurs 0 times in ground.js; it must match exactly once (copy it exactly, including spacing). One call, no retry; press the button again."
+      }
+    },
+    {
+      "seed": "497239",
+      "status": 200,
+      "body": {
+        "p": "p0731",
+        "round": 2,
+        "seed": 497239,
+        "signature": "oob+airborne+softlock",
+        "sameSignature": 2,
+        "tuning": {
+          "rules.mountReleaseFix": 0,
+          "rules.throwPropGuard": 0
+        },
+        "verdict": "not-fixed",
+        "triage": {
+          "title": "Player can fly out of bounds while blocking",
+          "isRealBug": true,
+          "severity": "high",
+          "rootCause": "player.js:157 applies jump velocity without checking airborne state, allowing infinite upward acceleration while holding block.",
+          "playerImpact": "Player rises indefinitely (y > 10) and leaves the arena (oob), soft-locking the round because the CPU cannot reach them.",
+          "patches": [
+            {
+              "file": "player.js",
+              "find": "const jumpVel = jump && !player.jumpHeld && grounded ? 6.0 : curVel.y;",
+              "replace": "const jumpVel = jump && !player.jumpHeld && grounded && player.state !== 'BLOCK' ? 6.0 : curVel.y;"
+            }
+          ],
+          "confidence": 0.92,
+          "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+          "tokensIn": 26794,
+          "tokensOut": 195
+        },
+        "applied": [
+          {
+            "file": "player.js",
+            "ok": true
+          }
+        ],
+        "before": {
+          "out": "loss",
+          "t": 99,
+          "bugs": [
+            "airborne",
+            "oob",
+            "softlock"
+          ],
+          "bugEvents": 3,
+          "crash": null
+        },
+        "after": {
+          "out": "loss",
+          "t": 99,
+          "bugs": [
+            "airborne",
+            "oob",
+            "softlock"
+          ],
+          "bugEvents": 3,
+          "crash": null
+        },
+        "timeline": [
+          "TUNING rules.mountReleaseFix=0 rules.throwPropGuard=0 (this replay forces these values; code guarded by a rule that is 0 here does not run, so a fix must not depend on it)",
+          "8.00s player[KAI x=-9.06 y=0.83 DOWNED/ground:DOWNED hp=29] cpu[ROOK x=-7.39 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.02s EVENT mount by CPU",
+          "8.10s player[KAI x=-9.06 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=29] cpu[ROOK x=-9.06 y=0.82 MOUNT/mount:CONTEST hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.20s player[KAI x=-9.06 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=29] cpu[ROOK x=-9.06 y=0.82 MOUNT/mount:CONTEST hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.30s player[KAI x=-9.06 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=29] cpu[ROOK x=-9.06 y=0.82 MOUNT/mount:CONTEST hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.40s player[KAI x=-9.06 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=29] cpu[ROOK x=-9.06 y=0.82 MOUNT/mount:CONTEST hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.50s player[KAI x=-9.06 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=29] cpu[ROOK x=-9.06 y=0.82 MOUNT/mount:CONTEST hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.60s player[KAI x=-9.06 y=0.82 PINNED/ground:DOWNED/mount:CONTEST hp=29] cpu[ROOK x=-9.06 y=0.82 MOUNT/mount:CONTEST hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.70s player[KAI x=-9.06 y=0.8 GETUP/ground:GETUP hp=29] cpu[ROOK x=-7.96 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.80s player[KAI x=-9.07 y=0.74 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "8.90s player[KAI x=-9.16 y=0.63 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8.05 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.00s player[KAI x=-9.37 y=0.72 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8.25 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.10s player[KAI x=-9.55 y=0.88 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8.46 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.20s player[KAI x=-9.55 y=0.95 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8.47 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.30s player[KAI x=-9.53 y=1.24 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8.45 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.40s player[KAI x=-9.59 y=1.4 GETUP/ground:GETUP hp=29] cpu[ROOK x=-8.49 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.50s player[KAI x=-9.59 y=1.42 PARRY hp=29] cpu[ROOK x=-8.49 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "9.60s player[KAI x=-9.51 y=1.65 BLOCK hp=29] cpu[ROOK x=-8.36 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "9.70s player[KAI x=-9.59 y=2.31 BLOCK hp=29] cpu[ROOK x=-8.22 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "9.80s player[KAI x=-9.93 y=2.8 BLOCK hp=29] cpu[ROOK x=-8.28 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "9.90s player[KAI x=-9.65 y=3.18 BLOCK hp=29] cpu[ROOK x=-8.3 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "10.00s player[KAI x=-9.5 y=3.8 BLOCK hp=29] cpu[ROOK x=-8.3 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "10.10s player[KAI x=-9.51 y=4.4 STARTUP hp=29] cpu[ROOK x=-8.34 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=kick",
+          "10.20s player[KAI x=-9.43 y=4.71 ACTIVE hp=29] cpu[ROOK x=-8.41 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=kick",
+          "10.30s player[KAI x=-9.36 y=4.82 RECOVERY hp=29] cpu[ROOK x=-8.47 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=kick",
+          "10.40s player[KAI x=-9.36 y=4.81 RECOVERY hp=29] cpu[ROOK x=-8.47 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=kick",
+          "10.50s player[KAI x=-9.36 y=4.73 IDLE hp=29] cpu[ROOK x=-8.47 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=kick",
+          "10.60s player[KAI x=-9.36 y=4.6 IDLE hp=29] cpu[ROOK x=-8.64 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=kick",
+          "10.70s player[KAI x=-9.32 y=4.44 STARTUP hp=29] cpu[ROOK x=-8.8 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=punch",
+          "10.80s player[KAI x=-9.2 y=4.26 ACTIVE hp=29] cpu[ROOK x=-8.8 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=punch",
+          "10.90s player[KAI x=-9.18 y=4.07 RECOVERY hp=29] cpu[ROOK x=-8.83 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=punch",
+          "11.00s player[KAI x=-9.18 y=3.88 IDLE hp=29] cpu[ROOK x=-8.9 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=punch",
+          "11.10s player[KAI x=-9.18 y=3.68 IDLE hp=29] cpu[ROOK x=-8.97 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=punch",
+          "11.20s player[KAI x=-9.18 y=3.47 IDLE hp=29] cpu[ROOK x=-8.97 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=punch",
+          "11.30s player[KAI x=-9.18 y=3.27 BLOCK hp=29] cpu[ROOK x=-8.97 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "11.40s player[KAI x=-9.18 y=3.07 BLOCK hp=29] cpu[ROOK x=-8.97 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "11.50s player[KAI x=-9.18 y=2.86 BLOCK hp=29] cpu[ROOK x=-8.97 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "11.60s player[KAI x=-9.18 y=2.65 BLOCK hp=29] cpu[ROOK x=-8.97 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "11.70s player[KAI x=-9.18 y=2.45 BLOCK hp=29] cpu[ROOK x=-9.04 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "11.78s EVENT block by player",
+          "11.80s player[KAI x=-9.18 y=2.24 BLOCK hp=24] cpu[ROOK x=-9.12 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=block",
+          "11.90s player[KAI x=-9.54 y=2.07 BLOCK hp=24] cpu[ROOK x=-9.14 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.00s EVENT airborne by player",
+          "12.00s player[KAI x=-9.84 y=2.07 BLOCK hp=24] cpu[ROOK x=-9.14 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.10s player[KAI x=-9.72 y=2.31 BLOCK hp=24] cpu[ROOK x=-9.14 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.20s player[KAI x=-9.5 y=2.89 BLOCK hp=24] cpu[ROOK x=-9.14 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.30s player[KAI x=-9.61 y=3.55 BLOCK hp=24] cpu[ROOK x=-9.14 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.40s player[KAI x=-9.97 y=4.01 BLOCK hp=24] cpu[ROOK x=-9.14 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.50s player[KAI x=-9.63 y=4.41 BLOCK hp=24] cpu[ROOK x=-9.2 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.60s player[KAI x=-9.5 y=5.04 BLOCK hp=24] cpu[ROOK x=-9.25 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.70s player[KAI x=-9.7 y=5.66 BLOCK hp=24] cpu[ROOK x=-9.25 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.80s player[KAI x=-9.87 y=6.05 BLOCK hp=24] cpu[ROOK x=-9.26 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "12.90s player[KAI x=-9.55 y=6.53 BLOCK hp=24] cpu[ROOK x=-9.33 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.00s player[KAI x=-9.53 y=7.19 BLOCK hp=24] cpu[ROOK x=-9.4 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.10s player[KAI x=-9.81 y=7.76 BLOCK hp=24] cpu[ROOK x=-9.41 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.20s player[KAI x=-9.76 y=8.11 BLOCK hp=24] cpu[ROOK x=-9.41 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.30s player[KAI x=-9.51 y=8.67 BLOCK hp=24] cpu[ROOK x=-9.41 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.40s player[KAI x=-9.58 y=9.33 BLOCK hp=24] cpu[ROOK x=-9.41 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.50s player[KAI x=-9.93 y=9.82 BLOCK hp=24] cpu[ROOK x=-9.41 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.60s player[KAI x=-9.65 y=10.2 BLOCK hp=24] cpu[ROOK x=-9.49 y=0.8 STARTUP hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.70s player[KAI x=-9.5 y=10.82 BLOCK hp=24] cpu[ROOK x=-9.56 y=0.8 ACTIVE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.80s player[KAI x=-9.67 y=11.45 IDLE hp=24] cpu[ROOK x=-9.58 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "13.90s player[KAI x=-9.95 y=11.85 BLOCK hp=24] cpu[ROOK x=-9.58 y=0.8 RECOVERY hp=100] crates[broken; x=7.5 y=0.3] keys=retreat",
+          "14.00s player[KAI x=-10.05 y=12.23 BLOCK hp=24] cpu[ROOK x=-9.58 y=0.8 IDLE hp=100] crates[broken; x=7.5 y=0.3] keys=retreat"
+        ],
+        "ms": {
+          "replayBefore": 1075,
+          "model": 2630,
+          "replayAfter": 1151,
+          "total": 4856
+        },
+        "href": "/replay?key=p0731%3A2&t=eyJzZWVkIjo0OTcyMzksInR1bmluZyI6eyJydWxlcy5tb3VudFJlbGVhc2VGaXgiOjAsInJ1bGVzLnRocm93UHJvcEd1YXJkIjowfSwiZmlnaHRlciI6ImthaSIsIm1heFQiOjk5LCJwZXJzb25hIjp7ImlkIjoicDA3MzEiLCJuYW1lIjoiS2FpIiwiYXJjaGV0eXBlIjoiY2FzdWFsIiwic2tpbGwiOjAuMzMsInJlYWN0aW9uX3RpY2tzIjozMywicGF0aWVuY2UiOjAuMzUsImZydXN0cmF0aW9uX3RvbGVyYW5jZSI6MC40NSwiYmlvIjoiU2thdGXigJFwYXJrIHJlZ3VsYXIsIHByZWZlcnMgcXVpY2sgc3RyaWtlcyB0aGVuIHJldHJlYXQiLCJydWxlcyI6W3siZGlzdCI6ImNsb3NlIiwicml2YWwiOiJhY3RpdmUiLCJ3ZWlnaHRzIjp7InB1bmNoIjo3LCJraWNrIjo2fX0seyJyaXZhbCI6InJlY292ZXJ5Iiwid2VpZ2h0cyI6eyJqdW1wIjo1fX0seyJ3ZWlnaHRzIjp7InJldHJlYXQiOjh9fV19fQ"
+      }
+    }
+  ],
+  "triage": {
+    "seed": "634310",
+    "status": 502,
+    "body": {
+      "error": "Ultra answered, but the answer failed validation: patch 0: find text occurs 0 times in ground.js; it must match exactly once (copy it exactly, including spacing). One call, no retry; press the button again."
+    }
+  }
+}

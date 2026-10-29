@@ -20,7 +20,7 @@ Rules can change. **Aman: re-open these pages again on submission morning and ma
 |---|---|---|---|
 | 1 | Runs on Nebius Token Factory or AI Cloud **and** uses at least one NVIDIA open-source model? | Every model call goes to the Token Factory API with Nemotron Nano, Super, Ultra and Super-VL. FAQ: a different provider (HuggingFace, OpenRouter) does **not** count, and the web app itself may be hosted anywhere. | **Met in code.** Becomes visible to judges once hosted. |
 | 2 | Fits clearly into one of the four tracks? | Open: pick one (section D). | **Open** |
-| 3 | Demo video under 3 minutes, public on YouTube, shows the app working and **explains Nebius + NVIDIA usage**? | Rough cut 2:52.9, silent. Narration now says Nebius Token Factory and Nemotron aloud. Needs the voice-over, a rebuild of the Models scene, upload. | **Open** |
+| 3 | Demo video under 3 minutes, public on YouTube, shows the app working and **explains Nebius + NVIDIA usage**? | Rough cut 2:58.4 (178.4 s), silent; Models scene rebuilt. Narration says Nebius Token Factory and Nemotron aloud. Still needs the voice-over and upload. | **Open** |
 | 4 | Public repo, visible open-source license, README with setup and run instructions? | MIT `LICENSE`, README with quick start. Repo is private now. | **Open until flipped public** |
 | 5 | Working demo URL? | Not deployed yet. | **Open** |
 | 6 | Feedback on the Nebius tools and NVIDIA tech used, specific? | Drafted (`docs/token-factory-feedback.md`) but not in the structure the organizers asked for (section C). | **Open (Aman)** |
@@ -145,7 +145,7 @@ Each project: **one Overall award OR one Track award, plus one Bonus.**
 | "What existed before / what is new" text | **Open (Aman)** |
 | Terms of Nebius, Tavily, game assets and coursework ownership reviewed | **Open (Aman)** see LEGAL-AND-LICENSES.md |
 | Hosted URL, kept alive to Dec 15 | **Open (Parth), checks by Aashna** |
-| Video: voice-over, rebuild of the Models scene, upload | **Open (Parth)** |
+| Video: cut is 2:58.4 (178.4 s), Models scene rebuilt; still needs voice-over, upload | **Open (Parth)** |
 | Repo made public, license visible in About | **Open (Parth)**, verify (Aman) |
 | Teammates added to the Devpost form and accepted | **Open (all)** |
 | Builder Program Register click | **Open (Parth)** |
