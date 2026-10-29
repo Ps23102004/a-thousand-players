@@ -1,0 +1,147 @@
+{
+  "tuning": {
+    "anim.SWEEP.damage": 12.8,
+    "anim.SWEEP.recovery": 0.456,
+    "rules.guardDamageMultiplier": 0.25
+  },
+  "baselineTuning": {
+    "rules.mountReleaseFix": 0,
+    "rules.throwPropGuard": 0,
+    "rules.grabReleaseFix": 0,
+    "rules.knockdownOnPropFix": 0
+  },
+  "personas": 200,
+  "roundsEach": 1,
+  "seed": 2,
+  "before": {
+    "rounds": 200,
+    "wins": 55,
+    "winRate": 0.275,
+    "bugRounds": 0,
+    "byArchetype": [
+      {
+        "archetype": "casual",
+        "rounds": 39,
+        "wins": 1,
+        "winRate": 0.02564102564102564,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "cheeser",
+        "rounds": 23,
+        "wins": 21,
+        "winRate": 0.9130434782608695,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "explorer",
+        "rounds": 13,
+        "wins": 2,
+        "winRate": 0.15384615384615385,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "learner",
+        "rounds": 23,
+        "wins": 3,
+        "winRate": 0.13043478260869565,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "masher",
+        "rounds": 36,
+        "wins": 10,
+        "winRate": 0.2777777777777778,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "rusher",
+        "rounds": 33,
+        "wins": 10,
+        "winRate": 0.30303030303030304,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "speedrunner",
+        "rounds": 10,
+        "wins": 6,
+        "winRate": 0.6,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "turtle",
+        "rounds": 23,
+        "wins": 2,
+        "winRate": 0.08695652173913043,
+        "bugRounds": 0
+      }
+    ]
+  },
+  "after": {
+    "rounds": 200,
+    "wins": 64,
+    "winRate": 0.32,
+    "bugRounds": 0,
+    "byArchetype": [
+      {
+        "archetype": "casual",
+        "rounds": 39,
+        "wins": 3,
+        "winRate": 0.07692307692307693,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "cheeser",
+        "rounds": 23,
+        "wins": 20,
+        "winRate": 0.8695652173913043,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "explorer",
+        "rounds": 13,
+        "wins": 2,
+        "winRate": 0.15384615384615385,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "learner",
+        "rounds": 23,
+        "wins": 5,
+        "winRate": 0.21739130434782608,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "masher",
+        "rounds": 36,
+        "wins": 12,
+        "winRate": 0.3333333333333333,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "rusher",
+        "rounds": 33,
+        "wins": 11,
+        "winRate": 0.3333333333333333,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "speedrunner",
+        "rounds": 10,
+        "wins": 7,
+        "winRate": 0.7,
+        "bugRounds": 0
+      },
+      {
+        "archetype": "turtle",
+        "rounds": 23,
+        "wins": 4,
+        "winRate": 0.17391304347826086,
+        "bugRounds": 0
+      }
+    ]
+  },
+  "wallMs": 9948,
+  "generatedAt": "2026-10-29T19:25:06.484Z",
+  "command": "node scripts/make-prophet-cache.mjs --seed 2 --limit 200"
+}

@@ -1,6 +1,7 @@
 "use client";
 import AiForm from "@/components/AiForm";
 import type { Tuning, TuningSpec } from "@/lib/types";
+import Prophet from "./Prophet";
 
 export default function BalanceForm({ baseline }: { baseline: TuningSpec[] }) {
   return (
@@ -38,6 +39,7 @@ export default function BalanceForm({ baseline }: { baseline: TuningSpec[] }) {
               </div>
             ) : <p className="notice">The model proposed no changes.</p>}
             <details><summary>Raw JSON</summary><pre>{JSON.stringify({ tuning, rationale }, null, 2)}</pre></details>
+            {changed.length > 0 && <Prophet key={JSON.stringify(tuning)} tuning={tuning} />}
           </div>
         );
       }}
