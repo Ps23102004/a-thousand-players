@@ -2,7 +2,7 @@
 
 Status (2026-10-29, run by the lead in system Chrome against `npm run dev -p 3142`): the crawler reports **92 of 92 controls work**; with the pause button deliberately broken (`E2E_BREAK_CONTROL=btn-pause`) the spec fails with `btn-pause: false !== true` and the game stays unpaused (`paused:false`), so the spec does catch a dead control. It was written by gpt-6.1-sol in a sandbox that could not run a browser; the browser runs were done afterwards.
 
-`node e2e/game-ui.spec.cjs --init-report` inventoried **92** control checks. The checked-in report has **0 working, 0 failed, 92 untested** (`works: null`). `/games` statically imports that file and displays “controls checked: 0 of 92 work”, alongside the failed and untested counts. A successful browser run replaces pending rows with measured results; rebuild/redeploy afterward to update the hosted static page.
+`node e2e/game-ui.spec.cjs --init-report` inventoried **92** control checks. As of the 2026-10-29 system-Chrome run the checked-in report has **92 working, 0 failed, 0 untested**, and `/games` displays “controls checked: 92 of 92 work”. (An earlier inventory-only report had `works: null` for all 92 rows.) A successful browser run replaces pending rows with measured results; rebuild/redeploy afterward to update the hosted static page.
 
 ## What is exercised
 
@@ -51,7 +51,7 @@ Observed result (2026-10-29): exit nonzero, report `Controls: 0 of 92 work; 1 fa
 - UI test first: adding the static import/counter contract test produced **3 passed, 1 failed** because `/games` had no report import. After the UI change, **4 passed, 0 failed**.
 - The expanded offline suite now checks the HTML catalog, the real `GamepadControls` mapper and report semantics as well. Browser acceptance remains separate.
 
-No game bugs have been verified in Chrome, no game source was changed, and no new rule flags or API routes were added. Recorded data was not edited. Physical gamepad hardware, rumble and adaptive triggers are untested.
+No game bugs were found in the Chrome run, no game source was changed, and no new rule flags or API routes were added. Recorded data was not edited. Physical gamepad hardware, rumble and adaptive triggers are untested.
 
 ## Commands run in this worktree
 
@@ -81,8 +81,8 @@ Read-only inspection commands were `pwd`, `rg --files` (project files and instal
 
 ## Remaining delivery work
 
-1. Run the normal crawler in system Chrome on port 3142; send any failures back with the generated report. Current JSON rows are inventory, not passing results.
-2. Run the broken-button mutation and record the actual failed assertion; rerun without the mutation and record measured totals. The proof above is a runnable procedure, not completed evidence.
+1. Done 2026-10-29: crawler run in system Chrome against `npm run dev -p 3142` (now also any base URL): 92 of 92 work, 0 failed, 0 untested.
+2. Done 2026-10-29: broken-button mutation (`E2E_BREAK_CONTROL=btn-pause`) failed with `btn-pause: false !== true`, `paused:false`; the report then shows `0 of 92 work; 1 failed; 91 untested` in mutation mode. Proof of the failure is recorded above.
 3. Run `npm test` and the full browser suite in an environment that permits their local sockets/browser. Recheck type compilation after any follow-up changes.
 4. Commit on `p1-controls` from a shell that can write the parent worktree metadata. Suggested small commits: first the crawler, additive helpers and report; then the static `/games` block and documentation. End each commit message with `Co-Authored-By: GPT-6 <noreply@example.com>`. Do not push.
 
