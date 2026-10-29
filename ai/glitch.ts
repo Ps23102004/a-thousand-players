@@ -70,8 +70,10 @@ export function selectGlitchBatch(runs: RunLine[], personas: Persona[], options:
   return { flagged: selected, clean };
 }
 
-export function parseGlitchAnswer(text: string): "yes" | "no" | "unparseable" {
-  const match = text.trim().match(/^(YES|NO)\b/i);
+export function parseGlitchAnswer(text: unknown): "yes" | "no" | "unparseable" {
+  if (typeof text !== "string") return "unparseable";
+  // Reject answer pairs such as YES/NO or NO - YES, while allowing explanatory prose.
+  const match = text.trim().match(/^(YES|NO)(?![a-z])(?!\s*[/-]\s*(?:YES|NO)(?![a-z]))/i);
   return match ? match[1].toLowerCase() as "yes" | "no" : "unparseable";
 }
 
@@ -81,10 +83,10 @@ export function wilson95(yes: number, total: number): [number, number] {
   const z = 1.959963984540054, z2 = z * z, p = yes / total;
   const center = (p + z2 / (2 * total)) / (1 + z2 / total);
   const half = z * Math.sqrt((p * (1 - p) + z2 / (4 * total)) / total) / (1 + z2 / total);
-  return [center - half, center + half];
+  return [yes === 0 ? 0 : Math.max(0, Math.min(1, center - half)), yes === total ? 1 : Math.max(0, Math.min(1, center + half))];
 }
 
-export interface ScoredRound { key: string; seed: number; truth: Truth; types: GlitchType[]; answer: string; matchedTo?: string }
+export interface ScoredRound { key: string; seed: number; truth: Truth; types: GlitchType[]; answer: unknown; matchedTo?: string }
 export function scoreGlitchBatch(rows: ScoredRound[]) {
   const rate = (group: ScoredRound[]): Rate => {
     const parsed = group.map((row) => parseGlitchAnswer(row.answer));

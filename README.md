@@ -4,7 +4,7 @@
 
 ![Demo: the crowd, the findings, a replayed bug, live triage](docs/media/demo-preview.gif)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests-134%20engine%20%2B%20252%20TS%20%2B%2080%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--29-134%20engine%20%2B%20265%20TS%20%2B%2086%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
 **Demo video (3 min):** link added at submission. **Live demo:** https://a-thousand-players.vercel.app (no login). A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
 
@@ -23,7 +23,7 @@ cp .env.example .env        # optional: add NEBIUS_API_KEY and TAVILY_API_KEY fo
 npm run dev                 # http://localhost:3000   (predev syncs the game into public/)
 ```
 
-Without keys the app still runs: every recorded page works and the live routes answer "not configured". `npm test` runs the whole suite offline.
+Without keys the app still runs: every recorded page works and model routes answer "not configured". Patch Prophet needs no key. `npm test` runs the whole suite offline.
 
 ## How it works
 
@@ -52,7 +52,7 @@ Models propose; code checks. Every number on a finding is recomputed from the ra
 3. Press a seed's replay link: the real game re-simulates that exact round in your browser and shows the bug.
 4. Open **Bugs** for the four clusters and what happened to each fix.
 
-If the shared rate limit is reached, the built-in examples on Repro and Balance return the real answer recorded for them, marked as cached. Any other input gets a 429.
+If the rate limit is reached, the built-in examples on Repro and Balance return the real answer recorded for them, marked as cached. Other inputs get a 429. Patch Prophet also has a cached fallback for the exact example tuning if it is rate limited, busy or times out.
 
 ## Who it is for
 
@@ -67,8 +67,10 @@ Small game teams that have no QA department: a crowd of synthetic players finds 
 5. **Exploit search.** Nano proposes bot strategies, the engine plays each one, Nano evolves the best ones, and Super writes an explanation of why they win.
 6. **Repro.** A player writes a bug report in plain English. Nemotron Super turns it into an oracle, a predicate over the engine's event log. Plain code (`lib/oracle.ts`, no model) runs the oracle over all 2831 recorded rounds and links the rounds that trip it. The sample report about floating up and leaving the arena found exactly the two recorded rounds with that bug. Zero matches does not prove a bug is absent, and the model's oracle varies a little between calls.
 7. **Eyes.** On any replay page, a button captures three frames from the embedded 3D game (around the round's first bug event, if it has one), shrinks them to 640 px JPEGs and asks Nemotron Super-VL what it sees. It is a description aid: the engine's invariant checks decide what counts as a bug.
-8. **Balance.** Patch notes in plain English become tuning values, checked against each value's allowed range (Super, live). Replaying the crowd with them is a command-line step; one recorded example is on the page.
+8. **Balance / Patch Prophet.** Super translates patch notes into tuning values checked against the allowed ranges. **Run Patch Prophet** then compares the recorded tuning with the new tuning live, using sequential child processes. Both sides use the same 200 personas and seeds, one round each. The page labels this as a sample and provides a cached fallback for the exact example tuning. Prophet adds no model call beyond the existing Super translation ([details](docs/prophet.md)).
 9. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 45 of 45 sampled recorded rounds, including the three crash rounds, replay event for event that way (`node scripts/check-recorded-replays.mjs`).
+10. **Game UI and controls crawler.** The `/games` block shows **92 of 92 controls work**: HUD buttons, guide keys and an injected fake gamepad. A deliberately broken pause button fails the crawler. No broken control was found, so nothing was fixed. Physical controller hardware is untested ([spec](e2e/game-ui.spec.cjs), [report](docs/controls-report.json), [notes](docs/controls.md)).
+11. **Glitch Hunter.** The `/bugs` block reports a Super-VL second opinion on engine-flagged rounds: 10 flagged + 10 matched clean rounds, 20 calls. Hit rate: **8/10** (Wilson 95% interval **49.0–94.3%**); false-alarm rate: **2/10** (**5.7–51.0%**). The recorded run has only 10 flagged rounds of the requested types. The engine remains the detector ([batch notes](docs/glitch-hunt.md), [results](data/glitch-hunt/results.json)).
 
 ## Screenshots
 
@@ -98,19 +100,23 @@ All numbers below come from files in `data/run-main/`.
 
 - **Exploit search** (`exploit.json`): 32 strategies over 2 generations, 30 rounds each (960 rounds). The best strategy ("Mid Grapple Cheese") won 30 of 30 rounds (win rate 1.0) against the CPU. The recorded hits show how: 117 SWEEP hits, 49 GROUND strikes. Every top strategy wins the same way, sweep (which the CPU never crouch-blocks) into knockdown into mount, whatever Nano's rule text said it was doing.
 
+Patch Prophet measurements are separate from the main run: the example tuning gave **66 → 69 wins out of 200** on seed 1 and **55 → 64** on seed 2 ([notes](docs/prophet.md), [seed 1](data/prophet/example.json), [seed 2](data/prophet/seed-2.json)). A hosted run with different tuning took **36.7 s**, with **66/200** wins before and **62/200** after ([hosted smoke](docs/evidence/hosted-smoke-2026-10-29.md)). That was one hosted run.
+
 ## Honest limits
 
+- **Patch Prophet is a sample.** It uses the first 200 recorded personas, one round each, with paired seeds. Two seeds do not establish statistical significance or human preference. It does not rerun the full 1000-player crowd.
+- **Unbuilt ideas.** Spec Drift, ReproBot fresh play, Mechanic Forge, ModForge, SightGuide and SimDojo are not built. Repro searches recorded rounds.
 - **Players are synthetic.** Quit and boredom come from a simple mood model with Nano-written traits. It generates hypotheses; it does not replace human playtesters.
 - **Crowd players are not LLM-driven move by move.** Nano writes each persona's policy, and the engine runs that policy natively. Driving all 1000 players with model calls on every decision was measured as too slow and too costly. The live "spotlight" player (`ai/spotlight.ts`, Nano picks each action) is implemented and measured but is not part of the main crowd run.
 - **Findings are sampled, not proofs of absence.** If the crowd did not hit a bug, that does not mean the bug is not there.
 - **Only the claims and seeds are machine-checked.** Ultra's prose can still contain wrong numbers. On a test fixture it wrote "10/18 Round 1s end in draws" when there were 3. Trust the verified claims, not the narrative.
 - **Super's exploit explanation was wrong until it was grounded.** Given only the strategies' rule text and the CPU code, Super explained the wins as "recovery-state grabs". The recorded hits say sweep into mount. The prompt now includes the measured hit tally per strategy, and the `explanation` field starts with that tally, written by code. Super's prose after it names the sweep and the guard rule, but still over-reads the grabs.
-- **Super-VL is a description aid, not a detector.** On the first demo round (seed 634310) it said nothing was floating because the camera pulls back and the fighters are tiny. In a later 6-round test it flagged 3 of 3 bug rounds and 0 of 3 clean rounds, naming the real bug in 2 (docs/calibration.md). Six rounds is too few to rely on, so the engine's invariant checks decide what is a bug.
+- **Super-VL is a description aid, not a detector.** On the first demo round (seed 634310) it said nothing was floating because the camera pulls back and the fighters are tiny. An earlier 6-round test flagged 3 of 3 bug rounds and 0 of 3 clean rounds, naming the real bug in 2 (docs/calibration.md). The later Glitch Hunter batch scored 8/10 flagged and 2/10 false alarms, with wide intervals (docs/glitch-hunt.md). The engine's invariant checks decide what is a bug. Clean means no recorded invariant event, not proof of absence.
 - **Part of the cheeser story is built in.** The cheeser archetype's base table already favors sweeps (`engine/policy.mjs`), so "cheesers win 92% by sweep" is partly the author's table. What the crowd and the exploit search found independently is that the CPU never crouch-blocks, so low attacks are unblockable for it.
 - **"31 of 31 claims verified" checks the report against code-computed tables.** Ultra's claims are rates by archetype and round, which code also computes for the prompt header, so the check proves Ultra read the numbers correctly, not that it discovered them. The stronger test is the planted fixture: four stories hidden in 1000 players, all four found.
 - **Fix status in the shipped game.** Four rule fixes are in `game/src`, each behind a rule (default on) so recorded rounds still replay as recorded: `mountReleaseFix` (bug2, by hand; also clears 5 of the 8 bug1 rounds), `throwPropGuard` (bug3, Ultra's patch), `grabReleaseFix` (the other 3 bug1 rounds, by hand) and `knockdownOnPropFix` (bug4, a narrower hand fix). Ultra's own bug4 patch removes a height guard entirely and is not shipped; Ultra's bug1 patch fixed 0 of 8. On the shipped game all 16 replayed bug rounds (8 bug1, 4 bug2, 3 bug3, 1 bug4) run clean.
 - **Ultra reads a summary, not every play log.** Per-round timed events (knockdown, throw, prop, mount) were trimmed to fit the 220,000-token budget: with the current `ai/corpus.ts`, 989 players are shown without timed events and 11 with outcome only (0 omitted; the aggregates cover all 2,831 rounds). The 989 keep their bug events; the 11 outcome-only players show results only.
-- **The rate limit is per server instance.** Counts live in memory, so on Vercel each instance has its own counts: 10 requests per minute per address on every route, plus a daily cap per route (`lib/ai-route.ts`: repro 80, balance 40, eyes 40, triage 40, precedent 100, advisor 20). The cached example answers keep the demo working when a limit is hit.
+- **The rate limit is per server instance.** Counts live in memory, so on Vercel each instance has its own counts: 10 requests per minute per address on every route, plus a daily cap per route (`lib/ai-route.ts`: repro 80, balance 40, eyes 40, triage 40, precedent 100, advisor 20; Prophet has its own 40/day cap, one live comparison per instance and a 100-second child-work deadline in `lib/prophet.ts`). The cached example answers keep the demo working when a limit is hit.
 - **Full pipeline on one game.** The full pipeline (Ultra report, triage, Repro, Eyes) runs on Market Brawl only. Homeground and Clean Getaway have crowd-harness adapters only (see `docs/generality.md`).
 - **Prices are estimates.** Only Ultra has a dollar estimate, at an unverified aggregator price ($1/M input, $3/M output). Other models report tokens only.
 
@@ -125,7 +131,7 @@ Captures 4 frames of one recorded round, has Nemotron Super-VL describe the visu
 Every model call in this project goes through the **Nebius Token Factory** inference API (OpenAI-compatible, `ai/models.ts`) and uses an **NVIDIA Nemotron** model. Nothing else serves a model: no HuggingFace, no OpenRouter.
 
 - **Runtime calls in the hosted app:** Repro and Balance (Nemotron Super), Eyes (Super-VL), Design Advisor (Super-VL and Super), live Triage (Ultra). Tavily is called at runtime by "Find precedent" on Repro and by the Design Advisor.
-- **Offline calls that produced the recorded data:** Nano (1000 personas, exploit strategies), Ultra (the report and bug triage).
+- **Offline calls that produced the recorded data:** Nano (1000 personas, exploit strategies), Ultra (the report and bug triage), Super-VL (the Glitch Hunter batch).
 - **Where Token Factory sped the work up** (measured, `docs/token-factory-feedback.md`): Nano wrote 1000 personas in 289 s with 16 requests in flight; one Ultra call read the whole 220,334-token crowd summary where a chunked pipeline would otherwise be needed; one small client covered four models including image input; one setting (`enable_thinking: false`) turned reasoning off on all four.
 - **Other Nebius tools:** none. We did not use Nebius AI Cloud, Serverless Jobs or Endpoints, or DevPods; the web app is hosted outside Nebius (Vercel), which the rules allow because the model calls run on Token Factory.
 
@@ -135,7 +141,7 @@ Every model call in this project goes through the **Nebius Token Factory** infer
 |---|---|---|
 | Nemotron Nano 30B | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Writes the 1000 persona policies in bulk; can pick each action live for a spotlight player (implemented, not in the main run); proposes and evolves exploit strategies |
 | Nemotron Super 120B | `nvidia/nemotron-3-super-120b-a12b` | Turns English into things the engine runs: bug report to oracle predicate, patch notes to tuning overrides; explains why exploit strategies win |
-| Nemotron Super-VL | `nvidia/Nemotron-3.5-Super-VL` | Looks at replay frames and describes what it sees |
+| Nemotron Super-VL | `nvidia/Nemotron-3.5-Super-VL` | Looks at replay frames and describes what it sees; Glitch Hunter batches second opinions on engine-flagged rounds and matched clean controls |
 | Nemotron Ultra 550B | `nvidia/Nemotron-3-Ultra-550b-a55b` | Reads a summary of all 2,831 rounds in one call and writes the report; proposes root causes and patches in bug triage |
 | Tavily | (search API) | Finds design precedent for each suggested fix; at runtime, the **Find precedent** button on a Repro match searches developer sites for writeups of the oracle's bug (`app/api/precedent/route.ts`) |
 
@@ -195,7 +201,7 @@ node scripts/check-recorded-replays.mjs   # recorded rounds replay event for eve
 npm run engine:test      # determinism: same seed twice gives identical hashes
 ```
 
-Browser end-to-end suite (Playwright, about 80 tests over every page, replay, forms, phone width and accessibility): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Test counts: 134 engine, 251 TypeScript, 80 browser. A fresh clone installs, passes all of them and builds.
+Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). As of **2026-10-29**: **134 engine passed** (1 TODO), **265 TypeScript passed** (2 TODO), **86 browser passed**, and **45 of 45 recorded replays** matched. The `npm test` attempt for this update confirmed 134 engine passes and 1 TODO, then failed before TypeScript tests could start: the sandbox denied the `tsx` IPC pipe (`listen EPERM`). The TypeScript, browser and replay totals above are the supplied dated snapshot; they were not verified by this run.
 
 ## Running it
 
@@ -233,7 +239,7 @@ npm run dev
 
 ### Steps that call models
 
-These need a `.env` file with `NEBIUS_API_KEY` (Token Factory) and `TAVILY_API_KEY`: `cp .env.example .env` and fill it in. Never commit it. Without the keys the app still runs: recorded pages work and live routes answer 503 "not configured".
+These need a `.env` file with `NEBIUS_API_KEY` (Token Factory) and `TAVILY_API_KEY`: `cp .env.example .env` and fill it in. Never commit it. Without the keys the app still runs: recorded pages work and model routes answer 503 "not configured". Patch Prophet runs without a key.
 
 ```bash
 npx tsx --env-file=.env ai/cli/personas.ts --n 1000 --out data/run-main/personas.json

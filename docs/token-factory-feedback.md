@@ -16,7 +16,7 @@ Model ids as sent to Token Factory (`ai/models.ts`): `nvidia/NVIDIA-Nemotron-3-N
 
 ### 1. What we used it for
 
-Every model call in the project: persona generation, the crowd report, bug triage, exploit search, Repro, Balance, Eyes and the Design Advisor. One small `fetch` client (`ai/models.ts`) calls the OpenAI-compatible chat completions endpoint `https://api.tokenfactory.nebius.com/v1/chat/completions` for all four models. In the hosted app Token Factory serves Repro and Balance (Super), Eyes and the Advisor (Super-VL, Super) and live Triage (Ultra).
+Every model call in the project: persona generation, the crowd report, bug triage, exploit search, Repro, Balance, Eyes, the Design Advisor and the Glitch Hunter batch. One small `fetch` client (`ai/models.ts`) calls the OpenAI-compatible chat completions endpoint `https://api.tokenfactory.nebius.com/v1/chat/completions` for all four models. In the hosted app Token Factory serves Repro and Balance (Super), Eyes and the Advisor (Super-VL, Super) and live Triage (Ultra).
 
 ### 2. What worked
 
@@ -127,26 +127,26 @@ Yes, we would build with it again, for English-to-config jobs where code validat
 
 ### 1. What we used it for
 
-Describing frames from the game. In the **Eyes** panel it gets three frames captured from the live replay (640 px JPEGs). In the **Design Advisor** it looks at four frames of a recorded round. It is a description aid: the engine's invariant checks decide what counts as a bug (`README.md`).
+Describing frames from the game. In the **Eyes** panel it gets three frames captured from the live replay (640 px JPEGs). In the **Design Advisor** it looks at four frames of a recorded round. The **Glitch Hunter** batch adds a second opinion on 10 engine-flagged + 10 matched clean rounds, one call per round (20 calls). The recorded run has only 10 flagged rounds of the requested types (`docs/glitch-hunt.md`, `data/glitch-hunt/results.json`). It is a description aid: the engine's invariant checks decide what counts as a bug (`README.md`).
 
 ### 2. What worked
 
 - **Images went through the same `image_url` route without trouble.** Three 640 px JPEG frames worked (`README.md`). JPEG needs the matching data-URL type (`image/jpeg`), which `ai/models.ts` sets from the base64 header.
 - **Latency.** 5.2 s for one 1.6K-token frame, with thinking off, `max_tokens` 600 (`ai/README.md`).
-- **A small test flagged all three bug rounds and none of three clean rounds.** It named the real bug in 2 of the 3 bug rounds (`docs/calibration.md` section 4). Six rounds is too few to rely on.
+- **A small test flagged all three bug rounds and none of three clean rounds.** It named the real bug in 2 of the 3 bug rounds (`docs/calibration.md` section 4). Six rounds is too few to rely on. The later Glitch Hunter batch hit 8/10 flagged rounds (Wilson 95% interval 49.0–94.3%) with 2/10 false alarms (5.7–51.0%); `/bugs` displays the score (`docs/glitch-hunt.md`, `data/glitch-hunt/results.json`). The intervals remain wide.
 
 ### 3. What needs work
 
 - **It missed a floating fighter.** On the first demo round (seed 634310) it said nothing floated, because the pulled-back camera made both fighters tiny. In the calibration run on `p0537:1` it flagged a crate overlapping a downed fighter and missed the floating fighter visible in frame 1. These are the same round (seed 634310 is `p0537:1`), seen in two runs, so this is one missed round, not two (`README.md`, `docs/calibration.md` section 4). Framing mattered more than model size for this check.
-- **No price and no main-run usage row.** Super-VL reports tokens only, and the main-run `usage.json` has no Super-VL row, because Super-VL is only called from the hosted app's Eyes and Advisor (`data/run-main/usage.json`, `README.md`).
+- **No price and no main-run usage row.** Super-VL reports tokens only, and the main-run `usage.json` has no Super-VL row. That log predates the separate Glitch Hunter batch. Super-VL also serves Eyes and Advisor (`data/run-main/usage.json`, `README.md`, `data/glitch-hunt/results.json`).
 
 ### 4. Onboarding, "zero to hello world"
 
-Same endpoint and key as section (a). The repo's first commit (2026-10-28 00:59 -0400) already had `ai/vision.ts` and image input in `ai/models.ts`, but only for PNG: frames go in the same `messages` array as `image_url` data URLs, and that commit hardcoded `data:image/png`. JPEG detection (`image/jpeg` chosen from the base64 header) came with the Eyes panel, commit `d6acf19` (2026-10-28 11:04 -0400), under three minutes after the Repro commit; that commit also made the panel send 640 px JPEGs. We recorded no image-size limit and hit none; the Eyes panel sends three 640 px JPEG frames. The one measured latency is 5.2 s for a single 1.6K-token frame. Its one recorded miss, a floating fighter it did not see, is in section 3.
+Same endpoint and key as section (a). The repo's first commit (2026-10-28 00:59 -0400) already had `ai/vision.ts` and image input in `ai/models.ts`, but only for PNG: frames go in the same `messages` array as `image_url` data URLs, and that commit hardcoded `data:image/png`. JPEG detection (`image/jpeg` chosen from the base64 header) came with the Eyes panel, commit `d6acf19` (2026-10-28 11:04 -0400), under three minutes after the Repro commit; that commit also made the panel send 640 px JPEGs. We recorded no image-size limit and hit none; the Eyes panel sends three 640 px JPEG frames. The one measured latency is 5.2 s for a single 1.6K-token frame. The early floating-fighter miss is in section 3; the later Glitch Hunter batch missed 2 of 10 flagged rounds (`docs/glitch-hunt.md`).
 
 ### 5. Would we build with it again?
 
-Yes, we would build with it again, as a description aid next to a deterministic check, and not as a detector. We would test it on more than 6 rounds first.
+Yes, we would build with it again, as a description aid next to a deterministic check, and not as a detector. The later batch covers 20 rounds, but only 10 are flagged and its intervals remain wide (`docs/glitch-hunt.md`).
 
 ---
 
