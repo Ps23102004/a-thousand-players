@@ -3,7 +3,8 @@
   "rules.mountReleaseFix": 0,
   "rules.throwPropGuard": 0,
   "rules.grabReleaseFix": 0,
-  "rules.knockdownOnPropFix": 0
+  "rules.knockdownOnPropFix": 0,
+  "rules.getupCrateFix": 0
  },
  "note": "These rounds were recorded before the mount-release fix (commit 299bbde), the throwProp guard (bug3), the grab-release fix and the knockdown-on-a-crate fix (docs/bug-hunt.md H1, H3). Replay links carry these rules off so they reproduce the recorded round, bugs included."
 }

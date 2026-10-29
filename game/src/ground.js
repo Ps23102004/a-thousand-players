@@ -30,6 +30,9 @@ export function startKnockdown(f,{rng=Math.random,source=null,landed=false}={}) 
 }
 function rise(f,fast) {
  const g=f.ground;if(!g)return;
+ // DOWNED resets velocity every tick; stale floor contacts can let GETUP sink, then launch beside a crate.
+ // Refresh once near intact props (1.5 m includes clearance for the capsule and a moving crate).
+ if(RULES.getupCrateFix && obstacles().some(p=>!p.isBroken && p.rigidBody && Math.hypot(pos(p).x-pos(f).x,pos(p).z-pos(f).z)<1.5)){f.rigidBody?.sleep();f.rigidBody?.wakeUp()}
  g.phase='GETUP';g.elapsed=0;g.duration=fast?.60:1.05;g.fast=fast;f.state='GETUP';
  emit(f,fast?'tech-rise':'slow-rise',{actor:f});
 }
@@ -77,7 +80,7 @@ export function beginMount(top,bottom,{rng=Math.random}={}) {
  top.state='MOUNT';bottom.state='PINNED';chooseMount(m);poseMount(m);
  emit(top,'mount',{actor:top,defender:bottom});return m;
 }
-// Props the released fighter must not be placed inside (set by the match: main.js, engine/sim.mjs).
+// Props near getups and mount releases (set by the match: main.js, engine/sim.mjs).
 let obstacles=()=>[];
 export const setMountObstacles=fn=>{obstacles=fn};
 // Landing spot for the top fighter: 1.1 m in front of the pinned one, else behind; a spot inside a crate would be

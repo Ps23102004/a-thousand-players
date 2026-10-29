@@ -58,10 +58,70 @@ def find_segments(wav, n):
     return None, None
 
 
+def transcript_segments(path, L, wav):
+    import json, difflib
+    d = json.load(open(path))
+    words = []
+    for sg in d["segments"]:
+        for w in sg.get("words", []):
+            t = re.sub(r"[^a-z0-9%]", "", w["word"].lower())
+            if t:
+                words.append((t, w["start"], w["end"]))
+    sw, own = [], []
+    for i, r in enumerate(L):
+        for t in re.sub(r"[^a-z0-9% ]", " ", r[3].lower().replace("2,831", "2831").replace("2,800", "2800")).split():
+            sw.append(t); own.append(i)
+    sm = difflib.SequenceMatcher(None, [w[0] for w in words], sw, autojunk=False)
+    st, en = {}, {}
+    for b in sm.get_matching_blocks():
+        for k in range(b.size):
+            li = own[b.b + k]; w = words[b.a + k]
+            st[li] = min(st.get(li, 1e9), w[1]); en[li] = max(en.get(li, 0), w[2])
+    missing = [i + 1 for i in range(len(L)) if i not in st]
+    if missing:
+        sys.exit(f"could not find these script lines in the take: {missing}")
+    total = duration(wav)
+    out = []
+    for i in range(len(L)):
+        a0 = max(0.0, st[i] - 0.10)
+        a1 = min(total, en[i] + 0.18)
+        if i + 1 < len(L):
+            a1 = min(a1, st[i + 1] - 0.03)
+        a1 = max(a1, a0 + 0.3)
+        out.append((a0, a1))
+    return out
+
+
+def finish(a, plan, warnings, how, vdur, wav):
+    for p in plan:
+        print(f"{p[0]:2d} start {p[1]:6.1f}s  take {p[2]:6.1f}-{p[3]:6.1f}  speed {p[4]:.2f}x  len {p[5]:4.1f}s  {p[6][:50]}")
+    print(f"segmentation: {how[0]} ; video {vdur:.1f}s")
+    for w in warnings:
+        print("WARNING:", w)
+    if a.report:
+        return
+    cmd = ["ffmpeg", "-v", "error", "-y"]
+    filters, labels = [], []
+    for n, (i, t0, a0, a1, speed, _, _) in enumerate(plan):
+        cmd += ["-ss", f"{a0:.3f}", "-t", f"{a1 - a0:.3f}", "-i", wav]
+        atempo = f"atempo={speed:.4f}," if speed > 1.001 else ""
+        filters.append(f"[{n}:a]{atempo}afade=t=in:d=0.02,adelay={int(t0 * 1000)}:all=1,apad=whole_dur={vdur:.3f}[a{n}]")
+        labels.append(f"[a{n}]")
+    graph = ";".join(filters) + ";" + "".join(labels) + f"amix=inputs={len(plan)}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,atrim=0:{vdur:.3f}[aout]"
+    cmd += ["-i", VIDEO, "-filter_complex", graph, "-map", f"{len(plan)}:v", "-map", "[aout]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-t", f"{vdur:.3f}", "-movflags", "+faststart", a.out]
+    r = run(cmd)
+    if r.returncode:
+        sys.exit("ffmpeg failed: " + r.stderr[-600:])
+    print("wrote", a.out, f"{duration(a.out):.2f}s")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("audio")
     ap.add_argument("--out", default=os.path.join(ROOT, "footage/cut/final.mp4"))
+    ap.add_argument("--transcript", help="whisper JSON with word timestamps (use when the take was read as paragraphs, not line by line)")
+    ap.add_argument("--max-speed", type=float, default=1.3)
     ap.add_argument("--report", action="store_true", help="only print the alignment, write nothing")
     a = ap.parse_args()
     L = lines()
@@ -70,6 +130,23 @@ def main():
     r = run(["ffmpeg", "-v", "error", "-y", "-i", os.path.expanduser(a.audio), "-vn", "-ac", "1", "-ar", "48000", wav])
     if r.returncode:
         sys.exit("could not read audio: " + r.stderr[:300])
+    if a.transcript:
+        segs, how = transcript_segments(a.transcript, L, wav), ("transcript", 0)
+        vdur = duration(VIDEO)
+        plan, warnings, cur_end = [], [], 0.0
+        for i, ((a0, a1), (t0, t1, scene, text)) in enumerate(zip(segs, L)):
+            d = a1 - a0
+            start = max(t0, cur_end + 0.12)
+            nxt = L[i + 1][0] - 0.1 if i + 1 < len(L) else vdur - 0.2
+            speed = min(a.max_speed, max(1.0, d / max(0.5, nxt - start)))
+            end = start + d / speed
+            if start - t0 > 2.0:
+                warnings.append(f"line {i + 1} starts {start - t0:.1f}s after its scene ({text[:40]}...)")
+            if end > vdur - 0.1:
+                warnings.append(f"line {i + 1} ends after the video ({end:.1f}s > {vdur:.1f}s)")
+            plan.append((i + 1, start, a0, a1, speed, d / speed, text))
+            cur_end = end
+        return finish(a, plan, warnings, how, vdur, wav)
     segs, how = find_segments(wav, len(L))
     if not segs:
         found = len(speech_segments(wav, -35, 0.6))

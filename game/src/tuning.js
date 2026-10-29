@@ -9,6 +9,8 @@ export const RULES = { guardDamageMultiplier: 0.2, postureOnBlock: 15, postureOn
   grabReleaseFix: 1,
   // 1 = a knockdown also ends once the body is at rest, so landing on a crate no longer stays in KNOCKDOWN forever (bug4, H3).
   knockdownOnPropFix: 1,
+  // 1 = refresh floor contacts when getting up near an intact prop, preventing a sink-and-eject; 0 = original behavior.
+  getupCrateFix: 1,
   // Probability that the CPU crouch-blocks when it blocks a crouch attack (bug hunt H2: crouch + jab spam wins every round).
   // 0 = the shipped CPU, which only blocks standing; an optional rule for Balance mode, not on by default.
   cpuLowBlock: 0 };

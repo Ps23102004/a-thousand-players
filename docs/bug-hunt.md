@@ -293,6 +293,38 @@ page, WASM init takes 6 ms and the first frame comes after 469 to 755 ms; 8× pl
 
 ## Reproduce
 
+### Getup beside a crate (2026-10-29)
+
+The full 29-round proof replay found one remaining shipped-game failure: p0094 round 1, seed 501070,
+`data/patches/sweep-nerf.json`, fighter selected by `fighterFor`. The rival leaves DOWNED at 18.75 s beside
+the right crate. DOWNED resets velocity each tick; when GETUP stops doing that, stale floor contacts let
+the body sink from y=0.80 to 0.78 before the solver ejects it upward at about 7.6 m/s. It stays above
+y=1.3 long enough to emit `[21.5, 'airborne', 1]`. GETUP does not teleport the body into the crate.
+
+`rules.getupCrateFix` (default 1) refreshes contacts with `sleep(); wakeUp()` once when starting a getup
+within 1.5 m of an intact prop. This is the existing mount/grab workaround applied to the remaining
+transition; getups away from props retain their previous behavior. The Rapier contact-cache internals
+are not established by this experiment. The fixed rival can rest low (about y=0.64), as with the earlier
+contact-refresh workaround; this patch removes the launch without correcting that separate visual offset.
+`data/run-main/meta.json` records this flag as 0 so legacy rounds replay unchanged.
+
+`engine/tests/hunt-getup-crate.test.mjs` failed first on the shipped game, then passed with the fix:
+no airborne event and the rival stays below y=1.3 on every tick from that getup through round end.
+Flag 0 still reproduces the event. `node scripts/proof-table.mjs` now reports 0/21 bug1, 0/4 bug2,
+0/3 bug3 and 0/1 bug4 after fixes. The paired 200-persona, one-round crowd (base seed 1, first 200
+recorded personas) has 0 bug rounds and 62/200 wins (31.0%) on both the previous and fixed behavior.
+
+Run `node --test engine/tests/hunt-getup-crate.test.mjs` for the focused regression.
+
+Paired regression commands (outputs stay outside the recorded run):
+
+```bash
+mkdir -p /private/tmp/sparring-getup-crate
+printf '%s\n' '{"rules.getupCrateFix":0}' > /private/tmp/sparring-getup-crate/off.json
+node engine/crowd.mjs --personas data/run-main/personas.json --out /private/tmp/sparring-getup-crate/off --tuning /private/tmp/sparring-getup-crate/off.json --label previous --limit 200 --rounds 1 --seed 1 --workers 2 --traces 0
+node engine/crowd.mjs --personas data/run-main/personas.json --out /private/tmp/sparring-getup-crate/narrow --label shipped --limit 200 --rounds 1 --seed 1 --workers 2 --traces 0
+```
+
 ```bash
 node engine/crowd.mjs --personas data/run-main/personas.json --out .work/hunt/s2027 --seed 2027 --noquit 1 --traces 0
 HUNT_FUZZ_ROUNDS=500 HUNT_FUZZ_MAXT=99 node --test engine/tests/hunt-fuzz.test.mjs

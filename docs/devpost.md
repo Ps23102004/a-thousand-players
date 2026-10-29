@@ -49,7 +49,7 @@ Indie developers rarely get enough playtesters. A Thousand Players gives them a 
 
 Every finding cites seeds, and any seed replays the same match in the real 3D game in the browser. Code re-checks every number Ultra claims before showing it. When the engine catches a broken round, Ultra proposes a patch, and the engine applies it to a scratch copy of the game and replays the exact seeds to see if the bug is gone.
 
-Our test bed is Market Brawl, Parth's own Three.js + Rapier fighting game, written for a university course. In the main run, 1000 players played 2831 rounds. Ultra returned 8 findings; all 31 of its numeric claims matched the data code recomputed (they are cells of tables code also put in its prompt, so this checks reading, not discovery). On a planted 1000-player fixture it found all 4 hidden stories. Four rule fixes are in the game: `throwPropGuard` (bug3's crash guard, Ultra's patch), `mountReleaseFix` (bug2, by hand after Ultra failed twice), `grabReleaseFix` and `knockdownOnPropFix` (both by hand; with the mount fix they make all 8 replayed bug1 rounds and the bug4 seed run clean). Ultra's own bug4 patch was verified on 1 seed and not shipped; its bug1 patch fixed 0 of 8.
+Our test bed is Market Brawl, Parth's own Three.js + Rapier fighting game, written for a university course. In the main run, 1000 players played 2831 rounds. Ultra returned 8 findings; all 31 of its numeric claims matched the data code recomputed (they are cells of tables code also put in its prompt, so this checks reading, not discovery). On a planted 1000-player fixture it found all 4 hidden stories. Five rule fixes are in the game: `throwPropGuard` (bug3's crash guard, Ultra's patch), `mountReleaseFix` (bug2, by hand after Ultra failed twice), `grabReleaseFix`, `knockdownOnPropFix` and `getupCrateFix` (all by hand; together the fixes make all 29 flagged rounds run clean, including all 21 bug1 rounds). Ultra's own bug4 patch was verified on 1 seed and not shipped; its bug1 patch fixed 0 of 8.
 
 The players are synthetic. The findings are hypotheses to replay and check, not a replacement for real people.
 
@@ -110,7 +110,7 @@ The Advisor can also cite public review quotes from a committed corpus of 12 sho
 
 ## Proof of the fixes
 
-`docs/PROOF.md` shows, for each of the four bug clusters, the same seed and player replayed with the recorded build (bug shows) and with the shipped game (clean), as frames from the real 3D replay plus engine numbers: 16 flagged rounds replayed (8 of bug1's 21, all of bug2, bug3 and bug4), bug events with the recorded build 16 of 16, with the shipped game 0 of 16. Regenerate with `node scripts/proof-table.mjs`. Replays of known seeds, not a proof of absence.
+`docs/PROOF.md` shows, for each of the four bug clusters, the same seed and player replayed with the recorded build (bug shows) and with the shipped game (clean), as frames from the real 3D replay plus engine numbers: all 29 flagged rounds replayed (21 bug1, 4 bug2, 3 bug3, 1 bug4), bug events with the recorded build 29 of 29, with the shipped game 0 of 29. Regenerate with `node scripts/proof-table.mjs`. Replays of known seeds, not a proof of absence.
 
 ## What is not done
 
@@ -123,7 +123,7 @@ The Advisor can also cite public review quotes from a committed corpus of 12 sho
 - **Tutorial Director measures tuning noise, not teaching.** 3 onboarding aids drafted by Super, measured on one seed (200 personas, round 1 only). Win rate shifts (overall 66 to 75, 69, 60; casual 5 to 9, 8, 5) are within noise. The quit model was not re-simulated, and no real new players took part. It shows what changes in win rates, not that any tip teaches anything.
 - **bug2 was fixed by hand, not by Ultra.** Out of bounds after a mount release (4 rounds): Ultra's patch failed twice (0 of 4). Replaying the seed tick by tick showed two causes in the mount-release code, a spawn inside a crate and a stale floor contact. The fix makes all 4 seeds run clean and cuts regression bug rounds from 4 to 1. The stale-contact part is a workaround with a visible side effect (the fighter rests 0.07 m low), and the underlying Rapier behavior is not understood.
 - **bug3 fix was verified only on its own seeds.** The `throwProp` crash fix passed 3 of 3 replays. The 200-persona regression crowd never hits that crash, so it cannot show a side effect.
-- **bug1 was not fixed by Ultra.** Fighter floats up after a mount release, 21 rounds: Ultra's patch fixed 0 of 8 replayed rounds. The shipped game now replays all 8 clean (checked 2026-10-28): the bug2 mount-release fix clears 5 and `grabReleaseFix` (a hand fix for the same stale floor contact after a grab) clears the other 3. The other 13 rounds of the cluster were not replayed.
+- **bug1 was not fixed by Ultra.** Ultra's patch fixed 0 of 8 replayed rounds. The shipped game replays all 21 clean (checked 2026-10-29): `mountReleaseFix`, `grabReleaseFix` and `getupCrateFix` are hand fixes. The last refreshes floor contacts at getup near a crate, clearing the remaining p0094:1 sweep-nerf round.
 - **bug4 ships a hand fix, not Ultra's patch.** Ultra's patch removes a height guard entirely, so it is not shipped. The narrower `knockdownOnPropFix` is (a knockdown ends once the body is at rest), and the bug4 seed replays clean on the shipped game.
 - **Full pipeline on one game.** The full pipeline (Ultra report, triage, Repro, Eyes) runs on Market Brawl only. Homeground and Clean Getaway have crowd-harness adapters only (see `docs/generality.md`).
 - **No proof of absence.** The crowd samples the game. A bug it never hit may still exist.
@@ -146,6 +146,7 @@ The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We check
 - `throwPropGuard` (`9ad93a5`): `throwProp` skips a crate that broke while carried (`props.js`). This is Ultra's patch.
 - `grabReleaseFix` (`55cd763`): the same floor-contact refresh after a grab (`character.js`).
 - `knockdownOnPropFix` (`5c5792c`): a knockdown ends once the body is at rest (`ground.js`).
+- `getupCrateFix`: refresh floor contacts once at getup near an intact prop (`ground.js`); seed 501070 no longer floats beside the crate. Default on, recorded-build flag off.
 - `cpuLowBlock` (`5c5792c`), default off: an optional CPU rule to crouch-block low attacks (`ai.js`).
 - `replay.html`: replay-link validation and clearer errors.
 

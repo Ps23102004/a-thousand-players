@@ -1,10 +1,10 @@
 {
  "command": "node scripts/proof-table.mjs",
- "note": "Same seed and persona; before = recorded build rules (fix flags 0), after = shipped game.",
+ "note": "Every flagged round in the recorded data. Same seed and persona; before = recorded build rules (fix flags 0), after = shipped game.",
  "perCluster": {
   "bug1": {
-   "rounds": 8,
-   "bugBefore": 8,
+   "rounds": 21,
+   "bugBefore": 21,
    "bugAfter": 0
   },
   "bug2": {
@@ -39,7 +39,7 @@
    "after": {
     "bugs": [],
     "out": "loss",
-    "t": 16.32
+    "t": 13.68
    }
   },
   {
@@ -166,6 +166,240 @@
     "bugs": [],
     "out": "win",
     "t": 14.1
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0069:1",
+   "seed": 678098,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 27.65
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 9.52
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0094:1",
+   "seed": 501070,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 22.12
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 24.5
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0111:3",
+   "seed": 509784,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 21.35
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 12.28
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0112:3",
+   "seed": 662057,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 41.77
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 19.25
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0129:3",
+   "seed": 689759,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 27.25
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 29.72
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0244:3",
+   "seed": 839995,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 25.22
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 22.53
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0306:4",
+   "seed": 594319,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 12.38
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 11.33
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0396:1",
+   "seed": 819833,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 38.25
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 33.42
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0407:1",
+   "seed": 990614,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 26.1
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 21.08
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0522:3",
+   "seed": 963110,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 16.32
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 11.5
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0675:2",
+   "seed": 743292,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 30.28
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 15.65
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0938:5",
+   "seed": 240551,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 17.62
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 15.98
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0953:1",
+   "seed": 469332,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 23.22
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 18.4
    }
   },
   {

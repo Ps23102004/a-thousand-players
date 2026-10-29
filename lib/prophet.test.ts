@@ -11,7 +11,7 @@ const example: Tuning = JSON.parse(readFileSync("data/samples/balance.json", "ut
 
 test("Prophet accepts only allowlisted, finite, in-range absolute tuning values", () => {
   assert.deepEqual(validateProphetTuning(example), example);
-  for (const bad of [null, [], {}, { "../escape": 1 }, { "rules.mountReleaseFix": 1 }, { "anim.SWEEP.damage": "11" }, { "anim.SWEEP.damage": NaN }, { "anim.SWEEP.damage": Infinity }, { "anim.SWEEP.damage": -1 }, JSON.parse('{"__proto__":1}')]) {
+  for (const bad of [null, [], {}, { "../escape": 1 }, { "rules.mountReleaseFix": 1 }, { "rules.getupCrateFix": 1 }, { "anim.SWEEP.damage": "11" }, { "anim.SWEEP.damage": NaN }, { "anim.SWEEP.damage": Infinity }, { "anim.SWEEP.damage": -1 }, JSON.parse('{"__proto__":1}')]) {
     assert.throws(() => validateProphetTuning(bad));
   }
 });
@@ -43,6 +43,7 @@ test("same tuning and seed produce the same measured before/after numbers in rea
   assert.equal(a.after.rounds, 8);
   assert.equal(a.roundsEach, 1);
   assert.equal(a.baselineTuning["rules.mountReleaseFix"], 0);
+  assert.equal(a.baselineTuning["rules.getupCrateFix"], 0);
 });
 
 test("limit, busy slot and timeout use only a matching example cache; slots release after errors", async () => {
