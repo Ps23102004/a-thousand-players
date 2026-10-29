@@ -3,6 +3,7 @@ import Link from "next/link";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import SourceTag from "@/components/SourceTag";
+import controlsReport from "@/docs/controls-report.json";
 
 export const metadata: Metadata = { title: "Games · A Thousand Players" };
 
@@ -71,6 +72,9 @@ function GameCard({ g }: { g: GameResult }) {
 
 export default function GamesPage() {
   const games = loadGames();
+  const controlsWorking = controlsReport.filter((row) => row.works === true).length;
+  const controlsUntested = controlsReport.filter((row) => row.works === null).length;
+  const controlsBroken = controlsReport.filter((row) => row.works === false).length;
   return (
     <section className="section wrap" aria-labelledby="games-title">
       <div className="section-head">
@@ -85,6 +89,14 @@ export default function GamesPage() {
         Each needed a thin adapter (seeded sim, action vocabulary, invariants). The harness carried over; the persona rules did not.
       </p>
       <div className="grid-2">{games.map((g) => <GameCard key={g.id} g={g} />)}</div>
+
+      <div className="panel" data-controls-report style={{ marginTop: 20 }}>
+        <h2 style={{ fontSize: "1.2rem" }}>Market Brawl controls</h2>
+        <p>controls checked: {controlsWorking} of {controlsReport.length} work</p>
+        <p>{controlsBroken} failed · {controlsUntested} untested. {controlsUntested > 0
+          ? "Browser verification is pending for the untested controls."
+          : "Checked with keyboard input and a simulated standard gamepad in Chrome."} Physical controller hardware is untested.</p>
+      </div>
 
       <h2 style={{ fontSize: "1.4rem", margin: "32px 0 12px" }}>Honest limits</h2>
       <ul className="limits">

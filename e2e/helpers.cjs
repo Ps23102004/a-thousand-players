@@ -70,3 +70,39 @@ function tapProbe() {
 }
 
 module.exports = { watch, tokenFor, shot, contrastProbe, tapProbe, REAL: process.env.E2E_REAL === "1" };
+
+/** Report only browser observations. null is explicitly untested, never a guessed verdict. */
+function controlReport(catalog, observations) {
+  const known = new Set(catalog.map(row => row.control));
+  const seen = new Map();
+  for (const row of observations) {
+    if (!known.has(row.control)) throw new Error(`Unknown control: ${row.control}`);
+    if (seen.has(row.control)) throw new Error(`Duplicate control: ${row.control}`);
+    seen.set(row.control, row);
+  }
+  return catalog.map(({ control, input, expected }) => {
+    const row = seen.get(control);
+    return { control, input, expected, observed: row?.observed ?? 'Not run in a browser', works: row?.works ?? null };
+  });
+}
+
+/** Mutable plain object returned by the injected navigator.getGamepads, including analog-only triggers. */
+function fakePadFrame({ buttons = [], analog = {}, axes = [] } = {}) {
+  return {
+    index: 2, id: 'DualSense (crawler fixture)', mapping: 'standard', connected: true,
+    axes: Array.from({ length: 4 }, (_, i) => axes[i] ?? 0),
+    buttons: Array.from({ length: 18 }, (_, i) => ({ pressed: buttons.includes(i), value: buttons.includes(i) ? 1 : analog[i] ?? 0 })),
+  };
+}
+
+/** Wait for real render frames, also when the simulation is paused (no fixed sleeps). */
+async function renderFrames(page, count = 3) {
+  await page.evaluate(count => new Promise(resolve => {
+    const next = () => --count <= 0 ? resolve() : requestAnimationFrame(next);
+    requestAnimationFrame(next);
+  }), count);
+}
+
+module.exports.controlReport = controlReport;
+module.exports.fakePadFrame = fakePadFrame;
+module.exports.renderFrames = renderFrames;

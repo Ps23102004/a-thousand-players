@@ -29,6 +29,7 @@ Results: `e2e/test-results/results.json` (observed values are in each test's ann
 | `routes.spec.cjs` | Every route returns 200 with no console errors or failed requests; `/replay` empty, malformed, bad JSON, key-only and full token |
 | `content.spec.cjs` | Nav links, counters, crowd canvas and tile list, 4 charts, finding claims, `/bugs` clusters, exploit table and its replay links |
 | `games.spec.cjs` | `/games` loads clean, shows Market Brawl, Homeground and Clean Getaway with replay counts and the honest limits; no horizontal scroll at 375 px |
+| `game-ui.spec.cjs` | Playable `/game/index.html`: every HUD button, keyboard guide key and simulated standard gamepad action; writes `docs/controls-report.json`. Run with `E2E_BASE_URL=http://localhost:3142`; offline checks and broken-button proof instructions: `docs/controls.md` |
 | `replay.spec.cjs` | Game badge, seed 634310 at `speed=8` (airborne at 13.8 s, end result vs recording), `at=` seek, controls |
 | `responsive-a11y.spec.cjs` | 375x812 and 768x1024 overflow and tap targets, keyboard order and focus, labels, alt text, headings, contrast |
 | `forms.spec.cjs` | Repro and Balance: empty, whitespace, 4001 chars, API validation, example; real calls behind `E2E_REAL=1` |

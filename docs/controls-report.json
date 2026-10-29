@@ -1,0 +1,646 @@
+[
+  {
+    "control": "btn-start-duel",
+    "input": "click #btn-start-duel",
+    "expected": "starts fight",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "btn-pause",
+    "input": "click #btn-pause",
+    "expected": "pauses and stops clock",
+    "observed": "{\"before\":0.19999999999999998,\"after\":0.19999999999999998,\"paused\":true}",
+    "works": true
+  },
+  {
+    "control": "btn-resume",
+    "input": "click #btn-resume",
+    "expected": "resumes clock",
+    "observed": "{\"before\":0.19999999999999998,\"after\":0.21666666666666665,\"paused\":false}",
+    "works": true
+  },
+  {
+    "control": "btn-restart",
+    "input": "click #btn-restart",
+    "expected": "resets both HP and timer from game over",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "btn-menu",
+    "input": "click #btn-menu",
+    "expected": "pause to fighter menu",
+    "observed": "{\"screen\":\"menu\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "btn-end-menu",
+    "input": "click #btn-end-menu",
+    "expected": "game over to fighter menu",
+    "observed": "{\"screen\":\"menu\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "btn-how",
+    "input": "click #btn-how",
+    "expected": "menu help opens",
+    "observed": "{\"screen\":\"menu\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "btn-controls",
+    "input": "click #btn-controls",
+    "expected": "fight help opens and pauses",
+    "observed": "{\"screen\":\"fight\",\"paused\":true,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "btn-close-help",
+    "input": "click #btn-close-help",
+    "expected": "help closes and fight resumes",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "btn-guide-keyboard",
+    "input": "click #btn-guide-keyboard",
+    "expected": "keyboard tab selected and visible",
+    "observed": "keyboard visible; controller hidden",
+    "works": true
+  },
+  {
+    "control": "btn-guide-controller",
+    "input": "click #btn-guide-controller",
+    "expected": "controller tab selected and visible",
+    "observed": "controller visible; keyboard hidden",
+    "works": true
+  },
+  {
+    "control": "btn-sound",
+    "input": "click #btn-sound",
+    "expected": "sound flag, label and aria toggle both ways",
+    "observed": "sound toggled and restored to false",
+    "works": true
+  },
+  {
+    "control": "keyboard-move-a",
+    "input": "A",
+    "expected": "moves x negative and guards away",
+    "observed": "{\"before\":-0.47999998927116394,\"after\":-1.354933261871338,\"velocity\":0,\"guarding\":true}",
+    "works": true
+  },
+  {
+    "control": "keyboard-move-d",
+    "input": "D",
+    "expected": "moves x positive",
+    "observed": "{\"before\":-0.47999998927116394,\"after\":0.3949333727359772,\"velocity\":-8.006415565750295e-19,\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "keyboard-move-q",
+    "input": "Q",
+    "expected": "moves z negative",
+    "observed": "{\"before\":0,\"after\":-0.5549331903457642,\"velocity\":0,\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "keyboard-move-v",
+    "input": "V",
+    "expected": "moves z positive",
+    "observed": "{\"before\":0,\"after\":0.5549333095550537,\"velocity\":8.006415565750295e-19,\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "keyboard-j-chain",
+    "input": "keyboard: J / square x4",
+    "expected": "JAB → CROSS → HOOK → UPPERCUT",
+    "observed": "[\"JAB\",\"CROSS\",\"HOOK\",\"UPPERCUT\"]",
+    "works": true
+  },
+  {
+    "control": "keyboard-k-chain",
+    "input": "keyboard: K / triangle x3",
+    "expected": "ROUNDHOUSE_KICK → HIGH_KICK → BACK_KICK",
+    "observed": "[\"ROUNDHOUSE_KICK\",\"HIGH_KICK\",\"BACK_KICK\"]",
+    "works": true
+  },
+  {
+    "control": "keyboard-low-j-chain",
+    "input": "keyboard: S / L1 + J / square x2",
+    "expected": "BODY_JAB → BODY_HOOK",
+    "observed": "[\"BODY_JAB\",\"BODY_HOOK\"]",
+    "works": true
+  },
+  {
+    "control": "keyboard-low-k-chain",
+    "input": "keyboard: S / L1 + K / triangle x1",
+    "expected": "SWEEP",
+    "observed": "[\"SWEEP\"]",
+    "works": true
+  },
+  {
+    "control": "keyboard-s",
+    "input": "keyboard: S / L1",
+    "expected": "crouches while held, releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.21666666666666665,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"CROUCH\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999742031097412,\"z\":0},\"guarding\":false,\"crouching\":true,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-w",
+    "input": "keyboard: W / cross",
+    "expected": "jumps above floor",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.36666666666666664,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":1.4062384366989136,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-l",
+    "input": "keyboard: L / circle",
+    "expected": "starts parry animation",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.21666666666666665,\"hp\":[100,100],\"anim\":\"PARRY\",\"state\":\"PARRY\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999742031097412,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-crate",
+    "input": "keyboard: E / R2 twice",
+    "expected": "picks up nearby crate then throws it",
+    "observed": "picked up, released; thrown speed=16",
+    "works": true
+  },
+  {
+    "control": "keyboard-grab-f",
+    "input": "keyboard: F / R1",
+    "expected": "grabs a nearby standing rival",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-grab-g",
+    "input": "keyboard: G / R1",
+    "expected": "grabs a nearby standing rival",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-clinch-PUNCH",
+    "input": "keyboard: clinch J / square + shown prompt",
+    "expected": "clinch punch changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.4333333333333333,\"hp\":[100,92],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999661564826965,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"strike\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-clinch-KNEE",
+    "input": "keyboard: clinch K / triangle + shown prompt",
+    "expected": "clinch knee changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.4333333333333333,\"hp\":[100,89],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999661564826965,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"strike\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-clinch-THROW",
+    "input": "keyboard: clinch F / R1 + shown prompt",
+    "expected": "clinch throw changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.4333333333333333,\"hp\":[100,68],\"anim\":\"THROW_PERSON\",\"state\":\"ACTIVE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999661564826965,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[\"THROW_PERSON\"],\"events\":[\"grab\",\"throw\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-clinch-RELEASE",
+    "input": "keyboard: clinch L / circle + shown prompt",
+    "expected": "clinch release changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"release\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-mount-HEAD",
+    "input": "keyboard: F / R1 then J + shown prompt",
+    "expected": "mount and head",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.44999999999999996,\"hp\":[100,92],\"anim\":\"IDLE\",\"state\":\"MOUNT\",\"position\":{\"x\":0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"ground-strike\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-mount-BODY",
+    "input": "keyboard: F / R1 then K + shown prompt",
+    "expected": "mount and body",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.44999999999999996,\"hp\":[100,90],\"anim\":\"IDLE\",\"state\":\"MOUNT\",\"position\":{\"x\":0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"ground-strike\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-mount-STAND",
+    "input": "keyboard: F / R1 then F + shown prompt",
+    "expected": "mount and stand",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.6200000047683716,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-rise",
+    "input": "keyboard: match displayed J/K/L or square/triangle/circle (rise)",
+    "expected": "rise",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"KNOCKDOWN\",\"state\":\"GETUP\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"tech-rise\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-counterthrow",
+    "input": "keyboard: match displayed J/K/L or square/triangle/circle (counterthrow)",
+    "expected": "counterthrow",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,68],\"anim\":\"THROW_PERSON\",\"state\":\"ACTIVE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[\"THROW_PERSON\"],\"events\":[\"grab\",\"reversal\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-grab-escape",
+    "input": "keyboard: match displayed J/K/L or square/triangle/circle (grab-escape)",
+    "expected": "grab-escape",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"escape\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-mount-reversal",
+    "input": "keyboard: match displayed J/K/L or square/triangle/circle (mount-reversal)",
+    "expected": "mount-reversal",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"KNOCKDOWN\",\"state\":\"MOUNT\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"mount-reversal\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-mount-escape",
+    "input": "keyboard: match displayed J/K/L or square/triangle/circle (mount-escape)",
+    "expected": "mount-escape",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"KNOCKDOWN\",\"state\":\"GETUP\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"ground-escape\"]}",
+    "works": true
+  },
+  {
+    "control": "keyboard-pause",
+    "input": "keyboard: Escape / OPTIONS twice",
+    "expected": "pause stops time, resume advances time",
+    "observed": "{\"before\":0.19999999999999998,\"after\":0.19999999999999998,\"paused\":true}; {\"before\":0.19999999999999998,\"after\":0.21666666666666665,\"paused\":false}",
+    "works": true
+  },
+  {
+    "control": "keyboard-help",
+    "input": "keyboard: H / CREATE twice",
+    "expected": "help pauses fight and closing resumes",
+    "observed": "help opened/closed; pause true/false",
+    "works": true
+  },
+  {
+    "control": "keyboard-restart",
+    "input": "keyboard: R / R3",
+    "expected": "resets damaged fighters and elapsed timer",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-move-a",
+    "input": "left stick left",
+    "expected": "moves x negative and guards away",
+    "observed": "{\"before\":-0.47999998927116394,\"after\":-1.354933261871338,\"velocity\":0,\"guarding\":true}",
+    "works": true
+  },
+  {
+    "control": "gamepad-move-d",
+    "input": "left stick right",
+    "expected": "moves x positive",
+    "observed": "{\"before\":-0.47999998927116394,\"after\":0.3949333727359772,\"velocity\":-8.006415565750295e-19,\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "gamepad-move-q",
+    "input": "left stick up",
+    "expected": "moves z negative",
+    "observed": "{\"before\":0,\"after\":-0.5549331903457642,\"velocity\":0,\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "gamepad-move-v",
+    "input": "left stick down",
+    "expected": "moves z positive",
+    "observed": "{\"before\":0,\"after\":0.5549333095550537,\"velocity\":8.006415565750295e-19,\"guarding\":false}",
+    "works": true
+  },
+  {
+    "control": "gamepad-j-chain",
+    "input": "gamepad: J / square x4",
+    "expected": "JAB → CROSS → HOOK → UPPERCUT",
+    "observed": "[\"JAB\",\"CROSS\",\"HOOK\",\"UPPERCUT\"]",
+    "works": true
+  },
+  {
+    "control": "gamepad-k-chain",
+    "input": "gamepad: K / triangle x3",
+    "expected": "ROUNDHOUSE_KICK → HIGH_KICK → BACK_KICK",
+    "observed": "[\"ROUNDHOUSE_KICK\",\"HIGH_KICK\",\"BACK_KICK\"]",
+    "works": true
+  },
+  {
+    "control": "gamepad-low-j-chain",
+    "input": "gamepad: S / L1 + J / square x2",
+    "expected": "BODY_JAB → BODY_HOOK",
+    "observed": "[\"BODY_JAB\",\"BODY_HOOK\"]",
+    "works": true
+  },
+  {
+    "control": "gamepad-low-k-chain",
+    "input": "gamepad: S / L1 + K / triangle x1",
+    "expected": "SWEEP",
+    "observed": "[\"SWEEP\"]",
+    "works": true
+  },
+  {
+    "control": "gamepad-s",
+    "input": "gamepad: S / L1",
+    "expected": "crouches while held, releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.21666666666666665,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"CROUCH\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999742031097412,\"z\":0},\"guarding\":false,\"crouching\":true,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-w",
+    "input": "gamepad: W / cross",
+    "expected": "jumps above floor",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.36666666666666664,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":1.4062384366989136,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-l",
+    "input": "gamepad: L / circle",
+    "expected": "starts parry animation",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.21666666666666665,\"hp\":[100,100],\"anim\":\"PARRY\",\"state\":\"PARRY\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999742031097412,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-crate",
+    "input": "gamepad: E / R2 twice",
+    "expected": "picks up nearby crate then throws it",
+    "observed": "picked up, released; thrown speed=16",
+    "works": true
+  },
+  {
+    "control": "gamepad-grab-f",
+    "input": "gamepad: F / R1",
+    "expected": "grabs a nearby standing rival",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-clinch-PUNCH",
+    "input": "gamepad: clinch J / square + shown prompt",
+    "expected": "clinch punch changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.4333333333333333,\"hp\":[100,92],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999661564826965,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"strike\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-clinch-KNEE",
+    "input": "gamepad: clinch K / triangle + shown prompt",
+    "expected": "clinch knee changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.4333333333333333,\"hp\":[100,89],\"anim\":\"BLOCK\",\"state\":\"GRAB\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999661564826965,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"strike\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-clinch-THROW",
+    "input": "gamepad: clinch F / R1 + shown prompt",
+    "expected": "clinch throw changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.4333333333333333,\"hp\":[100,68],\"anim\":\"THROW_PERSON\",\"state\":\"ACTIVE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999661564826965,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[\"THROW_PERSON\"],\"events\":[\"grab\",\"throw\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-clinch-RELEASE",
+    "input": "gamepad: clinch L / circle + shown prompt",
+    "expected": "clinch release changes rival health or releases",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"release\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-mount-HEAD",
+    "input": "gamepad: F / R1 then J + shown prompt",
+    "expected": "mount and head",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.44999999999999996,\"hp\":[100,92],\"anim\":\"IDLE\",\"state\":\"MOUNT\",\"position\":{\"x\":0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"ground-strike\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-mount-BODY",
+    "input": "gamepad: F / R1 then K + shown prompt",
+    "expected": "mount and body",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.44999999999999996,\"hp\":[100,90],\"anim\":\"IDLE\",\"state\":\"MOUNT\",\"position\":{\"x\":0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"ground-strike\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-mount-STAND",
+    "input": "gamepad: F / R1 then F + shown prompt",
+    "expected": "mount and stand",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.6200000047683716,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-rise",
+    "input": "gamepad: match displayed J/K/L or square/triangle/circle (rise)",
+    "expected": "rise",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"KNOCKDOWN\",\"state\":\"GETUP\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"tech-rise\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-counterthrow",
+    "input": "gamepad: match displayed J/K/L or square/triangle/circle (counterthrow)",
+    "expected": "counterthrow",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,68],\"anim\":\"THROW_PERSON\",\"state\":\"ACTIVE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[\"THROW_PERSON\"],\"events\":[\"grab\",\"reversal\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-grab-escape",
+    "input": "gamepad: match displayed J/K/L or square/triangle/circle (grab-escape)",
+    "expected": "grab-escape",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"grab\",\"escape\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-mount-reversal",
+    "input": "gamepad: match displayed J/K/L or square/triangle/circle (mount-reversal)",
+    "expected": "mount-reversal",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"KNOCKDOWN\",\"state\":\"MOUNT\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"mount-reversal\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-mount-escape",
+    "input": "gamepad: match displayed J/K/L or square/triangle/circle (mount-escape)",
+    "expected": "mount-escape",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"KNOCKDOWN\",\"state\":\"GETUP\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.8199999928474426,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[\"knockdown\",\"slam\",\"mount\",\"ground-escape\"]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-pause",
+    "input": "gamepad: Escape / OPTIONS twice",
+    "expected": "pause stops time, resume advances time",
+    "observed": "{\"before\":0.19999999999999998,\"after\":0.19999999999999998,\"paused\":true}; {\"before\":0.19999999999999998,\"after\":0.21666666666666665,\"paused\":false}",
+    "works": true
+  },
+  {
+    "control": "gamepad-help",
+    "input": "gamepad: H / CREATE twice",
+    "expected": "help pauses fight and closing resumes",
+    "observed": "help opened/closed; pause true/false",
+    "works": true
+  },
+  {
+    "control": "gamepad-restart",
+    "input": "gamepad: R / R3",
+    "expected": "resets damaged fighters and elapsed timer",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-dpad-14",
+    "input": "D-pad button 14",
+    "expected": "moves x negative",
+    "observed": "{\"before\":-0.47999998927116394,\"after\":-1.354933261871338,\"released\":true}",
+    "works": true
+  },
+  {
+    "control": "gamepad-dpad-15",
+    "input": "D-pad button 15",
+    "expected": "moves x positive",
+    "observed": "{\"before\":-0.47999998927116394,\"after\":0.3949333727359772,\"released\":true}",
+    "works": true
+  },
+  {
+    "control": "gamepad-dpad-12",
+    "input": "D-pad button 12",
+    "expected": "moves z negative",
+    "observed": "{\"before\":0,\"after\":-0.5549331903457642,\"released\":true}",
+    "works": true
+  },
+  {
+    "control": "gamepad-dpad-13",
+    "input": "D-pad button 13",
+    "expected": "moves z positive",
+    "observed": "{\"before\":0,\"after\":0.5549333095550537,\"released\":true}",
+    "works": true
+  },
+  {
+    "control": "gamepad-guard",
+    "input": "analog L2 value=.8",
+    "expected": "holds standing guard then releases",
+    "observed": "guard true then false",
+    "works": true
+  },
+  {
+    "control": "gamepad-touchpad",
+    "input": "touchpad button 17 twice",
+    "expected": "help opens and closes",
+    "observed": "help opened/closed, fight resumed",
+    "works": true
+  },
+  {
+    "control": "gamepad-sound",
+    "input": "L3 button 10 twice",
+    "expected": "sound flag and aria toggle twice",
+    "observed": "sound toggled and restored to false",
+    "works": true
+  },
+  {
+    "control": "keyboard-escape-help",
+    "input": "Escape while help open",
+    "expected": "closes help and resumes fight",
+    "observed": "help closed, fight resumed",
+    "works": true
+  },
+  {
+    "control": "gamepad-select-stick-left",
+    "input": "stick left in fighter menu",
+    "expected": "changes selected fighter",
+    "observed": "kai → rook",
+    "works": true
+  },
+  {
+    "control": "gamepad-select-dpad-left",
+    "input": "dpad left in fighter menu",
+    "expected": "changes selected fighter",
+    "observed": "rook → kai",
+    "works": true
+  },
+  {
+    "control": "gamepad-select-stick-right",
+    "input": "stick right in fighter menu",
+    "expected": "changes selected fighter",
+    "observed": "kai → rook",
+    "works": true
+  },
+  {
+    "control": "gamepad-select-dpad-right",
+    "input": "dpad right in fighter menu",
+    "expected": "changes selected fighter",
+    "observed": "rook → kai",
+    "works": true
+  },
+  {
+    "control": "gamepad-confirm-menu",
+    "input": "cross button 0 in menu",
+    "expected": "confirms start",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-confirm-pause",
+    "input": "cross button 0 in pause",
+    "expected": "confirms resume",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-confirm-help",
+    "input": "cross button 0 in help",
+    "expected": "confirms close help",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-confirm-end",
+    "input": "cross button 0 in end",
+    "expected": "confirms restart",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-back-pause",
+    "input": "circle button 1 in pause",
+    "expected": "returns to fight",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-back-help",
+    "input": "circle button 1 in help",
+    "expected": "returns to fight",
+    "observed": "{\"screen\":\"fight\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-0.47999998927116394,\"y\":0.7999759316444397,\"z\":0},\"guarding\":false,\"crouching\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-back-end",
+    "input": "circle button 1 in end",
+    "expected": "returns to menu",
+    "observed": "{\"screen\":\"menu\",\"paused\":false,\"time\":0.19999999999999998,\"hp\":[100,100],\"anim\":\"IDLE\",\"state\":\"IDLE\",\"position\":{\"x\":-1,\"y\":0.8999999761581421,\"z\":0},\"guarding\":false,\"trace\":[],\"events\":[]}",
+    "works": true
+  },
+  {
+    "control": "gamepad-menu-stick-up",
+    "input": "stick up in pause menu + cross",
+    "expected": "moves focus to menu button and activates it",
+    "observed": "btn-resume → btn-menu → menu",
+    "works": true
+  },
+  {
+    "control": "gamepad-menu-stick-down",
+    "input": "stick down in pause menu + cross",
+    "expected": "moves focus to menu button and activates it",
+    "observed": "btn-resume → btn-menu → menu",
+    "works": true
+  },
+  {
+    "control": "gamepad-menu-dpad-up",
+    "input": "dpad up in pause menu + cross",
+    "expected": "moves focus to menu button and activates it",
+    "observed": "btn-resume → btn-menu → menu",
+    "works": true
+  },
+  {
+    "control": "gamepad-menu-dpad-down",
+    "input": "dpad down in pause menu + cross",
+    "expected": "moves focus to menu button and activates it",
+    "observed": "btn-resume → btn-menu → menu",
+    "works": true
+  }
+]
