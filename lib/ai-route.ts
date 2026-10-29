@@ -7,8 +7,8 @@ const MAX_INPUT = 4000;
 export const MAX_BODY_BYTES = 64 * 1024;
 
 // Daily caps per route, so one route being hammered cannot lock the others. Model routes add up to the old shared cap of 200;
-// triage counts one per request although it may make two Ultra calls. Precedent spends Tavily credits, not model credits.
-const DAILY_CAP: Record<string, number> = { repro: 80, balance: 40, eyes: 40, triage: 40, precedent: 100 };
+// triage counts one per request although it may make two Ultra calls. Precedent spends Tavily credits, not model credits. Advisor makes a vision call, a Super call and three searches per request.
+const DAILY_CAP: Record<string, number> = { repro: 80, balance: 40, eyes: 40, triage: 40, precedent: 100, advisor: 20 };
 const limiters = new Map<string, ReturnType<typeof createLimiter>>();
 function limiterFor(route: string) {
   let l = limiters.get(route);

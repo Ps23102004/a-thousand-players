@@ -1,6 +1,6 @@
-// npx tsx --env-file=.env ai/cli/calibrate-triage.ts --out <file.json> [--max-calls 12] [--rounds p0537:1,p0233:2:sweep,...]
+// npx tsx --env-file=.env ai/cli/calibrate-triage.ts --out <file.json> [--max-calls 12] [--attempts 1] [--rounds p0537:1,p0233:2:sweep,...]
 // Calibration run for Ultra's triage confidence: the live "Triage this" flow (lib/triage-live.ts) over several recorded bug rounds,
-// ONE Ultra call per round (no validation retry, so every call is one data point), verdict decided by replaying the seed.
+// ONE Ultra call per round by default (no validation retry, so every call is one data point; --attempts 2 measures the live retry), verdict decided by replaying the seed.
 // Rounds tagged ":sweep" come from runs-sweep-nerf.jsonl and replay with data/patches/sweep-nerf.json on top of the recorded rules.
 // A hard cap stops the run after --max-calls model calls. Rounds whose replay shows no bug cost no call (TriageError 409).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -11,7 +11,7 @@ import { signatureOf, triageRound, TriageError } from "../../lib/triage-live";
 import type { Persona, RunLine, Tuning } from "../../lib/types";
 
 const DEFAULT = "p0537:1,p0731:2,p0653:2,p0233:2:sweep,p0611:1:sweep,p0754:2:sweep,p0009:3,p0069:1,p0111:3,p0129:3,p0306:4,p0355:2,p0744:3";
-const { values } = parseArgs({ options: { out: { type: "string" }, "max-calls": { type: "string", default: "12" }, rounds: { type: "string", default: DEFAULT } } });
+const { values } = parseArgs({ options: { out: { type: "string" }, "max-calls": { type: "string", default: "12" }, attempts: { type: "string", default: "1" }, rounds: { type: "string", default: DEFAULT } } });
 if (!values.out) throw new Error("--out is required");
 const maxCalls = Number(values["max-calls"]);
 
@@ -24,9 +24,9 @@ const sweepTuning: Tuning = JSON.parse(readFileSync("data/patches/sweep-nerf.jso
 
 let calls = 0;
 const ask: typeof triageBug = (bug, root, history, opts) => {
-  if (calls >= maxCalls) throw new Error(`call cap ${maxCalls} reached`);
-  calls++;
-  return triageBug(bug, root, history, { ...opts, attempts: 1, timeoutMs: 90_000, retries: 0 });
+  if (calls + Number(values.attempts) > maxCalls) throw new Error(`call cap ${maxCalls} reached`);
+  calls += Number(values.attempts); // upper bound: a retry is only sent after a rejected answer
+  return triageBug(bug, root, history, { ...opts, attempts: Number(values.attempts), timeoutMs: 90_000, retries: 0 });
 };
 
 const out: unknown[] = [];
@@ -44,7 +44,7 @@ for (const spec of values.rounds!.split(",")) {
   try {
     const res = await triageRound({ run, persona, tuning, sameSignature }, { ask, timeoutMs: 90_000 });
     out.push({ spec, signature: sig, verdict: res.verdict, confidence: res.triage.confidence, severity: res.triage.severity, isRealBug: res.triage.isRealBug,
-      title: res.triage.title, rootCause: res.triage.rootCause, patches: res.triage.patches, applied: res.applied, before: res.before, after: res.after, afterError: res.afterError, ms: res.ms });
+      title: res.triage.title, rootCause: res.triage.rootCause, tokensIn: res.triage.tokensIn, tokensOut: res.triage.tokensOut, patches: res.triage.patches, applied: res.applied, before: res.before, after: res.after, afterError: res.afterError, ms: res.ms });
     console.error(`[calib] ${spec} ${sig} conf ${res.triage.confidence} -> ${res.verdict} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
   } catch (e) {
     const status = e instanceof TriageError ? e.status : 0;

@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { applyPatches, makeScratch, playRound, signatureOf, TriageError, triageRound, validateTriageBody } from "./triage-live";
+import { applyPatches, editsForcedRule, makeScratch, playRound, signatureOf, TriageError, triageRound, validateTriageBody } from "./triage-live";
 import { fighterFor } from "./replay-token";
 import type { Persona, RunLine, Tuning } from "./types";
 
@@ -71,8 +71,9 @@ test("triageRound: fixed / patch-did-not-apply / not-a-bug / broken patch, with 
   assert.equal(fixed.verdict, "fixed");
   assert.deepEqual([fixed.before.bugs, fixed.before.bugEvents, fixed.after?.bugEvents], [["airborne", "stuck", "softlock"], 3, 0]);
   assert.equal(fixed.signature, "stuck:KNOCKDOWN+airborne+softlock");
-  assert.equal(fixed.timeline.length, 67, "66 evidence rows behind one TUNING row");
-  assert.match(fixed.timeline[0], /^TUNING rules\.mountReleaseFix=0 /);
+  assert.equal(fixed.timeline.length, 68, "66 evidence rows behind a TUNING row and a FIRED row");
+  assert.match(fixed.timeline[0], /^TUNING rules\.mountReleaseFix=0 .*not credited/);
+  assert.match(fixed.timeline[1], /^FIRED airborne \(player\) at 18\.5s; stuck:KNOCKDOWN \(player\) at 26s; softlock:stalemate \(player\) at 41s\. .*14\.5-20\.5 s/);
   assert.ok(fixed.ms.total > 0);
 
   const miss = await triageRound(input, { ask: ask({ patches: [{ file: "ground.js", find: "this text is not in ground.js", replace: "" }] }) });
@@ -192,4 +193,36 @@ test("security: only an error that cost nothing is refundable; a replay that alr
   const noBug = await triageRound({ ...input, run: { ...bug4, ev: [[1, "hit", 0]] } }, { ask: ask({}) }).then(() => null, (e: TriageError) => e);
   assert.equal(noBug?.status, 422);
   assert.equal(noBug?.free, true, "refused before any replay: nothing was spent");
+});
+
+test("editsForcedRule: a patch that changes a forced-off RULES guard is caught; one that only sits next to it is not", () => {
+  const off = ["mountReleaseFix"];
+  const line = "if(RULES.mountReleaseFix){f.rigidBody?.sleep();f.rigidBody?.wakeUp()}f.attackQueue=[];";
+  const p = (replace: string) => ({ file: "ground.js", find: line, replace });
+  assert.equal(editsForcedRule(p("f.rigidBody?.sleep();f.rigidBody?.wakeUp();f.attackQueue=[];"), off), true, "guard removed");
+  assert.equal(editsForcedRule(p(line.replace("RULES.mountReleaseFix", "true")), off), true, "guard forced on");
+  assert.equal(editsForcedRule(p(line.replace("RULES.mountReleaseFix", "RULES.mountReleaseFix||1")), off), true, "guard widened");
+  assert.equal(editsForcedRule(p(line.replace("f.attackQueue=[];", "f.rigidBody?.setLinvel({x:0,y:0,z:0},true);f.attackQueue=[];")), off), false, "new code outside the guard, guard untouched");
+  assert.equal(editsForcedRule({ file: "ground.js", find: "f.animSpeed=1;", replace: "f.animSpeed=2;" }, off), false);
+  assert.equal(editsForcedRule({ file: "ground.js", find: "x=1;", replace: "x=RULES.mountReleaseFix;" }, off), true, "adds a use of the forced-off rule");
+});
+
+test("editsForcedRule: an inverted guard or one forced on with a prefix counts as editing the rule", () => {
+  const off = ["mountReleaseFix"];
+  const find = "if(RULES.mountReleaseFix){f.rigidBody?.sleep()}f.attackQueue=[];";
+  const p = (replace: string) => ({ file: "ground.js", find, replace });
+  assert.equal(editsForcedRule(p(find.replace("if(RULES", "if(!RULES")), off), true, "inverted guard");
+  assert.equal(editsForcedRule(p(find.replace("if(RULES", "if(1||RULES")), off), true, "1||RULES.x");
+  assert.equal(editsForcedRule(p(find.replace("if(RULES", "if(true||RULES")), off), true, "true||RULES.x");
+  assert.equal(editsForcedRule(p(find.replace("RULES.mountReleaseFix", "true")), off), true, "direct edit of the guard");
+  assert.equal(editsForcedRule(p(find.replace("attackQueue=[]", "attackQueue=[1]")), off), false, "neighbouring statement only");
+  assert.equal(editsForcedRule(p(find.replace("sleep()", "sleep();f.x=1")), off), false, "change inside the guarded body only");
+});
+
+test("a line-range patch whose lines merely contain a guard is replayed, not refused", async () => {
+  const input = { run: bug4, persona: personas.get("p0653")!, tuning: RECORDED, sameSignature: [bug4] };
+  const src = readFileSync(join(ROOT, "game/src/ground.js"), "utf8");
+  const line = src.split("\n").find((l) => l.includes("if(RULES.mountReleaseFix){"))!;
+  const r = await triageRound(input, { ask: ask({ patches: [{ file: "ground.js", find: line, replace: line.replace("f.animSpeed=1;", "f.animSpeed=1;/*noop*/") }] }) });
+  assert.equal(r.verdict, "not-fixed");
 });

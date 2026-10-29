@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Sample } from "./ai-route";
 
-export function loadSample(name: "repro" | "balance" | "triage" | "eyes" | "precedent"): Sample | null {
+export function loadSample(name: "repro" | "balance" | "triage" | "eyes" | "precedent" | "advisor"): Sample | null {
   const path = join(process.cwd(), "data/samples", `${name}.json`);
   return existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as Sample) : null;
 }

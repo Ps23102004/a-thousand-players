@@ -4,7 +4,8 @@ Measured 2026-10-28. Question: "is its confidence right?" Short answer per signa
 
 | Signal | Verdict | Evidence |
 | --- | --- | --- |
-| Ultra triage `confidence` | **Uninformative.** Always 0.85-0.95; 3 of 15 patches fixed the replay. Brier 0.64, worse than a constant 0.20 (0.16). | 15 triages with a replay verdict + 7 answers whose patch did not validate |
+| Ultra triage `confidence` | **Uninformative.** Always 0.85-0.95; 2 of 15 patches fixed the replay. Brier 0.70, worse than a constant 0.13 (0.12). | 15 triages with a replay verdict + 7 answers whose patch did not validate (section 1) |
+| Ultra triage `confidence`, line-range prompt | **Still uninformative.** 0.85-0.95 again; 1 of 9 patches fixed the replay (stated 0.85). Brier 0.70 against 0.10 for a constant 0.11. | 9 triages with a replay verdict + 4 answers over the 12-line limit, out of 13 calls (section 6) |
 | Ultra triage validity | 5 of 12 controlled answers (42%) proposed a `find` text that is not in the source | `ai/cli/calibrate-triage.ts` |
 | "31 of 31 claims verified" | True but weak: **all 31** claims are cells of the code-computed header Ultra is shown; a 5% relative error or a 3-point error still passes on every rate claim | `ai/cli/calibration-audit.ts` |
 | Repro oracle (Super) | Precise when the report names an invariant (4 of 4 clear bug reports exact); 1 inverted oracle (a "nobody could hit" report matched every round); crash reports are rejected | 10 reports, 11 Super calls |
@@ -17,7 +18,7 @@ Model calls spent: Ultra 12 of 12 approved, Super 11 of 20, Super-VL 6 of 6 (`ge
 
 ## 1. Ultra triage confidence
 
-Outcome = the replay verdict decided by code: `fixed` counts 1; `not-fixed` and `reused-shipped-fix` (the patch only edits a rule the replay forces off) count 0. Sources:
+Outcome = the replay verdict decided by code: `fixed` counts 1; `not-fixed` and `reused-shipped-fix` (the patch edits, deletes or forces on a rule the replay forces off) count 0. Rows are scored with the current check (`editsForcedRule` in `lib/triage-live.ts`, which looks only at the changed part of a patch); re-running it on the recorded footage and controlled patches changed 2 rows: the old p0537:1 footage (fixed to reused-shipped-fix) and p0731:2 (reused-shipped-fix to not-fixed). Only the first changes any number below. Sources:
 
 - `data/run-main/triage.json`: the offline triage (`ai/cli/triage.ts`), final attempt per cluster, verdict from `engine/verify-fix.mjs`.
 - `footage/*.live.json`: live "Triage this" responses recorded for the demo video.
@@ -30,11 +31,11 @@ Outcome = the replay verdict decided by code: `fixed` counts 1; `not-fixed` and 
 | offline triage.json | bug3 | 0.90 | fixed |
 | offline triage.json | bug4 | 0.95 | fixed |
 | footage/08-repro.live.json | p0731:2 | 0.92 | not-fixed |
-| footage/08-repro.old.live.json | p0537:1 | 0.90 | fixed |
+| footage/08-repro.old.live.json | p0537:1 | 0.90 | reused-shipped-fix (was scored fixed: the patch deletes the `if(RULES.mountReleaseFix)` guard around the shipped fix, and the replay forces that rule to 0) |
 | footage/08-repro.v3.live.json | p0537:1 | 0.92 | reused-shipped-fix |
 | footage/08-repro.v3.live.json | p0537:1 | 0.92 | reused-shipped-fix |
 | calibrate-triage | p0537:1 | 0.90 | reused-shipped-fix |
-| calibrate-triage | p0731:2 | 0.85 | reused-shipped-fix |
+| calibrate-triage | p0731:2 | 0.85 | not-fixed (reused-shipped-fix under the old whole-patch check) |
 | calibrate-triage | p0653:2 | 0.95 | not-fixed |
 | calibrate-triage | p0009:3 | 0.90 | reused-shipped-fix |
 | calibrate-triage | p0111:3 | 0.85 | not-fixed |
@@ -46,15 +47,15 @@ No verdict, confidence not returned (the patch's `find` text was not in the file
 | stated confidence | n | mean stated | observed fixed rate | 95% Wilson interval |
 | --- | --- | --- | --- | --- |
 | 0.80-0.90 | 4 | 0.850 | 0/4 = 0% | 0-49% |
-| 0.90-0.95 | 9 | 0.909 | 2/9 = 22% | 6-55% |
+| 0.90-0.95 | 9 | 0.909 | 1/9 = 11% | 2-44% |
 | 0.95-1.00 | 2 | 0.950 | 1/2 = 50% | 10-91% |
 
-- n 15, fixed 3. Stated confidence 0.85-0.95, mean 0.90. Observed fixed rate 20% (Wilson 7-45%).
-- **Brier score 0.642.** Saying a constant 0.20 for every triage would score 0.160 (in-sample, so slightly flattering to the constant). Ultra's number is worse than knowing nothing about the individual triage.
-- Mean stated confidence: 0.917 on the 3 fixes, 0.894 on the 12 misses. A 0.02 gap on 3 positives is noise.
-- The buckets look monotone (0%, 22%, 50%), but all three Wilson intervals overlap heavily; with 15 points this is not evidence of ranking ability either way.
+- n 15, fixed 2 (bug3 and bug4, both from the offline triage). Stated confidence 0.85-0.95, mean 0.90. Observed fixed rate 13% (Wilson 4-38%).
+- **Brier score 0.695.** Saying a constant 0.13 (the observed rate) for every triage would score 0.116 (a constant 0.20 scores 0.120); in-sample, so slightly flattering to the constant. Ultra's number is worse than knowing nothing about the individual triage.
+- Mean stated confidence: 0.925 on the 2 fixes, 0.895 on the 13 misses. A 0.03 gap on 2 positives is noise.
+- The buckets look monotone (0%, 11%, 50%), but all three Wilson intervals overlap heavily; with 15 points this is not evidence of ranking ability either way.
 - Pattern in the misses: 3 of 7 controlled answers patched inside `if(RULES.mountReleaseFix)` even though the evidence's first line says the replay forces that rule to 0; the other 4 named a plausible line (`resetPos` at get-up, the FALL phase, `lock2DCorridor`) and the replay still broke. The confidence was the same either way.
-- The three p0537 calls show Ultra is not deterministic at temperature 0.1: one patch outside the guard fixed the round (old footage), three patched inside the guard.
+- All four p0537 calls (old footage, two v3 footage, one controlled) edit the forced-off `mountReleaseFix` guard. The old-footage one was first scored `fixed` because it deletes the guard and keeps its body, which switches on the shipped fix; the current check scores it `reused-shipped-fix`. Re-scoring that one row moved the totals from 3 fixed (Brier 0.642) to 2 fixed (Brier 0.695).
 
 **Conclusion:** Ultra's triage confidence is not calibrated and carries no measurable information about whether the patch works. The UI now labels it "Ultra states N% confidence" and prints the measured stated-vs-observed line under every live triage (`app/modes/repro/MatchRow.tsx`, numbers from `TRIAGE_CALIBRATION` in `lib/calibration.ts`). The replay verdict is the signal. A finding's `confidence` (the report, not triage) was never measured against outcomes; the Findings card now labels it the same way.
 
@@ -154,7 +155,7 @@ These intervals cover sampling noise among synthetic players only. They say noth
 ## What changed in the app
 
 - `lib/calibration.ts` (+ `lib/calibration.test.ts`): Brier score, calibration table, Wilson interval, seeded player bootstrap, per-claim player groups matching `ai/verify.ts`, `rateInterval`, and the measured `TRIAGE_CALIBRATION` constants.
-- `app/modes/repro/MatchRow.tsx`: the confidence chip reads "Ultra states N% confidence", followed by "Stated N% vs observed: ...", and the measured record (15 triages, 85-95% every time, 3 fixed, Brier 0.64 vs 0.16).
+- `app/modes/repro/MatchRow.tsx`: the confidence chip reads "Ultra states N% confidence", followed by "Stated N% vs observed: ...", and the measured record (15 triages, 85-95% every time, 3 fixed, Brier 0.64 vs 0.16). That text predates the re-scoring in section 1, which gives 2 fixed and Brier 0.70 vs 0.12; the `TRIAGE_CALIBRATION` constants in `lib/calibration.ts` and the README line should be updated to match.
 - `components/FindingCard.tsx`: 95% intervals on verified rate claims; the finding confidence chip is labelled as Ultra's own, unmeasured estimate.
 - `README.md`: a short "How much to trust the numbers" section.
 
@@ -176,9 +177,32 @@ npx tsx --env-file=.env ai/cli/calibrate-eyes.ts --base http://localhost:3140 --
 npx tsx --test lib/calibration.test.ts
 ```
 
+## 6. Live-triage patch anchoring (line ranges)
+
+Change (`ai/triage.ts`, `lib/triage-live.ts`): Ultra now answers with `{file, startLine, endLine, replace}` (whole lines, at most 12) read off the numbered source, mapped in code to the exact find/replace that `applyPatches` already uses, so the scratch copy, sandbox and network lock are unchanged. A range whose text repeats is widened by neighbouring lines until unique. A legacy `find` that is not exact is accepted only if it matches in exactly one place with whitespace ignored. Patch sets that change only whitespace and patches that change the bracket balance (a dropped line) are rejected. A rejected `find` gets the closest real lines sent back. The evidence gains a `FIRED` row (which invariants fired, for whom, at what time, and the window shown), and the `TUNING` row says a patch that edits a forced-off `RULES.*` guard is not credited. That check now looks only at the part of a patch that changes, because whole-line patches often contain a guard they do not touch.
+
+Same method as section 1 (`ai/cli/calibrate-triage.ts`, one Ultra call per round, no retry), same 12 rounds, before = the section 1 run, after = a new run. The before run was re-scored with the new guard check (no model calls): p0731:2 becomes a replayed `not-fixed`, so before it was 0 fixed under both rules.
+
+| 12 rounds, 1 call each | before (`find` text) | after (line ranges) |
+| --- | --- | --- |
+| valid patch | 7 of 12 (58%) | 8 of 12 (67%) |
+| invalid: `find` not in the file | 5 | 0 |
+| invalid: range over 12 lines | n/a | 4 (Ultra rewrote whole functions, e.g. `throwProp` lines 285-308) |
+| fixed | 0 | 1 (p0111:3) |
+| reused-shipped-fix | 2 (3 under the old check) | 3 |
+| not-fixed | 5 (4 under the old check) | 4 |
+| tokens in / out | 318,355 / 4,352 | 325,312 / 5,300 |
+
+- The after column is the run as it happened. The two checks added after it (whitespace-only, bracket balance) would have rejected 2 of its 8 valid answers: p0306:4 (a re-indent that changed nothing, replayed as `not-fixed`) and p0009:3 (it dropped a closing `}`, refused as `reused-shipped-fix`). Live, with two attempts, those go back to Ultra for a second try.
+- Confidence in this arm (the 8 valid answers of the 12-round run plus the p0355:2 retry, 9 triages with a verdict): 0.85 five times, 0.90 twice, 0.95 twice (mean 0.883). Brier 0.704; a constant 0.111 (the observed rate, 1 of 9) scores 0.099. The one fix was stated at 0.85. Source: the run outputs in the session notes folder (`calibration-triage-ranges-after.json`, `-retry.json`).
+- The one fix (p0111:3) clamps the fighter's height to 0.82 during get-up. It clears the `airborne` invariant on that seed, but it treats the symptom, not why the body rose.
+- Two of the three reused answers (p0653:2, p0754:2) rewrote the shipped fix without its rule flag. The check catches that because the flag name is in the changed text.
+- One extra call in the live setup (two attempts) on p0355:2: the first answer validated but put `ground.js` code into a `character.js` line range. Refused as `reused-shipped-fix`. Total Ultra calls for this section: 13.
+- **Sample:** 12 rounds per arm and one call each. 0 to 1 fixed and 5 to 4 invalid are within noise. The clear result is the kind of failure: "find text not in the file" went from 5 to 0, and the main remaining failure is a range that is too long. The fixed rate has not measurably improved.
+
 ## Follow-ups (not done here)
 
 - `ai/verify.ts`: tighten the tolerance as proposed in section 2.
 - `ai/nl.ts`: add `crash` to the oracle prompt's event list; consider a "no hit for N s" atom, or tell Super to use `softlock` for stalemate reports.
-- `ai/triage.ts`: Ultra's 42% invalid-patch rate on single attempts (the live route retries once) and its habit of patching inside a forced-off rule; the prompt already states the override in the evidence's first line.
+- `ai/triage.ts`: with line ranges, 4 of 12 answers asked for more than 12 lines (section 6). Allowing about 30 lines, or asking for the smallest range in the prompt, is the next thing to measure.
 - Drop the `confidence` field from the triage prompt, or ask for it after the replay result, if it is not going to be calibrated.

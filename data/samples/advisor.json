@@ -1,0 +1,319 @@
+{
+ "input": "p0396:1",
+ "recordedAt": "2026-10-29T02:43:03Z",
+ "source": "one live run of /modes/advisor on 2026-10-28 for the clean round p0396:1 (frames captured in system Chrome; Super-VL, 3 Tavily searches, Super with thinking off, validated by the current lib/advisor.ts rules); no field was edited",
+ "response": {
+  "frameNotes": "Frame 1: The background is darker than the foreground, so the two fighters stand out clearly against the spectators. Both fighters and their grappling pose are easy to read, with no visible hit feedback. The camera frames them at medium size, fully visible and centered. Spectators line the back railing but do not compete visually with the fighters.\n\nFrame 2: Lighting is even and the fighters contrast well with the background. The standing fighter and the fallen opponent are clearly readable, though no impact effects are visible. Both figures are fully in frame at medium scale. A large brown box next to the fallen fighter adds some visual weight but does not obscure the action.\n\nFrame 3: The scene is evenly lit and both fighters are distinct from the background. Their stances and gloves are easy to read, with no hit feedback visible. The camera shows both fighters fully at medium size. Spectators remain in the background behind a railing and do not compete with the fighters.\n\nFrame 4: Lighting remains even, with the fighters clearly separated from the darker background. The standing fighter and the fallen opponent are easy to read, with no visible impact effects. Both are fully framed at medium size. The background spectators are present but do not compete with the foreground action.",
+  "frameTimes": [
+   1.5,
+   8.9,
+   16.3,
+   23.8
+  ],
+  "sources": [
+   {
+    "title": "Combat Design, Mechanics and Systems for Satisfying Game Combat",
+    "url": "https://gamedesignskills.com/game-design/combat-design",
+    "snippet": "The important thing to know is that hit reactions serve multiple potential goals, and they don’t always just boil down to “giving clear hit feedback.” These include…\n\nimage13 1  \n(An example of a hit response animation in Mike Tyson’s Punch-Out!!)\n\nimage13 1\n\n### But don’t forget about the other for",
+    "query": "fighting game visual clarity: hit feedback and camera readability"
+   },
+   {
+    "title": "Improving the Combat 'Impact' Of Action Games",
+    "url": "https://www.gamedeveloper.com/audio/improving-the-combat-impact-of-action-games",
+    "snippet": "One of the common patterns in many of the games is to make the attack motions as quick as possible. Then to help the player see how the incredibly fast attack is done, several techniques are employed. First is to maintain the highest possible frame rate (60 fps for some). Then manipulate the camera ",
+    "query": "fighting game visual clarity: hit feedback and camera readability"
+   },
+   {
+    "title": "The Joys of Teaching and Learning: The True Appeal of Fighting Games",
+    "url": "https://www.gamedeveloper.com/design/the-joys-of-teaching-and-learning-the-true-appeal-of-fighting-games",
+    "snippet": "Fighting games as defined by this study take place from a 2D side perspective. Even those with three dimensional movement like ‘Tekken’ and ‘Soul Calibur’ place the camera in a side perspective and the game controls relative to the 2D plane. Control over a martial artist is considerably less obvious",
+    "query": "fighting game visual clarity: hit feedback and camera readability"
+   },
+   {
+    "title": "The Indie FGC Developer Roundtable Round-Up - Part 1 - SuperCombo",
+    "url": "https://supercombo.gg/2022/04/28/the-indie-fgc-developer-roundtable-round-up-part-1",
+    "snippet": "MrMKL then used the hook about tutorials to ask us about how to onboard new players. I was the first to reply that onboarding new players is just hard in a competitive 1v1 game, because there is no way for new players to “blame their losses on their teammates” (see ScrubQuoteX). A loss streak in the",
+    "query": "fighting game new player onboarding and difficulty tutorial design"
+   },
+   {
+    "title": "The Struggles of Onboarding gamers - Game Wisdom",
+    "url": "https://game-wisdom.com/critical/onboarding",
+    "snippet": "In an attempt to not overwhelm the player, some designers like to stagger their onboarding across levels — with the intent being to introduce essential elements when they are relevant. Doom Eternal did this really well with the tutorial introductions for each new enemy type. An example I ran into th",
+    "query": "fighting game new player onboarding and difficulty tutorial design"
+   },
+   {
+    "title": "How Difficulty has Changed in Game Design - Game Wisdom",
+    "url": "https://game-wisdom.com/critical/difficulty-changed-game-design",
+    "snippet": "Monster Hunter World was a good example of having implicit ways of making the game easier and more accommodating for new players. As we spoke about, Monster Hunter is a series that defined itself on opaque and challenging gameplay for more than a decade. With the latest iteration, the developers com",
+    "query": "fighting game new player onboarding and difficulty tutorial design"
+   },
+   {
+    "title": "The Aesthetics of Game Art and Game Design",
+    "url": "https://www.gamedeveloper.com/design/the-aesthetics-of-game-art-and-game-design",
+    "snippet": "Whichever shapes you choose for your game's characters, it's important to be aware of contrast as a narrative tool, and to be prepared to reverse the polarity of characters for dramatic effect. Contrast also makes it easier for your audience to orientate itself on the emotional stage of the narrativ",
+    "query": "fighting game lighting, contrast and stage readability for character silhouettes"
+   },
+   {
+    "title": "Developing the stylish indie hit fighting game Lethal League Blaze",
+    "url": "https://www.gamedeveloper.com/design/developing-the-stylish-indie-hit-fighting-game-i-lethal-league-blaze-i-",
+    "snippet": "full animation for the characters for better readability and a more stylized appeal. [This tweet from Team Reptile’s Twitter account demonstrates the animation.] [...] # Creating and balancing characters\n\nSo I have a kind of backwards way to do that. What is important to me is that the visual design",
+    "query": "fighting game lighting, contrast and stage readability for character silhouettes"
+   }
+  ],
+  "searches": {
+   "run": 3,
+   "failed": 0
+  },
+  "recommendations": [
+   {
+    "area": "difficulty",
+    "suggestion": "Reduce the damage of the sweep attack to lower its dominance in cheese strategies while preserving accessibility for casual players.",
+    "evidence": [
+     {
+      "type": "crowd",
+      "row": "sweepNerf.cheeser",
+      "label": "Win rate, cheeser, before and after nerfing the sweep",
+      "display": "92% before, 82% after"
+     },
+     {
+      "type": "crowd",
+      "row": "sweepNerf.casual",
+      "label": "Win rate, casual, before and after nerfing the sweep",
+      "display": "6% before, 9% after"
+     },
+     {
+      "type": "crowd",
+      "row": "exploit.top",
+      "label": "Best simulated-player strategy against the CPU rival: Mid Grapple Cheese: Trigger grab when rival is in mid and do",
+      "display": "57% of landed hits were SWEEP (win rate 100%)"
+     }
+    ],
+    "howToTest": "anim.SWEEP.damage",
+    "strength": "supported by crowd data"
+   },
+   {
+    "area": "dialogue",
+    "suggestion": "Clarify the in-game description of the sweep by explicitly stating it defeats high guard, matching the existing tip.",
+    "evidence": [
+     {
+      "type": "web",
+      "url": "https://gamedesignskills.com/game-design/combat-design",
+      "title": "Combat Design, Mechanics and Systems for Satisfying Game Combat"
+     }
+    ],
+    "howToTest": "Change the text: currently \"S + K Low sweep\" in controls; update to \"S + K Low sweep: defeats high guard\" and verify it needs human playtesters.",
+    "strength": "suggestion"
+   }
+  ],
+  "proposed": 3,
+  "dropped": {
+   "recommendations": 1,
+   "evidence": 0,
+   "reasons": [
+    "onboarding and dialogue suggestions must quote a line of the game text"
+   ]
+  },
+  "models": {
+   "vision": "nvidia/Nemotron-3.5-Super-VL",
+   "synthesis": "nvidia/nemotron-3-super-120b-a12b"
+  },
+  "generatedAt": "2026-10-29T02:43:03.602Z",
+  "key": "p0396:1",
+  "game": "Market Brawl",
+  "crowd": [
+   {
+    "id": "quit.casual",
+    "label": "Quit rate, casual (200 players)",
+    "value": 0.97,
+    "display": "97%"
+   },
+   {
+    "id": "win.casual",
+    "label": "Win rate against the CPU, casual",
+    "value": 0.05909090909090909,
+    "display": "6%"
+   },
+   {
+    "id": "quit.cheeser",
+    "label": "Quit rate, cheeser (100 players)",
+    "value": 0.06,
+    "display": "6%"
+   },
+   {
+    "id": "win.cheeser",
+    "label": "Win rate against the CPU, cheeser",
+    "value": 0.9230769230769231,
+    "display": "92%"
+   },
+   {
+    "id": "quit.learner",
+    "label": "Quit rate, learner (120 players)",
+    "value": 0.8583333333333333,
+    "display": "86%"
+   },
+   {
+    "id": "win.learner",
+    "label": "Win rate against the CPU, learner",
+    "value": 0.1523545706371191,
+    "display": "15%"
+   },
+   {
+    "id": "quit.turtle",
+    "label": "Quit rate, turtle (120 players)",
+    "value": 0.775,
+    "display": "78%"
+   },
+   {
+    "id": "win.turtle",
+    "label": "Win rate against the CPU, turtle",
+    "value": 0.10851063829787234,
+    "display": "11%"
+   },
+   {
+    "id": "quit.masher",
+    "label": "Quit rate, masher (160 players)",
+    "value": 0.825,
+    "display": "83%"
+   },
+   {
+    "id": "win.masher",
+    "label": "Win rate against the CPU, masher",
+    "value": 0.26732673267326734,
+    "display": "27%"
+   },
+   {
+    "id": "quit.rusher",
+    "label": "Quit rate, rusher (160 players)",
+    "value": 0.71875,
+    "display": "72%"
+   },
+   {
+    "id": "win.rusher",
+    "label": "Win rate against the CPU, rusher",
+    "value": 0.41745283018867924,
+    "display": "42%"
+   },
+   {
+    "id": "quit.explorer",
+    "label": "Quit rate, explorer (80 players)",
+    "value": 0.6,
+    "display": "60%"
+   },
+   {
+    "id": "win.explorer",
+    "label": "Win rate against the CPU, explorer",
+    "value": 0.3201581027667984,
+    "display": "32%"
+   },
+   {
+    "id": "quit.speedrunner",
+    "label": "Quit rate, speedrunner (60 players)",
+    "value": 0.2833333333333333,
+    "display": "28%"
+   },
+   {
+    "id": "win.speedrunner",
+    "label": "Win rate against the CPU, speedrunner",
+    "value": 0.65,
+    "display": "65%"
+   },
+   {
+    "id": "remain.r1",
+    "label": "Players still playing at the start of round 1",
+    "value": 1,
+    "display": "100%"
+   },
+   {
+    "id": "remain.r2",
+    "label": "Players still playing at the start of round 2",
+    "value": 0.92,
+    "display": "92%"
+   },
+   {
+    "id": "remain.r3",
+    "label": "Players still playing at the start of round 3",
+    "value": 0.566,
+    "display": "57%"
+   },
+   {
+    "id": "remain.r4",
+    "label": "Players still playing at the start of round 4",
+    "value": 0.253,
+    "display": "25%"
+   },
+   {
+    "id": "remain.r5",
+    "label": "Players still playing at the start of round 5",
+    "value": 0.092,
+    "display": "9%"
+   },
+   {
+    "id": "wall.biggestDrop",
+    "label": "Biggest one-round drop in players still playing: round 2 to 3 (92% to 57%)",
+    "value": 0.354,
+    "display": "35 points"
+   },
+   {
+    "id": "sweepNerf.cheeser",
+    "label": "Win rate, cheeser, before and after nerfing the sweep",
+    "value": 0.8151815181518152,
+    "display": "92% before, 82% after"
+   },
+   {
+    "id": "sweepNerf.casual",
+    "label": "Win rate, casual, before and after nerfing the sweep",
+    "value": 0.08791208791208792,
+    "display": "6% before, 9% after"
+   },
+   {
+    "id": "exploit.top",
+    "label": "Best simulated-player strategy against the CPU rival: Mid Grapple Cheese: Trigger grab when rival is in mid and do",
+    "value": 0.574,
+    "display": "57% of landed hits were SWEEP (win rate 100%)"
+   },
+   {
+    "id": "rule.cpuLowBlock",
+    "label": "Rule rules.cpuLowBlock in the shipped game: chance the CPU rival crouch-blocks a low attack",
+    "value": 0,
+    "display": "0"
+   },
+   {
+    "id": "bugs.total",
+    "label": "Rounds with an engine-detected bug (4 clusters)",
+    "value": 29,
+    "display": "29 rounds"
+   },
+   {
+    "id": "bug.bug1",
+    "label": "Bug bug1: airborne",
+    "value": 21,
+    "display": "21 rounds"
+   },
+   {
+    "id": "bug.bug2",
+    "label": "Bug bug2: oob+airborne+softlock",
+    "value": 4,
+    "display": "4 rounds"
+   },
+   {
+    "id": "bug.bug3",
+    "label": "Bug bug3: crash:RuntimeError: unreachable in throwProp (props.js:303)",
+    "value": 3,
+    "display": "3 rounds"
+   },
+   {
+    "id": "bug.bug4",
+    "label": "Bug bug4: stuck:KNOCKDOWN+airborne+softlock",
+    "value": 1,
+    "display": "1 rounds"
+   },
+   {
+    "id": "round.result",
+    "label": "This round (p0396:1)",
+    "value": 27.97,
+    "display": "win in 28.0 s, hp 10 vs 0"
+   }
+  ],
+  "gameTextLines": 103
+ }
+}

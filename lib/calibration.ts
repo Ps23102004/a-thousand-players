@@ -102,4 +102,4 @@ export function rateInterval(claim: Claim, value: number, personas: Persona[], r
  * replay verdict (4 offline, 4 from the recorded demo, 7 from ai/cli/calibrate-triage.ts), plus 7 answers whose patch failed validation.
  * Every stated confidence was 0.85 to 0.95, fixed or not, so the number does not separate good patches from bad ones.
  */
-export const TRIAGE_CALIBRATION = { triages: 15, fixed: 3, invalid: 7, minConfidence: 0.85, maxConfidence: 0.95, brier: 0.642, baseRateBrier: 0.16 };
+export const TRIAGE_CALIBRATION = { triages: 15, fixed: 2, invalid: 7, minConfidence: 0.85, maxConfidence: 0.95, brier: 0.695, baseRateBrier: 0.116 }; // baseRateBrier = always stating 2/15. Re-scored 2026-10-29: a guard-deleting patch is reused-shipped-fix, not fixed

@@ -5,7 +5,7 @@ const { watch, shot } = require("./helpers.cjs");
 test("nav links go where they say", async ({ page }) => {
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Main" });
-  const expected = [["Crowd", "/#crowd"], ["Findings", "/#findings"], ["Bugs", "/bugs"], ["Games", "/games"], ["Exploit", "/modes/exploit"], ["Repro", "/modes/repro"], ["Balance", "/modes/balance"]];
+  const expected = [["Crowd", "/#crowd"], ["Findings", "/#findings"], ["Bugs", "/bugs"], ["Games", "/games"], ["Exploit", "/modes/exploit"], ["Repro", "/modes/repro"], ["Balance", "/modes/balance"], ["Advisor", "/modes/advisor"]];
   await expect(nav.getByRole("link")).toHaveText(expected.map((e) => e[0]));
   for (const [name, href] of expected.slice(2)) {
     await nav.getByRole("link", { name }).click();

@@ -105,6 +105,23 @@ export function applyPatches(srcDir: string, patches: Patch[]): Applied[] {
   });
 }
 
+/** True when the part of the patch that changes (find and replace minus their common prefix and suffix, widened to the enclosing statement) names a
+ *  forced-off rule. A whole-line patch that merely contains a guard and changes code next to it is replayed, not refused. */
+export function editsForcedRule(p: Patch, forcedOff: string[]): boolean {
+  const { find: a, replace: b } = p;
+  let pre = 0, suf = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+  while (suf < a.length - pre && suf < b.length - pre && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf++;
+  while (pre > 0 && /\w/.test(a[pre - 1])) pre--;
+  while (suf > 0 && /\w/.test(a[a.length - suf])) suf--;
+  // Widen to the enclosing statement or condition, so `if(!RULES.x)` or `if(1||RULES.x)` (edits around the name) count too.
+  // Both ends sit in the text shared by find and replace, so the same offsets work on both.
+  while (pre > 0 && !/[;{}\n]/.test(a[pre - 1])) pre--;
+  while (suf > 0 && !/[;{}\n]/.test(a[a.length - suf])) suf--;
+  const changed = a.slice(pre, a.length - suf) + "\n" + b.slice(pre, b.length - suf);
+  return forcedOff.some((r) => changed.includes(r));
+}
+
 // ---------- the flow ----------
 export interface TriageInput { run: RunLine; persona: Persona; tuning: Tuning | null; sameSignature: RunLine[] }
 export interface TriageDeps { root?: string; ask?: typeof triageBug; timeoutMs?: number; replayTimeoutMs?: number }
@@ -153,10 +170,14 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
   if (!baseline.ev.some(isBug)) throw new TriageError(409, "This round did not reproduce its bug on replay, so there is nothing to triage and no model was called.");
   // Ultra sees the source, not the tuning. A rule the replay forces to 0 (rules.mountReleaseFix for rounds recorded before that fix) makes any
   // patch inside that guard a no-op, so the override is the first line of evidence.
+  // The invariants that fired and when, so Ultra does not have to infer them from the 10 Hz rows.
   const overrides = Object.entries(tuning ?? {});
-  const timeline = overrides.length
-    ? [`TUNING ${overrides.map(([k, v]) => `${k}=${v}`).join(" ")} (this replay forces these values; code guarded by a rule that is 0 here does not run, so a fix must not depend on it)`, ...baseline.timeline]
-    : baseline.timeline;
+  const [w0, w1] = [Math.max(0, firstBug[0] - 4), firstBug[0] + 2];
+  const fired = `FIRED ${baseline.ev.filter(isBug).map((e) => `${e[1]}${e[3] !== undefined ? `:${e[3]}` : ""} (${e[2] === 0 ? "player" : "cpu"}) at ${e[0]}s`).join("; ")}. The rows below are the 10 Hz window ${w0}-${w1} s around the first.`;
+  const timeline = [
+    ...(overrides.length ? [`TUNING ${overrides.map(([k, v]) => `${k}=${v}`).join(" ")} (this replay forces these values; code guarded by a rule that is 0 here does not run, so a fix must not depend on it. ` +
+      `A patch that edits, removes or forces on a RULES.* guard for one of these rules is not credited as a fix: find the root cause the guard was hiding)`] : []),
+    fired, ...baseline.timeline];
   const t1 = Date.now();
 
   // 2. Up to two Ultra calls (LIVE_ATTEMPTS) with the same prompt as the offline triage.
@@ -176,7 +197,7 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
   // The replay forces some rules off so recorded rounds show their bugs. A patch that edits one of those guards only switches on a
   // fix the game already ships: it would "fix" the round, but Ultra found nothing, so it is not credited.
   const forcedOff = Object.entries(tuning ?? {}).filter(([k, v]) => k.startsWith("rules.") && v === 0).map(([k]) => k.slice(6));
-  const reusesFix = triage.patches.some((p) => forcedOff.some((r) => p.find.includes(r) || p.replace.includes(r)));
+  const reusesFix = triage.patches.some((p) => editsForcedRule(p, forcedOff));
   if (!triage.isRealBug) verdict = "not-a-bug";
   else if (reusesFix) verdict = "reused-shipped-fix";
   else {
