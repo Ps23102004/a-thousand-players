@@ -2,10 +2,10 @@
 
 **One sentence:** a crowd of Nemotron-driven players plays your browser game by the thousand, finds where it breaks, and proves every finding with a replayable seed.
 
-Built for the Nebius x NVIDIA Global AI Hackathon (deadline Fri 2026-10-30 10:00 PT). Track: Coding & Agentic Engineering (an agent that plays, tests, iterates on a real game), also touching Best Apps & Agents. Test bed: **Market Brawl**, the student's own CSCI 310 3D fighting game (Three.js + Rapier), copied unchanged into `game/`.
+Built for the Nebius x NVIDIA Global AI Hackathon (deadline Fri 2026-10-30 10:00 PT). Track: Best Apps and Agents (final, decided by Parth on 2026-10-29; earlier drafts considered Coding & Agentic Engineering). Test bed: **Market Brawl**, Parth's own CSCI 310 course-project 3D fighting game (Three.js + Rapier), copied into `game/` with small changes (see the README).
 
 ## Why this exists
-Indie developers cannot afford playtesters (a 2024 Game Developer survey: >60% of indie studios ran fewer than five external sessions). Commercial AI playtesting (modl.ai) is enterprise-priced and per-game trained. This is open source, takes a game through a small adapter, and every claim it makes is backed by a seed anyone can replay in the real game.
+Indie developers cannot afford playtesters (a 2024 Game Developer survey: >60% of indie studios ran fewer than five external sessions). Other commercial AI playtesting tools exist; this is open source, takes a game through a small adapter, and every claim it makes is backed by a seed anyone can replay in the real game.
 
 ## The ten ideas are one engine
 | Mode | What it answers | Replaces idea |

@@ -8,7 +8,7 @@
 
 **Demo video (3 min):** link added at submission. **Live demo:** https://a-thousand-players.vercel.app (no login). A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
 
-Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, four bug fixes that can each be switched off so recorded rounds still replay as recorded, and an optional CPU low-block rule (off). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/`. All models run on Nebius Token Factory; Tavily does the web search.
+Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, Parth's own CSCI 310 course-project 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, four bug fixes that can each be switched off so recorded rounds still replay as recorded, and an optional CPU low-block rule (off). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/` (Clean Getaway is a private repository, so its adapter runs only with a local checkout of it). All models run on Nebius Token Factory; Tavily does the web search.
 
 ## Contents
 
@@ -56,7 +56,7 @@ If the shared rate limit is reached, the built-in examples on Repro and Balance 
 
 ## Who it is for
 
-Small game teams that have no QA department: a crowd of synthetic players finds where the game breaks or frustrates, and every claim comes with a seed that replays the exact round. Commercial tools such as modl.ai and nunu.ai also use AI agents to play-test games; this project differs in being open source, in proving each finding with a deterministic replay, and in checking the model's claims with code instead of trusting them. It has one game adapter so far, so it is a working prototype, not a product.
+Small game teams that have no QA department: a crowd of synthetic players finds where the game breaks or frustrates, and every claim comes with a seed that replays the exact round. Other commercial tools use AI agents to play-test games; this project differs in being open source, in proving each finding with a deterministic replay, and in checking the model's claims with code instead of trusting them. The full pipeline runs on one game so far (Market Brawl), so it is a working prototype, not a product.
 
 ## What it does
 
@@ -111,7 +111,7 @@ All numbers below come from files in `data/run-main/`.
 - **Fix status in the shipped game.** Four rule fixes are in `game/src`, each behind a rule (default on) so recorded rounds still replay as recorded: `mountReleaseFix` (bug2, by hand; also clears 5 of the 8 bug1 rounds), `throwPropGuard` (bug3, Ultra's patch), `grabReleaseFix` (the other 3 bug1 rounds, by hand) and `knockdownOnPropFix` (bug4, a narrower hand fix). Ultra's own bug4 patch removes a height guard entirely and is not shipped; Ultra's bug1 patch fixed 0 of 8. On the shipped game all 16 replayed bug rounds (8 bug1, 4 bug2, 3 bug3, 1 bug4) run clean.
 - **Ultra reads a summary, not every play log.** Per-round timed events (knockdown, throw, prop, mount) were trimmed to fit the 220,000-token budget: with the current `ai/corpus.ts`, 989 players are shown without timed events and 11 with outcome only (0 omitted; the aggregates cover all 2,831 rounds). The 989 keep their bug events; the 11 outcome-only players show results only.
 - **The rate limit is per server instance.** Counts live in memory, so on Vercel each instance has its own counts: 10 requests per minute per address on every route, plus a daily cap per route (`lib/ai-route.ts`: repro 80, balance 40, eyes 40, triage 40, precedent 100, advisor 20). The cached example answers keep the demo working when a limit is hit.
-- **One game adapter.** The adapter contract is documented below, but Market Brawl is the only game that implements it.
+- **Full pipeline on one game.** The full pipeline (Ultra report, triage, Repro, Eyes) runs on Market Brawl only. Homeground and Clean Getaway have crowd-harness adapters only (see `docs/generality.md`).
 - **Prices are estimates.** Only Ultra has a dollar estimate, at an unverified aggregator price ($1/M input, $3/M output). Other models report tokens only.
 
 ## Design Advisor (`/modes/advisor`)

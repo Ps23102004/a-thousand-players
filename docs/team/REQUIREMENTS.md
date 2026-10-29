@@ -19,7 +19,7 @@ Rules can change. **Aman: re-open these pages again on submission morning and ma
 | # | Official question | Our answer | Status |
 |---|---|---|---|
 | 1 | Runs on Nebius Token Factory or AI Cloud **and** uses at least one NVIDIA open-source model? | Every model call goes to the Token Factory API with Nemotron Nano, Super, Ultra and Super-VL. FAQ: a different provider (HuggingFace, OpenRouter) does **not** count, and the web app itself may be hosted anywhere. | **Met in code.** Becomes visible to judges once hosted. |
-| 2 | Fits clearly into one of the four tracks? | Open: pick one (section D). | **Open** |
+| 2 | Fits clearly into one of the four tracks? | Best Apps and Agents, final (Parth, 2026-10-29; section D). | **Done** |
 | 3 | Demo video under 3 minutes, public on YouTube, shows the app working and **explains Nebius + NVIDIA usage**? | Rough cut 2:58.4 (178.4 s), silent; Models scene rebuilt. Narration says Nebius Token Factory and Nemotron aloud. Still needs the voice-over and upload. | **Open** |
 | 4 | Public repo, visible open-source license, README with setup and run instructions? | MIT `LICENSE`, README with quick start. Repo is private now. | **Open until flipped public** |
 | 5 | Working demo URL? | Not deployed yet. | **Open** |
@@ -37,14 +37,14 @@ Also from the organizers: **upload the video early**; large files take long. **A
 | §3 Eligibility | Age of majority where you live. **Not open to residents of Brazil, Quebec, Russia, Crimea, Cuba, Iran, North Korea** or other OFAC-sanctioned places. Not open to employees or family of Nebius, Devpost and other promotion entities, **any Judge, or a company that employs a Judge**. Everyone on the team must be eligible. | Unknown for each person. | **Open: check each of the three of us.** Judges are listed on the hackathon page (NVIDIA, Nebius and Tavily staff): confirm no one is related to or employed alongside them in a way that matters. | Aman |
 | §3, §4 Team | Teams of any size (FAQ: no maximum). A team **appoints one Representative** who enters the submission and is authorized to act for the team; prizes go to the Representative, who divides them. | Not decided. | **Open: name the Representative (suggested: Parth, who owns the repo and accounts) and agree in writing how a prize would be split.** | Parth + Aman |
 | §4 What to create | A **working software application** that runs on Token Factory or AI Cloud, uses at least one NVIDIA open model, and fits one of the four tracks. Must be capable of being installed and running consistently and **function as depicted in the video and text**. | Fresh clone installs, passes all tests, builds and serves. | Met. Keep video and text strictly to what works. | Aashna verifies |
-| §4 New and existing | A project that existed before Aug 26 must have been **significantly updated** after, and the entry must **explain what was updated**. | The platform is new (first commit 2026-10-28). The test-bed game, Market Brawl, is an earlier course project. | **Gap: the Devpost text has no such explanation.** Add: what existed (the game) and what we built (everything else). | Aman drafts |
+| §4 New and existing | A project that existed before Aug 26 must have been **significantly updated** after, and the entry must **explain what was updated**. | The platform is new (first commit 2026-10-28). The test-bed game, Market Brawl, is Parth's own earlier course project. | **Drafted** in `docs/devpost.md` (section "What came from the course project and what we built for this hackathon"), decided 2026-10-29. Parth and Aman confirm the wording before submission. | Aman + Parth confirm |
 | §4 Third-party integrations | Any third-party SDK, API or data must be used **in accordance with its terms and licenses**. | Nebius Token Factory, Tavily, Three.js, Rapier, Next.js. | **Open: Aman reads the Nebius and Tavily terms** for anything that restricts what we do (public demo, rate, caching of outputs, showing outputs publicly). | Aman |
 | §4 Submission requirements | Demo URL; text description; **public code repo URL** on GitHub, GitLab or Bitbucket that "must contain all necessary source code, assets, and instructions"; license "detectable and visible at the top of the repository page (About section)"; README with setup and run guidance that **highlights how you used NVIDIA Nemotron, where Token Factory accelerated your workflow, and any other Nebius tools or services used**. | README now has the section "Built on Nebius Token Factory and NVIDIA Nemotron" (added 2026-10-29). | **After flipping the repo public, open the repo page and confirm "MIT license" shows in the About box.** | Aman |
 | §4 Video | Under 3 minutes (judges need not watch longer); **footage of the project functioning**; public on YouTube, link on the form; **no third-party trademarks, copyrighted music or other material without permission.** | Silent screen capture of our own app. No music. The on-screen captions mention model and company names as plain text. | **Check:** no logos of NVIDIA, Nebius, Tavily, Vercel, YouTube in the footage; no stock music; any text names kept as plain words. Confirm the third-party game names (Homeground, Clean Getaway) are fine to show. | Aman |
-| §4 Track | Identify the track. | Open. | See D. | Aman recommends |
+| §4 Track | Identify the track. | Best Apps and Agents, final (Parth, 2026-10-29). | **Done.** See D. | Parth |
 | §4 Feedback | Provide feedback on Token Factory, AI Cloud and any NVIDIA tools, models or technologies used. | Drafted. | See C. | Aman |
 | §4 Ownership | Original work, **solely owned by the Entrant**, not violating anyone's IP, privacy or publicity rights. Open source may be used if its licenses are complied with and you build something that enhances it. Third-party **technical assistance is allowed** if the result is the entrant's own. | Market Brawl is Parth's own CSCI 310 coursework. Much of the build used AI coding assistants (Claude). | **Open: Aman checks (1) the course and university policy on publishing coursework and who owns it, (2) that the entry says honestly that AI assistants were used.** | Aman |
-| §4 Testing | Judges must be able to use the project **free of charge and without restriction until the Judging Period ends (Dec 15)**. If the site is private, include credentials. Judges are not required to test and may judge from text, images and video only. | Public app, no login. Our live routes have daily caps and rate limits (to protect credits). Cached sample answers cover the demo inputs when a limit is hit. | **Risk: the hosted app must stay up and keep working through Dec 15, with enough model credits.** Decide who watches it and how credits are topped up. Do not remove the caps. | Parth + Aashna |
+| §4 Testing | Judges must be able to use the project **free of charge and without restriction until the Judging Period ends (Dec 15)**. If the site is private, include credentials. Judges are not required to test and may judge from text, images and video only. | Public app, no login. Our live routes have daily caps and rate limits (to protect credits). Cached sample answers cover the demo inputs when a limit is hit. | **Risk: the hosted app must stay up and keep working through Dec 15, with enough model credits.** Decided 2026-10-29: Parth watches the app until 2026-12-15. Keep checking credit balances. Do not remove the caps. | Parth + Aashna |
 | §4 Financial support | The project must not have been developed with **financial or preferential support from the Sponsor** (funding, contract, commercial license). | We used only the public Builder Program and promo credits that the rules themselves advertise. | Probably fine; Aman confirms with the Discord if in doubt. | Aman |
 | §5 Modifications | Drafts can be saved. After the deadline **no changes** to the submission. | | Freeze plan in SUBMISSION-RUNBOOK.md. | Parth |
 | §6 Judging | Stage 1 pass/fail: reasonably fits the track theme and reasonably applies the required APIs, a genuine attempt, "not a superficial rebrand." Stage 2: four **equally weighted** criteria, scored **1 to 5**. Ties broken by the first criterion in the list. | See section E. | | |
@@ -81,7 +81,7 @@ Stage 1 is a pass/fail check that we "reasonably fit" the track. Official track 
 | Personal AI | Always-on private assistant with persistent memory. | No. |
 | Physical AI | Robots, IoT, hardware. | No. |
 
-**Suggested decision (Aman to confirm with evidence from the rules): Best Apps and Agents.** It fits the whole product and the model tiering. Coding and Agentic is defensible through the triage loop but invites a harder look at the weak fix rate.
+**Decided (Parth, 2026-10-29), final: Best Apps and Agents.** It fits the whole product and the model tiering. Coding and Agentic is defensible through the triage loop but invites a harder look at the weak fix rate.
 
 ---
 
@@ -140,11 +140,11 @@ Each project: **one Overall award OR one Track award, plus one Bonus.**
 | README and docs | Done; now has the Nebius/NVIDIA usage section. |
 | Eligibility check of each team member | **Open (Aman)** |
 | Representative named, prize split agreed | **Open (Parth + Aman)** |
-| Track chosen | **Open (Aman recommends, Parth decides)** |
+| Track chosen | **Done: Best Apps and Agents, final (Parth, 2026-10-29)** |
 | Feedback in the organizers' structure | **Open (Aman + Aashna)** |
-| "What existed before / what is new" text | **Open (Aman)** |
+| "What existed before / what is new" text | **Drafted in `docs/devpost.md` (2026-10-29); Parth and Aman confirm** |
 | Terms of Nebius, Tavily, game assets and coursework ownership reviewed | **Open (Aman)** see LEGAL-AND-LICENSES.md |
-| Hosted URL, kept alive to Dec 15 | **Open (Parth), checks by Aashna** |
+| Hosted URL, kept alive to Dec 15 | **Open. Parth watches the app until 2026-12-15 (decided 2026-10-29); checks by Aashna** |
 | Video: cut is 2:58.4 (178.4 s), Models scene rebuilt; still needs voice-over, upload | **Open (Parth)** |
 | Repo made public, license visible in About | **Open (Parth)**, verify (Aman) |
 | Teammates added to the Devpost form and accepted | **Open (all)** |

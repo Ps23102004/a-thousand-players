@@ -6,7 +6,7 @@ Written by the A Thousand Players team (Parth, Aman, Aashna) after building on T
 
 Tools covered: (a) Nebius Token Factory, (b) Nemotron Nano, (c) Nemotron Super, (d) Nemotron Super-VL, (e) Nemotron Ultra. A short Tavily note is at the end (Tavily is not a Nebius or NVIDIA tool, but the app calls it at runtime).
 
-**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). Items marked `[PARTH: ...]` are for Parth to fill or confirm, because the repo cannot show them.
+**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md`, `docs/team/CREDITS-AND-PROGRAM.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing. `[PARTH/LEAD: confirm live routes hosted]` marks claims about the hosted app that need a live click-through first.
 
 Model ids as sent to Token Factory (`ai/models.ts`): `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL`, `nvidia/Nemotron-3-Ultra-550b-a55b`.
 
@@ -42,13 +42,20 @@ Every model call in the project: persona generation, the crowd report, bug triag
 
 ### 4. Onboarding, "zero to hello world"
 
-What the repo shows: one environment variable (`NEBIUS_API_KEY`), one URL, one JSON body. The first commit of this repo (`5794356`, 2026-10-28 00:59 -0400) already contains `ai/models.ts` with all four models and image input. The repo does not record when the account was made, when the first call succeeded, or what went wrong first. The hackathon promo code and the Builder Program credits are described in `docs/team/CREDITS-AND-PROGRAM.md`.
+**What is not recorded.** The repo's first commit (`5794356`, 2026-10-28 00:59 -0400) already contains `ai/models.ts` with all four model ids, image input and the retry code. Git therefore cannot show when the account was made, when the first call succeeded or how long sign-up took, and neither does the build log. We do not state a number for those.
 
-`[PARTH: fill the real onboarding story: time from sign-up to the first successful call, which docs page you used, the first error you hit, how the credit arrived, anything that was confusing.]`
+**What we learned (order not recorded; only the git timestamps in item 5 are clock times):**
+
+1. **Credits.** Two sources, both Token Factory credit only (the hackathon FAQ says there is no separate AI Cloud grant). As of the 2026-10-29 claim kit (`docs/team/CREDITS-AND-PROGRAM.md`), the hackathon promo code form (`nebius.com/promo-code`) had been submitted as Student / Independent with the code to arrive by email, and the Builder Program form had been filled.
+2. **A working call is a plain `fetch`.** One environment variable (`NEBIUS_API_KEY`), one URL (`https://api.tokenfactory.nebius.com/v1/chat/completions`), one OpenAI-style JSON body. The smallest result the README records is a one-line JSON answer in 11 completion tokens and under 0.8 s on Super, Ultra and Super-VL with thinking off (`ai/README.md`).
+3. **The thinking switch.** `chat_template_kwargs: {"enable_thinking": false}` was the one control that worked on all four models; `reasoning_budget`, `reasoning_effort` and `/no_think` did not work on Nano. Without it, Super spent completion tokens on hidden reasoning and short answers came back empty, and Ultra wrote its reasoning into `content`, so at `max_tokens` 60 there was no answer (`ai/README.md`).
+4. **The limits.** Node's default `fetch` gives up at 5 minutes, and `ai/models.ts` records that Ultra can take longer than that on a 300K-token prompt, so we installed an undici Agent with 15-minute header and body timeouts. A 900K-token probe came back HTTP 429 (per-minute token quota), which is why we claim no 1M context. The client now waits as long as a 429 body says and retries. Token counts: our number-dense corpus ran at about 1.6 characters per token, so the usual chars/3.3 rule undercounts by 2x (`ai/README.md`).
+5. **Git timestamps (2026-10-28, -0400).** `ai/README.md` records the 1000-persona run (289 s) and the build log records the Ultra report over 220K tokens (20.8 s); neither gives a clock time. Super's Repro route was wired into the app at 11:01 and Super-VL's Eyes panel at 11:04 (commits `8c5589f`, `d6acf19`), and live Ultra triage at 12:19 (`9ad93a5`).
+6. **Hosting.** As of the 2026-10-29 build log, the app was deployed on Vercel (06:30 to 07:10 PT).
 
 ### 5. Would we build with it again?
 
-Draft from the evidence: yes. One OpenAI-compatible client served four models including image input, and one 220K-token call replaced a chunked pipeline. What would stop us from depending on it for a paid product: no price table we could verify, unpublished token-per-minute limits, and no clear statement on structured outputs. `[PARTH: confirm, and add your own reason.]`
+Yes. We would build this again if we get the chance. We can improve it a lot, and it has a lot of potential. The evidence-based reasons: one OpenAI-compatible client served four models including image input, and one 220K-token call replaced a chunked pipeline. What would stop us from depending on it for a paid product: no price table we could verify, unpublished token-per-minute limits, and no clear statement on structured outputs.
 
 ---
 
@@ -75,11 +82,11 @@ Draft from the evidence: yes. One OpenAI-compatible client served four models in
 
 ### 4. Onboarding, "zero to hello world"
 
-Same endpoint and key as section (a); the model id is the only difference. The repo shows no separate Nano setup step. `[PARTH: fill the real onboarding story for Nano: first call, first surprise.]`
+Same endpoint and key as section (a); the model id is the only difference, so there was no separate setup step. `ai/personas.ts` is part of the first commit (2026-10-28 00:59 -0400). `ai/README.md` records two runs: 100 personas in 50 s (11 calls, 82% valid on the first pass) and 1000 personas in 289 s (69 calls, 79.9% valid). Three things are recorded. About 1 in 5 personas failed our validator (bio length, a non-number trait, a field we never asked for); the persona code has a repair loop (already in the first commit `5794356`) that asks again for the shortfall plus 2, and it took 3 repair rounds to reach exactly 1000. The reasoning controls did not work on Nano (section a, item 1). And the 69 persona calls ran before usage logging existed.
 
 ### 5. Would we build with it again?
 
-Draft: yes, for bulk structured generation where a validator and a repair loop are acceptable. We would not use it for per-decision control of many agents at 3.5 s per call. `[PARTH: confirm.]`
+Yes, we would build with it again, for bulk structured generation where a validator and a repair loop are acceptable. We would not use it for per-decision control of many agents at 3.5 s per call.
 
 ---
 
@@ -108,11 +115,11 @@ Draft: yes, for bulk structured generation where a validator and a repair loop a
 
 ### 4. Onboarding, "zero to hello world"
 
-Same endpoint and key as section (a). `[PARTH: fill the real onboarding story for Super, if it differed from Nano.]`
+Same endpoint and key as section (a), and it differed from Nano in one way: thinking. Super with thinking on put its reasoning in a separate `reasoning_content` field but still spent completion tokens on it, so short answers came back empty; we send the thinking-off switch on every Super call. `ai/nl.ts` (the oracle) is in the first commit; the route that calls it from the app, Repro, was wired in at 11:01 -0400 on 2026-10-28 (`8c5589f`). Two things went wrong on the way. The first version of Repro returned 0 matches in 3 of 3 tries because Super put an `arg` ("BLOCK") on the `airborne` event, which carries no arg; we fixed both sides (the prompt now lists which events carry an arg, and the evaluator ignores an arg elsewhere). And its first explanation of why the winning exploit strategies work was wrong ("recovery-state grabs"), which we fixed by putting the engine's recorded hit tally in the prompt (commit `ae54535`, build log).
 
 ### 5. Would we build with it again?
 
-Draft: yes, for English-to-config jobs where code validates the result, because it was fast and refused off-topic input. We would not trust its causal explanations without recorded evidence in the prompt. `[PARTH: confirm.]`
+Yes, we would build with it again, for English-to-config jobs where code validates the result, because it was fast and refused off-topic input. We would not trust its causal explanations without recorded evidence in the prompt.
 
 ---
 
@@ -135,11 +142,11 @@ Describing frames from the game. In the **Eyes** panel it gets three frames capt
 
 ### 4. Onboarding, "zero to hello world"
 
-Same endpoint and key as section (a). The repo's first commit (2026-10-28 00:59 -0400) already had `ai/vision.ts` and image input in `ai/models.ts`. The Eyes panel came in commit `d6acf19` (2026-10-28 11:04 -0400). `[PARTH: fill the real onboarding story for Super-VL: first image call, anything about the image format or size limits.]`
+Same endpoint and key as section (a). The repo's first commit (2026-10-28 00:59 -0400) already had `ai/vision.ts` and image input in `ai/models.ts`, but only for PNG: frames go in the same `messages` array as `image_url` data URLs, and that commit hardcoded `data:image/png`. JPEG detection (`image/jpeg` chosen from the base64 header) came with the Eyes panel, commit `d6acf19` (2026-10-28 11:04 -0400), under three minutes after the Repro commit; that commit also made the panel send 640 px JPEGs. We recorded no image-size limit and hit none; the Eyes panel sends three 640 px JPEG frames. The one measured latency is 5.2 s for a single 1.6K-token frame. Its one recorded miss, a floating fighter it did not see, is in section 3.
 
 ### 5. Would we build with it again?
 
-Draft: yes, as a description aid next to a deterministic check, and not as a detector. We would test it on more than 6 rounds first. `[PARTH: confirm.]`
+Yes, we would build with it again, as a description aid next to a deterministic check, and not as a detector. We would test it on more than 6 rounds first.
 
 ---
 
@@ -167,11 +174,13 @@ Draft: yes, as a description aid next to a deterministic check, and not as a det
 
 ### 4. Onboarding, "zero to hello world"
 
-Same endpoint and key as section (a). One detail for newcomers: the `ai/models.ts` comment records that Ultra can take more than 5 minutes on a 300K-token prompt, which is longer than Node's default `fetch` timeout. `[PARTH: fill the real onboarding story for Ultra: first long call, quota surprises.]`
+Same endpoint and key as section (a). Earlier probes accepted about 300K prompt tokens, and the `ai/models.ts` comment records that such a call can take more than 5 minutes, longer than Node's default `fetch` timeout; that is why the client has the undici Agent. A 900K-token probe came back HTTP 429 on the per-minute token quota. The calls we kept were much faster: 224.4K prompt tokens in 16.7 s on the planted fixture, and 220K in 20.8 s for the real crowd report (build log).
+
+Separately, on answers rather than access: in the 2026-10-28 retriage (commit `78b7d80`, 09:18 -0400), Ultra named bug3's cause every time but ignored the answer schema: it returned a diff string and no `title` or `isRealBug`. Describing the keys did not fix it. A neutral concrete example of the schema in the system prompt, plus the full schema in the retry feedback, did, and bug3 then came out fixed in 3 of 3 replays. Later the patch format changed from find/replace to line ranges, and "find text not in file" went from 5 to 0 (build log, 2026-10-29). Live triage went into the app at 12:19 on 2026-10-28 (`9ad93a5`), and a second attempt after a failed validation at 15:56 (`9af545c`).
 
 ### 5. Would we build with it again?
 
-Draft: yes, for reading a large structured corpus in one pass, with code checking every claim. We would not rely on it for unattended code fixes at the rate we measured (3 of 24), or on its self-reported confidence. `[PARTH: confirm.]`
+Yes, we would build with it again, for reading a large structured corpus in one pass, with code checking every claim. We would not rely on it for unattended code fixes at the rate we measured (3 of 24), or on its self-reported confidence.
 
 ---
 
@@ -180,7 +189,8 @@ Draft: yes, for reading a large structured corpus in one pass, with code checkin
 - **Used for:** (live in the hosted app: [PARTH/LEAD: confirm live routes hosted]) the **Find precedent** button on a Repro match (one search, developer sites only, top 3 writeups) and the Design Advisor (3 searches per run). The server words every query; nothing comes from the client (`ai/precedent.ts`, `README.md`).
 - **Measured:** 7 searches took about 4.5 s in total with 4 in flight, at basic depth, 4 results, keep 3 (`ai/README.md`).
 - **Needs work:** results are sometimes off-topic (`docs/team/aashna/README.md`), and the topic phrase at the start of the query steers the results far more than the suffix does (`ai/precedent.ts` comment, tuned live on 2026-10-28).
-- **Onboarding and build again:** `[PARTH: fill in.]`
+- **Onboarding:** one API key, one search call from `ai/precedent.ts`. The credit source is the $25 Builder Program Tavily credit (`docs/team/CREDITS-AND-PROGRAM.md`, 2026-10-29). On 2026-10-28 Tavily ran only offline from the command line, and the first precedent links were off-topic (build log). The query was then reworded and tuned live the same day (commit `25e72c8`, 14:41 -0400) and the page now labels the results "unreviewed search results".
+- **Build again:** yes, as a retrieval source whose results the page labels unreviewed, as the app does now.
 
 ---
 

@@ -26,7 +26,7 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 - Demo video: [YOUTUBE_URL]
 - Code: https://github.com/Ps23102004/a-thousand-players (MIT license)
 
-**Feedback (Token Factory and the NVIDIA models):** the full text is `docs/token-factory-feedback.md` in the repo. It gives five points for Token Factory, Nemotron Nano, Super, Super-VL and Ultra (what we used it for, what worked, what needs work, onboarding, would we build with it again), plus a Tavily note. [PARTH: paste it or link it here, and fill its onboarding `[PARTH: ...]` placeholders first.]
+**Feedback (Token Factory and the NVIDIA models):** the full text is `docs/token-factory-feedback.md` in the repo. It gives five points for Token Factory, Nemotron Nano, Super, Super-VL and Ultra (what we used it for, what worked, what needs work, onboarding, would we build with it again), plus a Tavily note. Paste it into the form's feedback field or link it; the onboarding sections are filled from the build log and the git history.
 
 **Nebius products used:** only Nebius Token Factory was used. Nebius AI Cloud was not used.
 
@@ -34,11 +34,11 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 
 ---
 
-> Team note, not for paste. Track is **recommended, Parth decides**: `docs/team/REQUIREMENTS.md` section D suggests Best Apps and Agents and Aman has not yet confirmed it against the live rules. The repo is private until Parth flips it public; the Code link only works after that.
+> Team note, not for paste. The track is decided (Parth, 2026-10-29): **Best Apps and Agents**. As of 2026-10-29 the repo is private until Parth flips it public; the Code link only works after that.
 >
 > Checked while writing this file:
 > - Package list: the Built With names come from `package.json`, `ai/models.ts` and `ai/precedent.ts`. Playwright is left out of Built With: it is not in `package.json`, and the browser suite in `e2e/` runs on a global `@playwright/cli` install (`e2e/README.md`). Add it back if you want to credit the test tool.
-> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit. API keys were being added when this was written, so `[PARTH/LEAD: confirm live routes hosted]` markers stay in the text until someone has clicked every live button on the hosted URL.
+> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit. The `[PARTH/LEAD: confirm live routes hosted]` markers stay in the text until someone has clicked every live button on the hosted URL.
 > - Model names: the Token Factory ids in `ai/models.ts` are `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL` and `nvidia/Nemotron-3-Ultra-550b-a55b`.
 > - Triage numbers: "3 of 24" is 2 of 15 plus 1 of 9, the same figures as the last bullet of "What is not done".
 
@@ -49,11 +49,11 @@ Indie developers rarely get enough playtesters. A Thousand Players gives them a 
 
 Every finding cites seeds, and any seed replays the same match in the real 3D game in the browser. Code re-checks every number Ultra claims before showing it. When the engine catches a broken round, Ultra proposes a patch, and the engine applies it to a scratch copy of the game and replays the exact seeds to see if the bug is gone.
 
-Our test bed is Market Brawl, a student's Three.js + Rapier fighting game. In the main run, 1000 players played 2831 rounds. Ultra returned 8 findings; all 31 of its numeric claims matched the data code recomputed (they are cells of tables code also put in its prompt, so this checks reading, not discovery). On a planted 1000-player fixture it found all 4 hidden stories. Four rule fixes are in the game: `throwPropGuard` (bug3's crash guard, Ultra's patch), `mountReleaseFix` (bug2, by hand after Ultra failed twice), `grabReleaseFix` and `knockdownOnPropFix` (both by hand; with the mount fix they make all 8 replayed bug1 rounds and the bug4 seed run clean). Ultra's own bug4 patch was verified on 1 seed and not shipped; its bug1 patch fixed 0 of 8.
+Our test bed is Market Brawl, Parth's own Three.js + Rapier fighting game, written for a university course. In the main run, 1000 players played 2831 rounds. Ultra returned 8 findings; all 31 of its numeric claims matched the data code recomputed (they are cells of tables code also put in its prompt, so this checks reading, not discovery). On a planted 1000-player fixture it found all 4 hidden stories. Four rule fixes are in the game: `throwPropGuard` (bug3's crash guard, Ultra's patch), `mountReleaseFix` (bug2, by hand after Ultra failed twice), `grabReleaseFix` and `knockdownOnPropFix` (both by hand; with the mount fix they make all 8 replayed bug1 rounds and the bug4 seed run clean). Ultra's own bug4 patch was verified on 1 seed and not shipped; its bug1 patch fixed 0 of 8.
 
 The players are synthetic. The findings are hypotheses to replay and check, not a replacement for real people.
 
-**Who it is for.** Small game teams with no QA department. Other tools already use AI agents to play-test games; this project is MIT licensed, proves each finding with a deterministic replay, and checks the model's claims with code. It is a prototype with one game adapter. [PARTH: name comparable tools only after you have checked them. `docs/judge-panel.md` recalls modl.ai and nunu.ai from memory, not from a checked source.]
+**Who it is for.** Small game teams with no QA department. The test-bed game, Market Brawl, is Parth's own. Other commercial tools use AI agents to play-test games; this project is MIT licensed, proves each finding with a deterministic replay, and checks the model's claims with code. It is a prototype: the full pipeline runs on Market Brawl, and the crowd harness also ran on two other games of Parth's. [PARTH: the claim about other commercial tools is recalled from memory (`docs/judge-panel.md`), not from a checked source. Name tools only after you have checked them, or drop the sentence.]
 
 ## How Nemotron is used
 
@@ -92,7 +92,7 @@ A vision model (Nemotron Super-VL) looks at four frames of a recorded round, our
 - **bug3 fix was verified only on its own seeds.** The `throwProp` crash fix passed 3 of 3 replays. The 200-persona regression crowd never hits that crash, so it cannot show a side effect.
 - **bug1 was not fixed by Ultra.** Fighter floats up after a mount release, 21 rounds: Ultra's patch fixed 0 of 8 replayed rounds. The shipped game now replays all 8 clean (checked 2026-10-28): the bug2 mount-release fix clears 5 and `grabReleaseFix` (a hand fix for the same stale floor contact after a grab) clears the other 3. The other 13 rounds of the cluster were not replayed.
 - **bug4 ships a hand fix, not Ultra's patch.** Ultra's patch removes a height guard entirely, so it is not shipped. The narrower `knockdownOnPropFix` is (a knockdown ends once the body is at rest), and the bug4 seed replays clean on the shipped game.
-- **One game.** The adapter contract is documented, but Market Brawl is the only game that implements it.
+- **Full pipeline on one game.** The full pipeline (Ultra report, triage, Repro, Eyes) runs on Market Brawl only. Homeground and Clean Getaway have crowd-harness adapters only (see `docs/generality.md`).
 - **No proof of absence.** The crowd samples the game. A bug it never hit may still exist.
 - **Ultra's 1M-token context is unproven here.** About 300K prompt tokens worked. A 900K probe hit the per-minute token quota.
 - **Live triage checks one seed, with no regression crowd.** "Fixed" on the Repro page means that one replayed round has no bug events. Ultra's live answers vary: of the two recorded bug2 rounds it missed one, and the one patch that passed the other only re-enabled a fix the game already ships, so it is no longer credited, and on bug4 its root cause was wrong (the offline run, which feeds the replay result back once, found a working patch). Each click makes up to two Ultra calls (the second only if the first patch fails validation). Ultra's stated confidence is not calibrated: across 20 measured live triages with a replay verdict (11 with the first prompt, 9 with the line-range prompt) it said 85-95% every time, and 1 was credited as a fix (stated 85%; it clamps a fighter's height rather than finding the cause). Counting the 4 offline triages too, 24 triages gave 3 credited fixes (docs/calibration.md).
@@ -101,7 +101,7 @@ A vision model (Nemotron Super-VL) looks at four frames of a recorded round, our
 
 The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We checked dates with `git log`.
 
-**From the course project: the test-bed game, Market Brawl.** Market Brawl is a 3D fighting game (Three.js + Rapier) that Parth wrote for the course CSCI 310, Project 2. It is the game our crowd plays. It is not the product. The git history of its separate course repository has 10 commits from 2026-10-20 13:34 to 2026-10-20 16:17 (-0400), and its design document in `game/docs/superpowers/specs/` is dated 2026-10-20. So the game is Parth's own course project, started after the hackathon opened; it was written for the course, not for this hackathon. Everything else below was built for the hackathon. [PARTH: confirm the real start date of Market Brawl and say whether any earlier version exists; confirm the course and university allow publishing it under MIT (`docs/team/LEGAL-AND-LICENSES.md` L1).]
+**From the course project: the test-bed game, Market Brawl.** Market Brawl is a 3D fighting game (Three.js + Rapier) that Parth wrote for the course CSCI 310, Project 2. It is the game our crowd plays. It is not the product. Market Brawl has no repository of its own: its 10 commits (2026-10-20 13:34 to 16:17 -0400) are in the history of Parth's private notes repository, filtered to the course folder. That history is not public, so the date claim is not publicly checkable. Its design document in `game/docs/superpowers/specs/` is dated 2026-10-20. So the game is Parth's own course project, started after the hackathon opened; it was written for the course, not for this hackathon. Everything else below was built for the hackathon. [PARTH: confirm the course and university allow publishing Market Brawl under MIT (`docs/team/LEGAL-AND-LICENSES.md` L1). That decision is Parth's and Aman's.]
 
 **Changed in the game for this project.** This repo's first commit is 2026-10-28 00:59 (-0400), and it already contains the game. Comparing `game/src` with the course project's `src` shows:
 - one new file, `game/src/tuning.js`, a table of rule constants (guard damage, posture, a CPU decision delay) that `combat.js` and `ai.js` now read instead of hard-coded numbers, so the engine can override them;
@@ -118,7 +118,11 @@ The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We check
 
 The game README also changed, and the 162 old model and texture files were removed from the tree and the history on 2026-10-28 because their license was not established (`docs/team/LEGAL-AND-LICENSES.md`).
 
-**Two other games the adapters run on.** `adapters/` runs the same crowd harness on Homeground (a longboard game; its physics is vendored under `adapters/homeground/vendor`, MIT, upstream commit in `UPSTREAM_COMMIT`) and Clean Getaway (read by path, nothing copied). The adapters are new in this repo (first committed in `55cd763`, 2026-10-28; `docs/generality.md`). [PARTH: confirm both games are yours and give their creation dates; until then this text claims nothing about when the games were written.]
+**Two other games the adapters run on. Both are Parth's own.** `adapters/` runs the same crowd harness on two games (`docs/generality.md`):
+- **Homeground**, a procedural longboard game. Repository `github.com/Ps23102004/homeground`: public, MIT, not a fork, created 2026-08-22 (first commit that day), 7 commits, last push 2026-09-11 (checked with `gh api`). **It was created before the hackathon opened on 2026-08-26.** Only its board physics is vendored here (`adapters/homeground/vendor`, upstream commit in `UPSTREAM_COMMIT`, license file "Copyright (c) 2026 Parth Singh"); the adapter that runs it is new in this repo.
+- **Clean Getaway**, a 9-seat heist and trial game. It is a private repository that judges cannot open (its GitHub repository was created 2026-10-25, with no license). Parth's local clone has 52 commits, all by Parth, first 2026-10-05 18:39 -0400, last 2026-10-07 11:49 -0400 (`git log` of the local clone), so it was written after the hackathon opened but before this repo's first commit; those dates are not publicly checkable. Nothing of it is copied; the adapter reads it by path. **The Clean Getaway adapter cannot run from the public clone of this repo.** It needs that game checked out (default `~/Developer/clean-getaway`, or set `CLEAN_GETAWAY_ENGINE`), and the Clean Getaway numbers in `docs/generality.md` came from Parth's local clone.
+
+The adapters are new in this repo (first committed in `55cd763`, 2026-10-28).
 
 **New since 2026-10-28 (first commit 2026-10-28 00:59 -0400; through commit `35f0a5f` on 2026-10-29):**
 - `engine/`: the headless deterministic simulator, crowd runner, bug detection and fix verification.
@@ -133,7 +137,7 @@ The first commit already holds the engine, the AI layer and the web app, so any 
 
 [PARTH: confirm wording. This statement is yours to own.]
 
-AI coding assistants, mainly Claude, wrote much of the code, tests and documentation in this repo, and much of Market Brawl before it (the game README says AI assistance was used for implementation, debugging, visual design, tests and concept art). Parth directed the work and reviewed it. [PARTH: confirm the assistants and models used, and how much of the code you wrote by hand.] The concept image `game/assets/art/midnight-circuit.png` is AI-generated. [PARTH: name the tool and date.]
+AI coding assistants, mainly Claude, wrote much of the code, tests and documentation in this repo, and much of Market Brawl before it (the game README says AI assistance was used for implementation, debugging, visual design, tests and concept art). Parth directed the work and reviewed it. The commit trailers in this repo (`git log`, 33 of 34 commits) name Claude Opus 5.5 (23 commits), Claude Sonnet 5.5 (6) and Claude Fable 5.1 (4) as co-authors; they cover this repo only, not Market Brawl's history. The concept image `game/assets/art/midnight-circuit.png` is AI-generated. [PARTH: confirm wording: the hand-written share of the code, and the concept-art tool and date.]
 
 The models inside the product are NVIDIA Nemotron models served by Nebius Token Factory. The product does not trust them or the assistants: every number Ultra states is recomputed by code from the raw runs, determinism is tested (`npm run engine:test`, 16 seeds twice, `mismatches=0`), and every fix verdict comes from replaying the exact seed. A model's stated confidence is never used as a result (`docs/calibration.md`).
 
@@ -192,9 +196,7 @@ Optional: `cp .env.example .env` and set `NEBIUS_API_KEY` and `TAVILY_API_KEY` t
 
 ## Uptime and cost
 
-The hosted app is meant to stay live and free to use through the end of judging, 2026-12-15, as the rules require (section 4, Testing). It runs on the Vercel Hobby plan, deployed from the CLI with no git integration, so pushing to GitHub does not update it. [PARTH: confirm Hobby limits are enough for the judging period.] The daily caps above exist to protect model and search credits for that whole period. We will not remove them. When a cap is hit, the built-in examples still answer from recorded real outputs, so the main demo path keeps working.
+The hosted app is meant to stay live and free to use through the end of judging, 2026-12-15, as the rules require (section 4, Testing). It runs on the Vercel Hobby plan, deployed from the CLI with no git integration, so pushing to GitHub does not update it. Parth watches the hosted app through 2026-12-15 and checks the Token Factory and Tavily credit balances himself. The daily caps above (`lib/ai-route.ts`) exist to protect model and search credits for that whole period. We will not remove them. When a cap is hit, the built-in examples still answer from recorded real outputs, so the main demo path keeps working.
 
-The caps bound spend per server process, not for the whole deployment (see above). Measured spend so far: the main run used 27 Ultra calls, 892,282 tokens in and 16,225 out, about $0.94 at an unverified aggregator price (`data/run-main/usage.json`). Live triage is the costly route: about 27K prompt tokens per Ultra call (`README.md`).
-
-[PARTH: confirm who watches the app and how often (the runbook says weekly). Write the Token Factory and Tavily credit balances and the date you checked them.]
+The caps bound spend per server process, not for the whole deployment (see above). Measured spend of the main run: 27 Ultra calls, 892,282 tokens in and 16,225 out, about $0.94 at an unverified aggregator price (`data/run-main/usage.json`). Live triage is the costly route: about 27K prompt tokens per Ultra call (`README.md`).
 
