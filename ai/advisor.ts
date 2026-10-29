@@ -1,8 +1,11 @@
 // Design Advisor: one Super-VL call describes the frames, 3 Tavily searches fetch design writeups, one Super call (thinking off)
-// writes the recommendations as JSON (a second Super call only if the first answer is not JSON), and lib/advisor.ts decides which of them survive. Nothing is trained and nothing is stored.
+// writes the recommendations as JSON (a second Super call only if the first answer is not JSON), and lib/advisor.ts decides which of them survive.
+// Selected quotes come from the committed review corpus. Nothing is trained; runtime calls write no files.
 import { advisorQueries, ADVISOR_DOMAINS, synthesisPrompt, validateRecommendations, type CrowdRow, type Dropped, type Recommendation, type Source } from "../lib/advisor";
 import { chat, extractJson, SUPER, VL } from "./models";
 import { searchPrecedent } from "./precedent";
+import corpus from "../data/reviews/corpus.json";
+import { parseReviewCorpus, reviewSources, selectReviews } from "../lib/reviews";
 
 export interface AdvisorInput {
   frames: string[];          // 4 base64 JPEG/PNG frames, in time order
@@ -11,6 +14,8 @@ export interface AdvisorInput {
   gameText: string[];
   genre: string;
   tuningKeys: Set<string>;
+  /** Offline dependency injection for tests; the API never takes this from its request body. */
+  reviewCorpus?: unknown;
 }
 export interface AdvisorResult {
   frameNotes: string;
@@ -46,6 +51,9 @@ export async function runAdvisor(i: AdvisorInput): Promise<AdvisorResult> {
     for (const r of s.value) if (!seen.has(r.url)) { seen.add(r.url); sources.push({ ...r, query: queries[k] }); }
   });
 
+  const reviews = selectReviews(parseReviewCorpus(i.reviewCorpus ?? corpus).entries, i.crowd);
+  sources.push(...reviewSources(reviews));
+
   const p = synthesisPrompt({ frameNotes, crowd: i.crowd, gameText: i.gameText, sources, tuningKeys: [...i.tuningKeys], frameTimes: i.frameTimes });
   // One retry when the answer is not JSON: the vision call and the searches are the expensive part and are already done.
   let raw: unknown;
@@ -56,7 +64,7 @@ export async function runAdvisor(i: AdvisorInput): Promise<AdvisorResult> {
       if (attempt >= 2) throw new Error("the synthesis model did not return JSON");
     }
   }
-  const v = validateRecommendations(raw, { frameCount: i.frames.length, crowd: i.crowd, sources, tuningKeys: i.tuningKeys, gameText: i.gameText });
+  const v = validateRecommendations(raw, { frameCount: i.frames.length, crowd: i.crowd, sources, reviews, tuningKeys: i.tuningKeys, gameText: i.gameText });
 
   return {
     frameNotes, frameTimes: i.frameTimes, sources,
