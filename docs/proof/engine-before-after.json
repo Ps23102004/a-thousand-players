@@ -1,0 +1,326 @@
+{
+ "command": "node scripts/proof-table.mjs",
+ "note": "Same seed and persona; before = recorded build rules (fix flags 0), after = shipped game.",
+ "perCluster": {
+  "bug1": {
+   "rounds": 8,
+   "bugBefore": 8,
+   "bugAfter": 0
+  },
+  "bug2": {
+   "rounds": 4,
+   "bugBefore": 4,
+   "bugAfter": 0
+  },
+  "bug3": {
+   "rounds": 3,
+   "bugBefore": 3,
+   "bugAfter": 0
+  },
+  "bug4": {
+   "rounds": 1,
+   "bugBefore": 1,
+   "bugAfter": 0
+  }
+ },
+ "rows": [
+  {
+   "cluster": "bug1",
+   "key": "p0009:3",
+   "seed": 822230,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 16.68
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 16.32
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0069:1",
+   "seed": 678098,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 24.9
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 9.45
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0111:3",
+   "seed": 509784,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 26.15
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 9.63
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0129:3",
+   "seed": 689759,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 23.67
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 24.42
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0306:4",
+   "seed": 594319,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 12.33
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 11.28
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0355:2",
+   "seed": 278329,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 18.13
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 8.72
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0744:3",
+   "seed": 360604,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "loss",
+    "t": 19.72
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 17.02
+   }
+  },
+  {
+   "cluster": "bug1",
+   "key": "p0027:1",
+   "seed": 255412,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne"
+    ],
+    "out": "win",
+    "t": 24.58
+   },
+   "after": {
+    "bugs": [],
+    "out": "win",
+    "t": 14.1
+   }
+  },
+  {
+   "cluster": "bug2",
+   "key": "p0537:1",
+   "seed": 634310,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne",
+     "oob",
+     "softlock"
+    ],
+    "out": "loss",
+    "t": 99
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 10.67
+   }
+  },
+  {
+   "cluster": "bug2",
+   "key": "p0731:2",
+   "seed": 497239,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne",
+     "oob",
+     "softlock"
+    ],
+    "out": "loss",
+    "t": 99
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 12.97
+   }
+  },
+  {
+   "cluster": "bug2",
+   "key": "p0537:1",
+   "seed": 634310,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne",
+     "oob",
+     "softlock"
+    ],
+    "out": "loss",
+    "t": 99
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 10.67
+   }
+  },
+  {
+   "cluster": "bug2",
+   "key": "p0731:2",
+   "seed": 497239,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "airborne",
+     "oob",
+     "softlock"
+    ],
+    "out": "loss",
+    "t": 99
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 12.97
+   }
+  },
+  {
+   "cluster": "bug3",
+   "key": "p0233:2",
+   "seed": 901214,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "crash"
+    ],
+    "out": "draw",
+    "t": 11.32
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 11.37
+   }
+  },
+  {
+   "cluster": "bug3",
+   "key": "p0611:1",
+   "seed": 163831,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "crash"
+    ],
+    "out": "draw",
+    "t": 19.2
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 20.35
+   }
+  },
+  {
+   "cluster": "bug3",
+   "key": "p0754:2",
+   "seed": 529346,
+   "crowd": "sweep-nerf",
+   "before": {
+    "bugs": [
+     "crash"
+    ],
+    "out": "draw",
+    "t": 12.78
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 15.58
+   }
+  },
+  {
+   "cluster": "bug4",
+   "key": "p0653:2",
+   "seed": 529060,
+   "crowd": "base",
+   "before": {
+    "bugs": [
+     "airborne",
+     "stuck",
+     "softlock"
+    ],
+    "out": "loss",
+    "t": 99
+   },
+   "after": {
+    "bugs": [],
+    "out": "loss",
+    "t": 19.53
+   }
+  }
+ ]
+}

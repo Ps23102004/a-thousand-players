@@ -108,6 +108,10 @@ The Advisor can also cite public review quotes from a committed corpus of 12 sho
 - **ReproBot fresh-play** (`docs/reprobot.md`, `data/reprobot/results.json`, block on `/modes/repro`): a Nano-driven player tried to reproduce the example bug report in new play. The 40-call Nano budget ran out after 2 rounds started (1 completed), 0 reproduced, 68 cache hits, 0 fallbacks. INCONCLUSIVE: too few rounds to say anything about how often it works.
 - **Tutorial Director page `/modes/onboarding`** (`docs/tutor.md`, `data/tutor/results.json`): a struggle table computed from the recorded run (casual players: 5.9% round win rate, 97% quit) and 3 onboarding aids drafted by one Nemotron Super call, each measured with the Patch Prophet paired crowd (200 personas, 1 round, seed 1): overall wins of 200 before to after: 66 to 75, 66 to 69, 66 to 60; casual wins of 39: 5 to 9, 5 to 8, 5 to 5. One seed, within noise, round 1 only, quit model not re-simulated, no real new players. It shows what changes in win rates, not that any tip teaches anything.
 
+## Proof of the fixes
+
+`docs/PROOF.md` shows, for each of the four bug clusters, the same seed and player replayed with the recorded build (bug shows) and with the shipped game (clean), as frames from the real 3D replay plus engine numbers: 16 flagged rounds replayed (8 of bug1's 21, all of bug2, bug3 and bug4), bug events with the recorded build 16 of 16, with the shipped game 0 of 16. Regenerate with `node scripts/proof-table.mjs`. Replays of known seeds, not a proof of absence.
+
 ## What is not done
 
 - **Patch Prophet runs a sample.** The first 200 recorded personas, one round each, are not the full crowd or a randomized sample. Two seeds do not establish statistical significance or human preference.

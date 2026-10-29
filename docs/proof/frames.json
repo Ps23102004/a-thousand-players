@@ -1,0 +1,70 @@
+{
+ "generated": "scripts/proof-gallery.ts",
+ "base": "http://localhost:3150",
+ "bugs": [
+  {
+   "id": "bug1",
+   "signature": "airborne",
+   "count": 21,
+   "key": "p0009:3",
+   "seed": 822230,
+   "label": "base",
+   "times": [
+    14.1,
+    16.6,
+    16.7
+   ],
+   "beforeFrames": true,
+   "afterFrames": true,
+   "image": "docs/proof/bug1-before-after.jpg"
+  },
+  {
+   "id": "bug2",
+   "signature": "oob+airborne+softlock",
+   "count": 4,
+   "key": "p0537:1",
+   "seed": 634310,
+   "label": "base",
+   "times": [
+    11.3,
+    13.8,
+    15.3
+   ],
+   "beforeFrames": true,
+   "afterFrames": true,
+   "image": "docs/proof/bug2-before-after.jpg"
+  },
+  {
+   "id": "bug3",
+   "signature": "crash:RuntimeError: unreachable in throwProp (props.js:303)",
+   "count": 3,
+   "key": "p0233:2",
+   "seed": 901214,
+   "label": "sweep-nerf",
+   "times": [
+    8.8,
+    11.3,
+    11.3
+   ],
+   "beforeFrames": true,
+   "afterFrames": true,
+   "image": "docs/proof/bug3-before-after.jpg"
+  },
+  {
+   "id": "bug4",
+   "signature": "stuck:KNOCKDOWN+airborne+softlock",
+   "count": 1,
+   "key": "p0653:2",
+   "seed": 529060,
+   "label": "base",
+   "times": [
+    16,
+    18.5,
+    20
+   ],
+   "beforeFrames": true,
+   "afterFrames": true,
+   "image": "docs/proof/bug4-before-after.jpg"
+  }
+ ]
+}
