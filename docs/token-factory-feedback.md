@@ -6,7 +6,7 @@ Written by the A Thousand Players team (Parth, Aman, Aashna) after building on T
 
 Tools covered: (a) Nebius Token Factory, (b) Nemotron Nano, (c) Nemotron Super, (d) Nemotron Super-VL, (e) Nemotron Ultra. A short Tavily note is at the end (Tavily is not a Nebius or NVIDIA tool, but the app calls it at runtime).
 
-**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md`, `docs/team/CREDITS-AND-PROGRAM.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing. `[PARTH/LEAD: confirm live routes hosted]` marks claims about the hosted app that need a live click-through first.
+**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md`, `docs/team/CREDITS-AND-PROGRAM.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing. `` marks claims about the hosted app that need a live click-through first.
 
 Model ids as sent to Token Factory (`ai/models.ts`): `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL`, `nvidia/Nemotron-3-Ultra-550b-a55b`.
 
@@ -16,7 +16,7 @@ Model ids as sent to Token Factory (`ai/models.ts`): `nvidia/NVIDIA-Nemotron-3-N
 
 ### 1. What we used it for
 
-Every model call in the project: persona generation, the crowd report, bug triage, exploit search, Repro, Balance, Eyes and the Design Advisor. One small `fetch` client (`ai/models.ts`) calls the OpenAI-compatible chat completions endpoint `https://api.tokenfactory.nebius.com/v1/chat/completions` for all four models. In the hosted app Token Factory is meant to serve Repro and Balance (Super), Eyes and the Advisor (Super-VL, Super) and live Triage (Ultra). [PARTH/LEAD: confirm live routes hosted]
+Every model call in the project: persona generation, the crowd report, bug triage, exploit search, Repro, Balance, Eyes and the Design Advisor. One small `fetch` client (`ai/models.ts`) calls the OpenAI-compatible chat completions endpoint `https://api.tokenfactory.nebius.com/v1/chat/completions` for all four models. In the hosted app Token Factory serves Repro and Balance (Super), Eyes and the Advisor (Super-VL, Super) and live Triage (Ultra).
 
 ### 2. What worked
 
@@ -155,7 +155,7 @@ Yes, we would build with it again, as a description aid next to a deterministic 
 ### 1. What we used it for
 
 - **The crowd report.** One call read a summary of all 1000 players and 2,831 rounds (220,334 prompt tokens, 4,439 out) and returned 8 findings, each with structured claims and seeds (`data/run-main/findings.json`). Settings: thinking off, temperature 0.2, `max_tokens` 12000, answer in one fenced JSON block (`ai/README.md`).
-- **Bug triage.** Ultra reads a 10 Hz timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a patch. In the hosted app, **Triage this (Ultra)** makes one call of about 27K prompt tokens (up to two calls per click). The Ultra call took 2.6 to 6.0 s in the three recorded live runs and the whole click 4.9 to 7.1 s (`docs/evidence/triage-live/`); the page itself tells users to expect about 20-40 s. [PARTH/LEAD: confirm live routes hosted] Code applies the patch to a temp copy and replays the seed; the replay decides the verdict (`README.md`).
+- **Bug triage.** Ultra reads a 10 Hz timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a patch. In the hosted app, **Triage this (Ultra)** makes one call of about 27K prompt tokens (up to two calls per click). The Ultra call took 2.6 to 6.0 s in the three recorded live runs and the whole click 4.9 to 7.1 s (`docs/evidence/triage-live/`); the page itself tells users to expect about 20-40 s. Code applies the patch to a temp copy and replays the seed; the replay decides the verdict (`README.md`).
 
 ### 2. What worked
 
@@ -186,7 +186,7 @@ Yes, we would build with it again, for reading a large structured corpus in one 
 
 ## Tavily (not a Nebius or NVIDIA tool; called at runtime)
 
-- **Used for:** (live in the hosted app: [PARTH/LEAD: confirm live routes hosted]) the **Find precedent** button on a Repro match (one search, developer sites only, top 3 writeups) and the Design Advisor (3 searches per run). The server words every query; nothing comes from the client (`ai/precedent.ts`, `README.md`).
+- **Used for:** (live in the hosted app:) the **Find precedent** button on a Repro match (one search, developer sites only, top 3 writeups) and the Design Advisor (3 searches per run). The server words every query; nothing comes from the client (`ai/precedent.ts`, `README.md`).
 - **Measured:** 7 searches took about 4.5 s in total with 4 in flight, at basic depth, 4 results, keep 3 (`ai/README.md`).
 - **Needs work:** results are sometimes off-topic (`docs/team/aashna/README.md`), and the topic phrase at the start of the query steers the results far more than the suffix does (`ai/precedent.ts` comment, tuned live on 2026-10-28).
 - **Onboarding:** one API key, one search call from `ai/precedent.ts`. The credit source is the $25 Builder Program Tavily credit (`docs/team/CREDITS-AND-PROGRAM.md`, 2026-10-29). On 2026-10-28 Tavily ran only offline from the command line, and the first precedent links were off-topic (build log). The query was then reworded and tuned live the same day (commit `25e72c8`, 14:41 -0400) and the page now labels the results "unreviewed search results".

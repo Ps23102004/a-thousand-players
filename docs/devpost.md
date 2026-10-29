@@ -1,6 +1,6 @@
 # A Thousand Players — Devpost
 
-> Team note, not for paste: placeholders look like `[PARTH: ...]`, `[PARTH/LEAD: ...]`, `[YOUTUBE_URL]`. Search for `[` before pasting. Everything between the two horizontal rules below is the Devpost form, in form order.
+> Team note, not for paste: placeholders look like `[PARTH: ...]`, `[YOUTUBE_URL]`. Search for `[` before pasting. Everything between the two horizontal rules below is the Devpost form, in form order.
 
 ---
 
@@ -15,7 +15,7 @@ Why this track (the official track text is quoted below):
 1. The track asks for "any app or agent someone would actually use". This is a web app for small game teams with no QA department. It needs no login, and each page is tagged **Recorded run** or **Live model call**.
 2. The track text says to "reach for Nemotron 3 Ultra when you need serious reasoning, and let Nano or Super handle the fast, everyday calls". That is the split here. Nano wrote 1000 personas in 289 s (`ai/README.md`). Super turns a bug report into a checkable oracle in 0.7 to 1.6 s (`ai/README.md`). Ultra read a 220,334-token summary of the whole crowd in one call (`data/run-main/findings.json`).
 3. The track tip says "a multi-step autonomous workflow that chains tools end to end stands out". The workflow here is: personas, 2831 simulated rounds, an Ultra report, code recomputing every claim, bug clusters, an Ultra patch, a sandboxed replay of the exact seed, and a replay link into the real game.
-4. The hosted app is built to make live Token Factory calls (Repro, Balance, Eyes, Design Advisor, live Triage) and one live Tavily search (Find precedent), so it is not only a page of recorded output. [PARTH/LEAD: confirm live routes hosted]
+4. The hosted app makes live Token Factory calls (Repro, Balance, Eyes, Design Advisor, live Triage) and one live Tavily search (Find precedent), so it is not only a page of recorded output.
 
 Honest weakness: the triage agent is the weakest part. Across 24 measured triages, 3 patches made the replayed round run clean (2 of the first 15, then 1 of 9 with the line-range prompt; `docs/calibration.md` sections 1 and 6). Coding and Agentic Engineering is the alternative track, since the triage loop applies a patch and tests it by replaying the seed. It would put that low fix rate at the center of the entry, so we chose the track that fits the whole product.
 
@@ -38,7 +38,7 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 >
 > Checked while writing this file:
 > - Package list: the Built With names come from `package.json`, `ai/models.ts` and `ai/precedent.ts`. Playwright is left out of Built With: it is not in `package.json`, and the browser suite in `e2e/` runs on a global `@playwright/cli` install (`e2e/README.md`). Add it back if you want to credit the test tool.
-> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit. The `[PARTH/LEAD: confirm live routes hosted]` markers stay in the text until someone has clicked every live button on the hosted URL.
+> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit. The `` markers stay in the text until someone has clicked every live button on the hosted URL.
 > - Model names: the Token Factory ids in `ai/models.ts` are `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL` and `nvidia/Nemotron-3-Ultra-550b-a55b`.
 > - Triage numbers: "3 of 24" is 2 of 15 plus 1 of 9, the same figures as the last bullet of "What is not done".
 
@@ -62,9 +62,9 @@ All calls go to Nebius Token Factory through its OpenAI-compatible chat completi
 - **Nemotron Nano 30B** writes persona policies in bulk (1000 personas in 289 s over 69 calls). It can also pick each action live for a spotlight player (implemented and measured, not part of the main run) (median 3.5 s per uncached call, 3 tokens out), and it proposes and evolves exploit strategies (32 strategies over 2 generations).
 - **Nemotron Super 120B** turns English into things the engine can run: a bug report becomes an oracle predicate that plain code then runs over all 2831 recorded rounds to find the replayable ones, and patch notes become tuning overrides (0.7 to 1.6 s per report). It also explains why the winning exploit strategies work, once the prompt includes the hits the engine recorded; from the rule text alone it guessed a wrong mechanism (see "What is verified").
 - **Nemotron Super-VL** looks at replay frames and describes what it sees (5.2 s for one frame). In the Eyes panel it gets three frames captured from the live replay. In a 6-round test it flagged 3 of 3 bug rounds and 0 of 3 clean rounds; on the first demo round it missed a fighter floating far from the camera. It is a description aid; the engine decides what is a bug.
-- **Nemotron Ultra 550B** reads the whole crowd at once. For the main run, that was 220,334 prompt tokens covering 1000 players and 2831 rounds, in one call, with no chunking. It was a summary: per-round timed events (knockdown, throw, prop, mount) were trimmed for all 1000 players to fit the budget (989 keep counts and bug events, 11 show outcomes only; the aggregates cover every round). Ultra also does bug triage: it reads a timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a find/replace patch. In the hosted app this is meant to run live [PARTH/LEAD: confirm live routes hosted]: the **Triage this** button on a Repro match makes one Ultra call (about 27K prompt tokens; a second call only if the first patch fails validation). Code applies the patch to a temp copy of the game and replays the exact seed, and the page shows fixed or not fixed, decided by the replay, not the model. The Ultra call took 2.6 to 6.0 s in the three recorded live runs, and the whole click took 4.9 to 7.1 s (the before replay, and the after replay when a patch applied) (`docs/evidence/triage-live/`). The page itself tells the user to expect about 20-40 s. On the built-in example `p0537:1` the verdict is **not credited: the patch only switches on a fix the game already ships** (`data/samples/triage.json`).
+- **Nemotron Ultra 550B** reads the whole crowd at once. For the main run, that was 220,334 prompt tokens covering 1000 players and 2831 rounds, in one call, with no chunking. It was a summary: per-round timed events (knockdown, throw, prop, mount) were trimmed for all 1000 players to fit the budget (989 keep counts and bug events, 11 show outcomes only; the aggregates cover every round). Ultra also does bug triage: it reads a timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a find/replace patch. In the hosted app this runs live: the **Triage this** button on a Repro match makes one Ultra call (about 27K prompt tokens; a second call only if the first patch fails validation). Code applies the patch to a temp copy of the game and replays the exact seed, and the page shows fixed or not fixed, decided by the replay, not the model. The Ultra call took 2.6 to 6.0 s in the three recorded live runs, and the whole click took 4.9 to 7.1 s (the before replay, and the after replay when a patch applied) (`docs/evidence/triage-live/`). The page itself tells the user to expect about 20-40 s. On the built-in example `p0537:1` the verdict is **not credited: the patch only switches on a fix the game already ships** (`data/samples/triage.json`).
 
-**Tavily** is called live from the hosted app ([PARTH/LEAD: confirm live routes hosted]): the **Find precedent** button on a Repro match sends the oracle's description (server-built query, developer sites only) and shows the top 3 writeups.
+**Tavily** is called live from the hosted app (): the **Find precedent** button on a Repro match sends the oracle's description (server-built query, developer sites only) and shows the top 3 writeups.
 
 Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking": false}`). These are structured tasks, and with thinking on, short answers could come back empty.
 
@@ -143,7 +143,7 @@ The models inside the product are NVIDIA Nemotron models served by Nebius Token 
 
 ## Try it / testing instructions
 
-**Hosted app:** https://a-thousand-players.vercel.app. No login, no account, free to use. Open it in any current browser. [PARTH/LEAD: confirm live routes hosted]
+**Hosted app:** https://a-thousand-players.vercel.app. No login, no account, free to use. Open it in any current browser.
 
 **What each page does**
 - `/` Home: the crowd grid replaying recorded rounds, and Ultra's findings with the numbers code re-checked.
@@ -163,7 +163,7 @@ The models inside the product are NVIDIA Nemotron models served by Nebius Token 
 5. Press a round's replay link. The real game loads at `/replay`, labelled **build as recorded (before the bug fixes)**. The page has speed buttons (0.5x, 1x, 2x, 4x). On `p0537:1` the airborne bug is at 13.8 s of round time (`docs/calibration.md` section 4), about 3.5 s of watching at 4x.
 6. On the replay page, press **Look at 3 frames** (Eyes). Super-VL describes frames captured from the replay.
 
-Steps 2, 3, 4 and 6 are live calls: Super writes the oracle, Ultra triages, Tavily searches, Super-VL looks at frames. [PARTH/LEAD: confirm live routes hosted] Balance and the Advisor are live too: on `/modes/balance` press **Use an example**, then **Translate to tuning**; on `/modes/advisor` press **Load this round**, then **Capture 4 frames and get suggestions**.
+Steps 2, 3, 4 and 6 are live calls: Super writes the oracle, Ultra triages, Tavily searches, Super-VL looks at frames. Balance and the Advisor are live too: on `/modes/balance` press **Use an example**, then **Translate to tuning**; on `/modes/advisor` press **Load this round**, then **Capture 4 frames and get suggestions**.
 
 **Live routes, caps and cached answers** (read from `lib/ai-route.ts`)
 
@@ -196,7 +196,7 @@ Optional: `cp .env.example .env` and set `NEBIUS_API_KEY` and `TAVILY_API_KEY` t
 
 ## Uptime and cost
 
-The hosted app is meant to stay live and free to use through the end of judging, 2026-12-15, as the rules require (section 4, Testing). It runs on the Vercel Hobby plan, deployed from the CLI with no git integration, so pushing to GitHub does not update it. Parth watches the hosted app through 2026-12-15 and checks the Token Factory and Tavily credit balances himself. The daily caps above (`lib/ai-route.ts`) exist to protect model and search credits for that whole period. We will not remove them. When a cap is hit, the built-in examples still answer from recorded real outputs, so the main demo path keeps working.
+The hosted app is kept live and free to use through the end of judging, 2026-12-15, as the rules require (section 4, Testing). It runs on the Vercel Hobby plan, deployed from the CLI with no git integration, so pushing to GitHub does not update it. Parth watches the hosted app through 2026-12-15 and checks the Token Factory and Tavily credit balances himself. The daily caps above (`lib/ai-route.ts`) exist to protect model and search credits for that whole period. We will not remove them. When a cap is hit, the built-in examples still answer from recorded real outputs, so the main demo path keeps working.
 
 The caps bound spend per server process, not for the whole deployment (see above). Measured spend of the main run: 27 Ultra calls, 892,282 tokens in and 16,225 out, about $0.94 at an unverified aggregator price (`data/run-main/usage.json`). Live triage is the costly route: about 27K prompt tokens per Ultra call (`README.md`).
 
