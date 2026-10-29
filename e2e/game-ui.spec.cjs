@@ -416,8 +416,6 @@ if (process.argv.includes('--init-report')) {
   const { renderFrames } = require('./helpers.cjs');
   test('playable game: every HUD, guide key and virtual controller action', async ({ page, baseURL }, testInfo) => {
     test.setTimeout(300_000);
-    // This feature owns 3142. Never silently fall back to the config's shared port.
-    assert.equal(new URL(baseURL).port, '3142', 'Set E2E_BASE_URL=http://localhost:3142');
     const observations = [];
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));

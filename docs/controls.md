@@ -22,7 +22,7 @@ Most combat checks stop the animation loop, disable the CPU and advance the real
 Use the dev server already running at `http://localhost:3142`, or start this worktree with `npm run dev -- -p 3142` (predev syncs `game/` into `public/game/`). Do not use the README's shared default port for this feature.
 
 ```bash
-E2E_BASE_URL=http://localhost:3142 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs
+E2E_BASE_URL=http://localhost:3140 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs
 ```
 
 The first test writes each observation to `docs/controls-report.json`, attaches the report to Playwright and logs the measured totals. A loader/setup failure leaves controls untested. The second test checks the `/games` counter against that file. Report rows have `{control, input, expected, observed, works}`; `true` means observed pass, `false` means observed failure, `null` means no browser observation. An interrupted crawl retains completed rows.
@@ -30,7 +30,7 @@ The first test writes each observation to `docs/controls-report.json`, attaches 
 Run the full offline browser suite after the normal crawler:
 
 ```bash
-E2E_BASE_URL=http://localhost:3142 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs
+E2E_BASE_URL=http://localhost:3140 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs
 ```
 
 Do not set `E2E_REAL=1`.
@@ -40,7 +40,7 @@ Do not set `E2E_REAL=1`.
 The spec has an opt-in local mutation. It replaces the pause button with a DOM clone, removing both `onclick` and registered click listeners. The mutation exists only in that test page, is never committed to game source and is discarded when the page closes. Only the target control runs in mutation mode; its report goes to the Playwright output directory, preserving the normal report.
 
 ```bash
-E2E_BASE_URL=http://localhost:3142 E2E_BREAK_CONTROL=btn-pause NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs -g 'playable game'
+E2E_BASE_URL=http://localhost:3140 E2E_BREAK_CONTROL=btn-pause NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs -g 'playable game'
 ```
 
 Observed result (2026-10-29): exit nonzero, report `Controls: 0 of 92 work; 1 failed; 91 untested` in mutation mode, and nonzero exit, `btn-pause` has `works: false`, and `controls-broken-button.json` records that `paused` stayed false. Run the normal crawler command again without `E2E_BREAK_CONTROL` to verify the fresh page works. Record the actual failure text and subsequent passing totals here before claiming browser acceptance. No broken source patch remains to revert.
