@@ -6,8 +6,9 @@ This replaces the voice-over column of `docs/video-script.md` for the cut. The s
 
 ## Speaking pace
 
-- 360 words over 2:52.9 of video: **125 words per minute** overall, 134 wpm inside the spoken windows. A relaxed demo read is 130 to 150 wpm, so there is room to breathe.
+- About 375 words over 2:52.9 of video: **125 words per minute** overall, 134 wpm inside the spoken windows. A relaxed demo read is 130 to 150 wpm, so there is room to breathe.
 - The fastest lines are 171 wpm ("It also caught 13 seeds Ultra made up." and "The recorded hits say sweep, then pin..."). If a line runs long, drop its last clause rather than speeding up.
+- **Needs a rebuild:** the Models line now carries the required audible Nebius + NVIDIA call-out (about 28 words) but its window is 7.5 s, which is about 220 wpm. The cut has about 7 s of headroom under the 3:00 limit: lengthen the Models scene by 3 to 4 s in `footage/cut/build.sh`, or shorten the line to "Four Nemotron models on Nebius Token Factory. Nano writes, Super translates, Ultra reads, Super-VL looks. Code checks all." Also make the end card say "Runs on Nebius Token Factory with NVIDIA Nemotron".
 - Every window ends at least 0.2 s before the next starts. Pauses at scene changes are intentional.
 
 ## Narration
@@ -19,7 +20,7 @@ A Thousand Players.
 I built a fighting game for a class. Then a thousand synthetic players played nine and a half hours of it, and found where it breaks.
 
 **[0:14.2–0:31.3] Terminal**
-Nemotron Nano wrote a thousand player personas. A headless copy of the real game plays them. Here it runs about 2,800 rounds in fourteen seconds, on a twelve-core Mac. The recorded run has 2,831 rounds.
+On Nebius Token Factory, Nemotron Nano wrote a thousand player personas. A headless copy of the real game plays them. Here it runs about 2,800 rounds in fourteen seconds, on a twelve-core Mac. The recorded run has 2,831 rounds.
 
 **[0:31.8–0:49.4] Findings**
 Then Nemotron Ultra read a summary of all 2,831 rounds in one call: 220 thousand tokens. It wrote eight findings. Code recomputed each of its 31 number claims from the raw data. All 31 matched. It also caught 13 seeds Ultra made up.
@@ -43,7 +44,7 @@ Repro: type a bug report in plain English. Super turns it into a check the engin
 Eyes sends three frames to Super-VL, a vision model. On this round, it missed the floating fighter the engine caught. So it describes. It does not decide.
 
 **[2:34.7–2:42.2] Models**
-Nano writes players. Super turns English into checks. Ultra reads everything. Super-VL looks. Code checks all of it.
+Four NVIDIA Nemotron models, all on Nebius Token Factory. Nano writes players. Super turns English into checks. Ultra reads everything. Super-VL looks. Code checks all of it.
 
 **[2:42.7–2:49.2] Limits**
 The limits: the players are synthetic. And findings are samples, not proof.

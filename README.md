@@ -12,7 +12,7 @@ Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Braw
 
 ## Contents
 
-[Start here](#start-here-two-minutes) · [Quick start](#quick-start) · [How it works](#how-it-works) · [What it does](#what-it-does) · [Screenshots](#screenshots) · [Results](#results-from-the-main-run) · [Honest limits](#honest-limits) · [Model roles](#model-roles) · [Design Advisor](#design-advisor-modesadvisor) · [Testing](#testing) · [Running it](#running-it) · [Layout](#layout) · [License](#license)
+[Team docs](docs/team/README.md) · [Start here](#start-here-two-minutes) · [Quick start](#quick-start) · [How it works](#how-it-works) · [What it does](#what-it-does) · [Screenshots](#screenshots) · [Results](#results-from-the-main-run) · [Honest limits](#honest-limits) · [Model roles](#model-roles) · [Design Advisor](#design-advisor-modesadvisor) · [Testing](#testing) · [Running it](#running-it) · [Layout](#layout) · [License](#license)
 
 ## Quick start
 
@@ -119,6 +119,15 @@ All numbers below come from files in `data/run-main/`.
 Captures 4 frames of one recorded round, has Nemotron Super-VL describe the visual design (lighting, readability, camera, clutter), builds a crowd evidence table with code (quit and win rate by archetype, the round-2 to round-3 drop, the sweep nerf, bug counts, the CPU low-block rule), reads the game's own text, runs 3 Tavily searches limited to developer and design sites (the server words the queries; nothing from the client), and makes one Nemotron Super call (thinking off) that writes at most 6 recommendations as JSON. Code then checks each recommendation. It drops one that cites a web URL that was not a search result, and removes a citation to a crowd row that does not exist or a frame number out of range (a recommendation with no evidence left is dropped). It also drops one with an onboarding or dialogue suggestion that has no verbatim quote from the game text, a tuning key that does not exist, or a "viral", "trending" or "popular" claim not found in a source it cites. The call is made once; a second Super call happens only if the first answer is not JSON.
 
 **Limits.** Nothing is trained, and there is no viral or player-preference dataset. The output is cited suggestions, not measurements: test gameplay ones with the crowd (each names a tuning key) and visual ones with people. Code checks that evidence exists, not that it is relevant to the suggestion. The frames are the 3D canvas only (no HUD) and are taken before the round's first engine-detected bug. The crowd is simulated players. Only run on Market Brawl. When rate limited (20 a day), the built-in round p0396:1 (a clean round) gets a recorded real answer, marked cached (`data/samples/advisor.json`).
+
+## Built on Nebius Token Factory and NVIDIA Nemotron
+
+Every model call in this project goes through the **Nebius Token Factory** inference API (OpenAI-compatible, `ai/models.ts`) and uses an **NVIDIA Nemotron** model. Nothing else serves a model: no HuggingFace, no OpenRouter.
+
+- **Runtime calls in the hosted app:** Repro and Balance (Nemotron Super), Eyes (Super-VL), Design Advisor (Super-VL and Super), live Triage (Ultra). Tavily is called at runtime by "Find precedent" on Repro and by the Design Advisor.
+- **Offline calls that produced the recorded data:** Nano (1000 personas, exploit strategies), Ultra (the report and bug triage).
+- **Where Token Factory sped the work up** (measured, `docs/token-factory-feedback.md`): Nano wrote 1000 personas in 289 s with 16 requests in flight; one Ultra call read the whole 220,334-token crowd summary where a chunked pipeline would otherwise be needed; one small client covered four models including image input; one setting (`enable_thinking: false`) turned reasoning off on all four.
+- **Other Nebius tools:** none. We did not use Nebius AI Cloud, Serverless Jobs or Endpoints, or DevPods; the web app is hosted outside Nebius (Vercel), which the rules allow because the model calls run on Token Factory.
 
 ## Model roles
 
@@ -261,6 +270,7 @@ data/        run outputs (run-main is the main 1000-player run)
 adapters/    the crowd harness on two other games (Homeground, Clean Getaway) and how to add one
 e2e/         Playwright browser suite
 scripts/     game sync, recorded-replay check
+docs/team/   team guide for Aman (research, legal) and Aashna (engineering, testing): requirements checked against the official rules, license fact sheet, final-day runbook
 docs/        design, Devpost text, Token Factory feedback, judge and calibration reports, video narration (media/ holds the README images)
 ```
 
