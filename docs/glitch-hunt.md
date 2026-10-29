@@ -1,0 +1,7 @@
+# Glitch Hunter
+
+The batch has not been run. The recorded base run contains only 10 rounds with the requested invariant types, so the required 20 flagged rounds cannot currently be selected. The command stops before capture until the sample source is resolved. The engine is the detector and vision is a second opinion; a small sample and camera distance limit what the frames can show.
+
+Start the app on port 3143, then run `npx tsx ai/cli/glitch-hunt.ts --dry-run` to print the deterministic selection and capture frames to a temporary directory without calling a model. The lead can run `npx tsx ai/cli/glitch-hunt.ts --seed 1` to capture the batch and call `nvidia/Nemotron-3.5-Super-VL` once per round, with no automatic retries. This writes results and a measured table here. For offline fakes, `--results-from <file>` accepts a JSON object mapping every selected round key to an answer string; fake results are explicitly labeled and are not measurements.
+
+The prompt asks: “Do these frames visibly show a physically impossible fighter position or motion, such as floating, clipping into scenery, being outside the arena, or being frozen? Answer YES or NO first, then briefly explain only what is visible.” Answers not starting with YES or NO count as misses and are reported. Controls are matched by archetype and duration; per-type false alarms use the corresponding matched controls. A clean round has no recorded invariant event, which does not prove no bug exists.
