@@ -1,5 +1,6 @@
 {
-  "placeholder": true,
+  "placeholder": false,
+  "source": "model",
   "struggleTable": [
     {
       "archetype": "casual",
@@ -90,5 +91,488 @@
       "medianRound2Seconds": 13.625
     }
   ],
-  "aids": []
+  "aids": [
+    {
+      "aid": {
+        "title": "Master Your First Combo",
+        "playerFacingText": "Tap J four times quickly: jab → cross → hook → uppercut.",
+        "rationale": "Casual players struggle with combo execution (only 5.9% win rate). Lowering jab startup and recovery makes chaining easier while increasing damage and hit stop improves feedback on successful hits, encouraging practice of the basic 4-punch chain described in controls.",
+        "archetype": "casual",
+        "tuningOverrides": {
+          "anim.JAB.damage": 15,
+          "anim.JAB.startup": 0.05,
+          "anim.JAB.active": 0.12,
+          "anim.JAB.recovery": 0.22,
+          "anim.JAB.hitStop": 4,
+          "anim.JAB.reach": 1.2,
+          "anim.JAB.drive": 1.5
+        }
+      },
+      "measurement": {
+        "tuning": {
+          "anim.JAB.active": 0.12,
+          "anim.JAB.damage": 15,
+          "anim.JAB.drive": 1.5,
+          "anim.JAB.hitStop": 4,
+          "anim.JAB.reach": 1.2,
+          "anim.JAB.recovery": 0.22,
+          "anim.JAB.startup": 0.05
+        },
+        "baselineTuning": {
+          "rules.mountReleaseFix": 0,
+          "rules.throwPropGuard": 0,
+          "rules.grabReleaseFix": 0,
+          "rules.knockdownOnPropFix": 0
+        },
+        "personas": 200,
+        "roundsEach": 1,
+        "seed": 1,
+        "before": {
+          "rounds": 200,
+          "wins": 66,
+          "winRate": 0.33,
+          "bugRounds": 1,
+          "byArchetype": [
+            {
+              "archetype": "casual",
+              "rounds": 39,
+              "wins": 5,
+              "winRate": 0.1282051282051282,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "cheeser",
+              "rounds": 23,
+              "wins": 21,
+              "winRate": 0.9130434782608695,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "explorer",
+              "rounds": 13,
+              "wins": 7,
+              "winRate": 0.5384615384615384,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "learner",
+              "rounds": 23,
+              "wins": 2,
+              "winRate": 0.08695652173913043,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "masher",
+              "rounds": 36,
+              "wins": 9,
+              "winRate": 0.25,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "rusher",
+              "rounds": 33,
+              "wins": 14,
+              "winRate": 0.42424242424242425,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "speedrunner",
+              "rounds": 10,
+              "wins": 7,
+              "winRate": 0.7,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "turtle",
+              "rounds": 23,
+              "wins": 1,
+              "winRate": 0.043478260869565216,
+              "bugRounds": 1
+            }
+          ]
+        },
+        "after": {
+          "rounds": 200,
+          "wins": 75,
+          "winRate": 0.375,
+          "bugRounds": 0,
+          "byArchetype": [
+            {
+              "archetype": "casual",
+              "rounds": 39,
+              "wins": 9,
+              "winRate": 0.23076923076923078,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "cheeser",
+              "rounds": 23,
+              "wins": 21,
+              "winRate": 0.9130434782608695,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "explorer",
+              "rounds": 13,
+              "wins": 6,
+              "winRate": 0.46153846153846156,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "learner",
+              "rounds": 23,
+              "wins": 2,
+              "winRate": 0.08695652173913043,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "masher",
+              "rounds": 36,
+              "wins": 11,
+              "winRate": 0.3055555555555556,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "rusher",
+              "rounds": 33,
+              "wins": 16,
+              "winRate": 0.48484848484848486,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "speedrunner",
+              "rounds": 10,
+              "wins": 7,
+              "winRate": 0.7,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "turtle",
+              "rounds": 23,
+              "wins": 3,
+              "winRate": 0.13043478260869565,
+              "bugRounds": 0
+            }
+          ]
+        },
+        "wallMs": 12857
+      }
+    },
+    {
+      "aid": {
+        "title": "Practice Sidestepping to Create Openings",
+        "playerFacingText": "Press Q or V to sidestep deeper or nearer to the screen and find your opening.",
+        "rationale": "Casual players have low round2Count (159) suggesting few survive past first round. Increasing jab reach slightly helps compensate for positioning errors when learning sidesteps, making it easier to hit evasive rivals and encouraging use of the Q/V sidestep mechanic mentioned in controls.",
+        "archetype": "casual",
+        "tuningOverrides": {
+          "anim.JAB.reach": 1.3
+        }
+      },
+      "measurement": {
+        "tuning": {
+          "anim.JAB.reach": 1.3
+        },
+        "baselineTuning": {
+          "rules.mountReleaseFix": 0,
+          "rules.throwPropGuard": 0,
+          "rules.grabReleaseFix": 0,
+          "rules.knockdownOnPropFix": 0
+        },
+        "personas": 200,
+        "roundsEach": 1,
+        "seed": 1,
+        "before": {
+          "rounds": 200,
+          "wins": 66,
+          "winRate": 0.33,
+          "bugRounds": 1,
+          "byArchetype": [
+            {
+              "archetype": "casual",
+              "rounds": 39,
+              "wins": 5,
+              "winRate": 0.1282051282051282,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "cheeser",
+              "rounds": 23,
+              "wins": 21,
+              "winRate": 0.9130434782608695,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "explorer",
+              "rounds": 13,
+              "wins": 7,
+              "winRate": 0.5384615384615384,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "learner",
+              "rounds": 23,
+              "wins": 2,
+              "winRate": 0.08695652173913043,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "masher",
+              "rounds": 36,
+              "wins": 9,
+              "winRate": 0.25,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "rusher",
+              "rounds": 33,
+              "wins": 14,
+              "winRate": 0.42424242424242425,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "speedrunner",
+              "rounds": 10,
+              "wins": 7,
+              "winRate": 0.7,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "turtle",
+              "rounds": 23,
+              "wins": 1,
+              "winRate": 0.043478260869565216,
+              "bugRounds": 1
+            }
+          ]
+        },
+        "after": {
+          "rounds": 200,
+          "wins": 69,
+          "winRate": 0.345,
+          "bugRounds": 1,
+          "byArchetype": [
+            {
+              "archetype": "casual",
+              "rounds": 39,
+              "wins": 8,
+              "winRate": 0.20512820512820512,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "cheeser",
+              "rounds": 23,
+              "wins": 21,
+              "winRate": 0.9130434782608695,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "explorer",
+              "rounds": 13,
+              "wins": 5,
+              "winRate": 0.38461538461538464,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "learner",
+              "rounds": 23,
+              "wins": 3,
+              "winRate": 0.13043478260869565,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "masher",
+              "rounds": 36,
+              "wins": 9,
+              "winRate": 0.25,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "rusher",
+              "rounds": 33,
+              "wins": 13,
+              "winRate": 0.3939393939393939,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "speedrunner",
+              "rounds": 10,
+              "wins": 8,
+              "winRate": 0.8,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "turtle",
+              "rounds": 23,
+              "wins": 2,
+              "winRate": 0.08695652173913043,
+              "bugRounds": 1
+            }
+          ]
+        },
+        "wallMs": 12939
+      }
+    },
+    {
+      "aid": {
+        "title": "Learn to Guard Effectively",
+        "playerFacingText": "Hold away from your rival to guard and reduce incoming damage by 80%.",
+        "rationale": "Casual players have a 97% quit rate, often due to feeling overwhelmed. Reducing guard damage multiplier further (from 0.2 to 0.15) increases protection during blocking, giving new players more safety to learn timing without excessive punishment, addressing their low win rate.",
+        "archetype": "casual",
+        "tuningOverrides": {
+          "rules.guardDamageMultiplier": 0.15
+        }
+      },
+      "measurement": {
+        "tuning": {
+          "rules.guardDamageMultiplier": 0.15
+        },
+        "baselineTuning": {
+          "rules.mountReleaseFix": 0,
+          "rules.throwPropGuard": 0,
+          "rules.grabReleaseFix": 0,
+          "rules.knockdownOnPropFix": 0
+        },
+        "personas": 200,
+        "roundsEach": 1,
+        "seed": 1,
+        "before": {
+          "rounds": 200,
+          "wins": 66,
+          "winRate": 0.33,
+          "bugRounds": 1,
+          "byArchetype": [
+            {
+              "archetype": "casual",
+              "rounds": 39,
+              "wins": 5,
+              "winRate": 0.1282051282051282,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "cheeser",
+              "rounds": 23,
+              "wins": 21,
+              "winRate": 0.9130434782608695,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "explorer",
+              "rounds": 13,
+              "wins": 7,
+              "winRate": 0.5384615384615384,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "learner",
+              "rounds": 23,
+              "wins": 2,
+              "winRate": 0.08695652173913043,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "masher",
+              "rounds": 36,
+              "wins": 9,
+              "winRate": 0.25,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "rusher",
+              "rounds": 33,
+              "wins": 14,
+              "winRate": 0.42424242424242425,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "speedrunner",
+              "rounds": 10,
+              "wins": 7,
+              "winRate": 0.7,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "turtle",
+              "rounds": 23,
+              "wins": 1,
+              "winRate": 0.043478260869565216,
+              "bugRounds": 1
+            }
+          ]
+        },
+        "after": {
+          "rounds": 200,
+          "wins": 60,
+          "winRate": 0.3,
+          "bugRounds": 1,
+          "byArchetype": [
+            {
+              "archetype": "casual",
+              "rounds": 39,
+              "wins": 5,
+              "winRate": 0.1282051282051282,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "cheeser",
+              "rounds": 23,
+              "wins": 21,
+              "winRate": 0.9130434782608695,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "explorer",
+              "rounds": 13,
+              "wins": 7,
+              "winRate": 0.5384615384615384,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "learner",
+              "rounds": 23,
+              "wins": 2,
+              "winRate": 0.08695652173913043,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "masher",
+              "rounds": 36,
+              "wins": 7,
+              "winRate": 0.19444444444444445,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "rusher",
+              "rounds": 33,
+              "wins": 11,
+              "winRate": 0.3333333333333333,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "speedrunner",
+              "rounds": 10,
+              "wins": 6,
+              "winRate": 0.6,
+              "bugRounds": 0
+            },
+            {
+              "archetype": "turtle",
+              "rounds": 23,
+              "wins": 1,
+              "winRate": 0.043478260869565216,
+              "bugRounds": 1
+            }
+          ]
+        },
+        "wallMs": 13039
+      }
+    }
+  ],
+  "proposed": 3,
+  "dropped": {
+    "duplicate": 0,
+    "invalidTuning": 0,
+    "invalidAid": 0,
+    "excess": 0
+  },
+  "wallMs": 42909
 }
