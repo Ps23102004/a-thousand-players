@@ -1,0 +1,94 @@
+{
+  "placeholder": true,
+  "struggleTable": [
+    {
+      "archetype": "casual",
+      "players": 200,
+      "rounds": 440,
+      "wins": 26,
+      "winRate": 0.05909090909090909,
+      "quits": 194,
+      "quitRate": 0.97,
+      "round2Count": 159,
+      "medianRound2Seconds": 9.95
+    },
+    {
+      "archetype": "cheeser",
+      "players": 100,
+      "rounds": 299,
+      "wins": 276,
+      "winRate": 0.9230769230769231,
+      "quits": 6,
+      "quitRate": 0.06,
+      "round2Count": 98,
+      "medianRound2Seconds": 16.855
+    },
+    {
+      "archetype": "explorer",
+      "players": 80,
+      "rounds": 253,
+      "wins": 81,
+      "winRate": 0.3201581027667984,
+      "quits": 48,
+      "quitRate": 0.6,
+      "round2Count": 77,
+      "medianRound2Seconds": 11.22
+    },
+    {
+      "archetype": "learner",
+      "players": 120,
+      "rounds": 361,
+      "wins": 55,
+      "winRate": 0.1523545706371191,
+      "quits": 103,
+      "quitRate": 0.8583333333333333,
+      "round2Count": 117,
+      "medianRound2Seconds": 10.28
+    },
+    {
+      "archetype": "masher",
+      "players": 160,
+      "rounds": 404,
+      "wins": 108,
+      "winRate": 0.26732673267326734,
+      "quits": 132,
+      "quitRate": 0.825,
+      "round2Count": 147,
+      "medianRound2Seconds": 10.48
+    },
+    {
+      "archetype": "rusher",
+      "players": 160,
+      "rounds": 424,
+      "wins": 177,
+      "winRate": 0.41745283018867924,
+      "quits": 115,
+      "quitRate": 0.71875,
+      "round2Count": 144,
+      "medianRound2Seconds": 10.02
+    },
+    {
+      "archetype": "speedrunner",
+      "players": 60,
+      "rounds": 180,
+      "wins": 117,
+      "winRate": 0.65,
+      "quits": 17,
+      "quitRate": 0.2833333333333333,
+      "round2Count": 58,
+      "medianRound2Seconds": 9.185
+    },
+    {
+      "archetype": "turtle",
+      "players": 120,
+      "rounds": 470,
+      "wins": 51,
+      "winRate": 0.10851063829787234,
+      "quits": 93,
+      "quitRate": 0.775,
+      "round2Count": 120,
+      "medianRound2Seconds": 13.625
+    }
+  ],
+  "aids": []
+}
