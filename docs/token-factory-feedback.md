@@ -6,7 +6,7 @@ Written by the A Thousand Players team after building on Token Factory for the N
 
 - **The OpenAI-compatible endpoint just worked.** One small `fetch` client (`ai/models.ts`) covers Nano, Super, Ultra and Super-VL. Images go to Super-VL as `image_url` data URLs, with no special API.
 - **One switch turns thinking off on all four models.** `chat_template_kwargs: {"enable_thinking": false}` worked on Nano, Super, Ultra and Super-VL. A one-line JSON answer took 11 completion tokens and under 0.8 s on Super, Ultra and VL.
-- **Ultra's long context is the reason this project works.** On the main run, one call read the 1000-player corpus (2,831 rounds) of 220,334 prompt tokens and returned 8 findings with 4,439 tokens out. On a separate planted fixture (2,556 rounds, 224.4K prompt tokens, answered in 16.7 s) it found all four planted stories, including the single sweep-spamming player out of 1000. No chunking strategy could see patterns across players like that.
+- **Ultra's long context is the reason this project works.** On the main run, one call read the 1000-player corpus (2,831 rounds) of 220,334 prompt tokens and returned 8 findings with 4,439 tokens out. On a separate planted fixture (2,556 rounds, 224.4K prompt tokens, answered in 16.7 s) it found all four planted stories, including the single sweep-spamming player out of 1000.
 - **Nano is fast enough for bulk work.** 1000 personas in 289 s over 69 calls (29.7K in / 183.5K out tokens), with 16 calls in flight.
 - **Super is reliable for structured translation.** Bug report to oracle predicate in 0.7 to 1.6 s; patch notes to tuning overrides (with an 82-key table in the prompt) in 1.3 s.
 

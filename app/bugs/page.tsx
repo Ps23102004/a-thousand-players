@@ -45,7 +45,7 @@ function BugCard({ b }: { b: BugView }) {
         {b.isRealBug === false && <span className="chip chip-warn">not a real bug</span>}
         <span className="chip">{b.signature}</span>
         <span className="chip">{b.count} rounds hit it</span>
-        {b.confidence !== undefined && <span className="chip">confidence {Math.round(b.confidence * 100)}%</span>}
+        {b.confidence !== undefined && <span className="chip" title="Ultra's own number. Measured against replay verdicts it carries no signal (docs/calibration.md); the replay verdict is what counts.">Ultra states {Math.round(b.confidence * 100)}% (uncalibrated)</span>}
       </div>
       <h2 id={`${b.id}-title`} style={{ fontSize: "1.2rem" }}>{b.title}</h2>
 

@@ -26,7 +26,7 @@ export default function FindingCard({ f }: { f: Finding }) {
       <p>{f.narrative}</p>
 
       <div>
-        <div className="label">Claims</div>
+        <div className="label">Numbers checked by code (the title and prose are Ultra's and are not checked)</div>
         <ul className="chips" style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {f.claims.map((c, i) => {
             const v = f.verified?.find((x) => x.claim.metric === c.metric && JSON.stringify(x.claim.scope) === JSON.stringify(c.scope));

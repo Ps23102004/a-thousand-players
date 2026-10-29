@@ -55,13 +55,13 @@ export default function Home() {
           <h2 id="findings-title">What Ultra found</h2>
           {findings && (
             <p className="lede mono" style={{ fontSize: "0.8rem" }}>
-              {findings.model} · read {findings.corpusTokens.toLocaleString("en-US")} tokens of logs in one call
+              {findings.model} · read {findings.tokensIn.toLocaleString("en-US")} prompt tokens of logs in one call
             </p>
           )}
         </div>
         {findings ? (
           <>
-            <p className="lede" style={{ marginBottom: 20, color: "var(--text)" }}>{findings.summary}</p>
+            <p className="lede" style={{ marginBottom: 20, color: "var(--text)" }}><span className="chip" style={{ marginRight: 8 }}>Ultra&apos;s summary, prose not checked</span>{findings.summary}</p>
             <p className="lede" style={{ marginBottom: 20, fontSize: "0.9rem" }}>
               Green claims were recomputed from the raw runs by code and match within tolerance. Amber claims were not checked or did not match.
             </p>
