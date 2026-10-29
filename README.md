@@ -1,8 +1,49 @@
 # A Thousand Players
 
-A crowd of Nemotron-driven synthetic players plays your browser game by the thousand, finds where it breaks, and backs every finding with a seed you can replay in the real game.
+> A crowd of Nemotron-driven synthetic players plays your browser game by the thousand, finds where it breaks, and backs every finding with a seed you can replay in the real game.
 
-Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied into `game/` with two small changes (a rules file for tuning, and a mount-release fix that can be switched off). All models run on Nebius Token Factory.
+![Demo: the crowd, the findings, a replayed bug, live triage](docs/media/demo-preview.gif)
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests-134%20engine%20%2B%20251%20TS%20%2B%2080%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
+
+**Demo video (3 min):** link added at submission. **Live demo:** link added at submission. A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
+
+Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, a student's CSCI 310 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, four bug fixes that can each be switched off so recorded rounds still replay as recorded, and an optional CPU low-block rule (off). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/`. All models run on Nebius Token Factory; Tavily does the web search.
+
+## Contents
+
+[Start here](#start-here-two-minutes) · [Quick start](#quick-start) · [How it works](#how-it-works) · [What it does](#what-it-does) · [Screenshots](#screenshots) · [Results](#results-from-the-main-run) · [Honest limits](#honest-limits) · [Model roles](#model-roles) · [Design Advisor](#design-advisor-modesadvisor) · [Testing](#testing) · [Running it](#running-it) · [Layout](#layout) · [License](#license)
+
+## Quick start
+
+```bash
+git clone <this repo> && cd <this repo>
+npm ci
+cp .env.example .env        # optional: add NEBIUS_API_KEY and TAVILY_API_KEY for the live model calls
+npm run dev                 # http://localhost:3000   (predev syncs the game into public/)
+```
+
+Without keys the app still runs: every recorded page works and the live routes answer "not configured". `npm test` runs the whole suite offline.
+
+## How it works
+
+```mermaid
+flowchart LR
+  P[Nemotron Nano<br/>writes 1000 personas] --> C[Headless deterministic engine<br/>60 Hz, seeded, 11 workers]
+  C --> R[(Recorded rounds<br/>events + seeds)]
+  R --> U[Nemotron Ultra<br/>reads a summary of all rounds]
+  U --> F[Findings]
+  F --> V{Code recomputes<br/>every number}
+  R --> B[Invariant checks<br/>cluster bugs]
+  B --> T[Ultra proposes a patch]
+  T --> Y{Engine replays the exact seed<br/>sandboxed, no network}
+  R --> Q[Super: bug report to oracle]
+  Q --> M[Code matches rounds,<br/>replay link]
+  M --> L[Browser replay of the real game]
+  M --> E[Super-VL on frames, Tavily precedent]
+```
+
+Models propose; code checks. Every number on a finding is recomputed from the raw runs, and every fix verdict comes from replaying the exact seed, never from the model's own confidence.
 
 ## Start here (two minutes)
 
@@ -28,6 +69,16 @@ Small game teams that have no QA department: a crowd of synthetic players finds 
 7. **Eyes.** On any replay page, a button captures three frames from the embedded 3D game (around the round's first bug event, if it has one), shrinks them to 640 px JPEGs and asks Nemotron Super-VL what it sees. It is a description aid: the engine's invariant checks decide what counts as a bug.
 8. **Balance.** Patch notes in plain English become tuning values, checked against each value's allowed range (Super, live). Replaying the crowd with them is a command-line step; one recorded example is on the page.
 9. **Replay.** Any round can be re-run in the real 3D game in the browser from its seed. The recorded rounds predate the mount-release fix (`rules.mountReleaseFix`), so their links carry that setting off and the replay shows the bug as recorded; 45 of 45 sampled recorded rounds, including the three crash rounds, replay event for event that way (`node scripts/check-recorded-replays.mjs`).
+
+## Screenshots
+
+| Findings and the crowd | Bugs and fix verdicts |
+|---|---|
+| ![Home](docs/media/home.jpg) | ![Bugs](docs/media/bugs.jpg) |
+| **Repro: bug report to replayable rounds** | **Replay: the real game shows the bug** |
+| ![Repro](docs/media/repro.jpg) | ![Replay](docs/media/replay-bug.jpg) |
+| **Design Advisor (cited suggestions)** | **Three games** |
+| ![Advisor](docs/media/advisor.jpg) | ![Games](docs/media/games.jpg) |
 
 ## Results from the main run
 
@@ -126,6 +177,17 @@ Every Repro match has a **Triage this (Ultra)** button, the one place the hosted
 
 Limits: one seed and no regression crowd, so "fixed" means that one round runs clean. Ultra's answer varies between calls: on the two known bug2 seeds it fixed one (a crate-clearance check at mount release) and missed the other; on bug4 its live root cause was wrong and the replay said so. The rate limit and daily cap of the other model routes apply.
 
+## Testing
+
+```bash
+npm test                 # engine (node:test) + library, AI and API tests (tsx), all offline with fake model endpoints
+npx tsc --noEmit -p .    # types
+node scripts/check-recorded-replays.mjs   # recorded rounds replay event for event with the recorded-build rules
+npm run engine:test      # determinism: same seed twice gives identical hashes
+```
+
+Browser end-to-end suite (Playwright, about 80 tests over every page, replay, forms, phone width and accessibility): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Test counts: 134 engine, 251 TypeScript, 80 browser. A fresh clone installs, passes all of them and builds.
+
 ## Running it
 
 Requires Node.js. Install once:
@@ -191,12 +253,15 @@ Only Market Brawl implements it today.
 ## Layout
 
 ```
-game/        Market Brawl (two small changes: tuning rules, mount-release fix)
+game/        Market Brawl (tuning rules and four switchable bug fixes)
 engine/      headless deterministic sim, crowd runner, bug detection, fix verification
 ai/          Nemotron layer (Token Factory client, personas, report, verification, triage, exploit)
 app/ components/ lib/   Next.js web app
 data/        run outputs (run-main is the main 1000-player run)
-docs/        design, Devpost text, Token Factory feedback
+adapters/    the crowd harness on two other games (Homeground, Clean Getaway) and how to add one
+e2e/         Playwright browser suite
+scripts/     game sync, recorded-replay check
+docs/        design, Devpost text, Token Factory feedback, judge and calibration reports, video narration (media/ holds the README images)
 ```
 
 ## License
