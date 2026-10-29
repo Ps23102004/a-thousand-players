@@ -2,7 +2,7 @@
 
 Written 2026-10-28 (Wednesday), about 42 hours before the Nebius x NVIDIA deadline (Fri 2026-10-30 10:00 PT). This is the second judging round. The first is `docs/judge-panel.md` (6.1/10). This round was asked to be harsher. It is read-only: no source was edited, nothing was committed, `.env` was not read, and the only paid calls were the judge calls listed below.
 
-Scope: `HEAD` is `4f303f2`. The working tree also holds uncommitted work from other sessions running at the same time (`adapters/`, `ai/cli/calibrate-*.ts`, `docs/generality.md`, edits to `MatchRow.tsx` and `FindingCard.tsx`). Scores judge `HEAD`. Where that parallel work changes a finding, the section says so.
+Scope: `HEAD` is `7a05a6c`. The working tree also holds uncommitted work from other sessions running at the same time (`adapters/`, `ai/cli/calibrate-*.ts`, `docs/generality.md`, edits to `MatchRow.tsx` and `FindingCard.tsx`). Scores judge `HEAD`. Where that parallel work changes a finding, the section says so.
 
 ---
 
@@ -137,7 +137,7 @@ That makes four model families that actually ran: Anthropic (2), OpenAI, Google.
 | K7 | `docs/video-script.md:27` "Tavily: Precedent for each finding's fix" | Runtime Tavily runs only on Repro matches (`docs/devpost.md:24`); the home cards say "No calls recorded in this run" (`footage/manifest.md:27`). |
 | K8 | `docs/token-factory-feedback.md:9` "No chunking strategy could see patterns across players like that" | No chunked baseline was ever run. Untested. |
 | K9 | `README.md:22` "Nano writes 1000 player personas" | `data/run-main/usage.json`: Nano has 3 calls and 1,849 tokens in. The 69-call persona run is not logged (acknowledged at `docs/devpost.md:40`, but the model panel still undercounts). |
-| K10 | Live triage verdict chip "not credited: the patch only switches on a fix the game already ships" | It sits above the grey line "'fixed' means this one round runs clean…" (`footage/manifest.md:20`). Commit `4f303f2` says it now shows that caveat only under a fixed verdict (`MatchRow.tsx:88`), so this is fixed at `HEAD` but still visible in footage clip `08-repro.v3.mp4`. |
+| K10 | Live triage verdict chip "not credited: the patch only switches on a fix the game already ships" | It sits above the grey line "'fixed' means this one round runs clean…" (`footage/manifest.md:20`). Commit `7a05a6c` says it now shows that caveat only under a fixed verdict (`MatchRow.tsx:88`), so this is fixed at `HEAD` but still visible in footage clip `08-repro.v3.mp4`. |
 
 Round 1's C1 to C9 are mostly fixed (the bug2 chip, Balance wording, spotlight wording, feedback numbers). K1 to K9 are new or left over.
 

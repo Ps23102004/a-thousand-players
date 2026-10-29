@@ -30,7 +30,8 @@ export function validateTriageBody(body: unknown): { p: string; round: number } 
 
 export class TriageError extends Error {
   /** modelCalled: the error came after an Ultra call was sent, so the call counts against the rate limit. */
-  constructor(public status: number, message: string, public modelCalled = false) { super(message); }
+  /** free: the error was raised before any replay or model call, so the caller's rate-limit unit may be refunded. Nothing else is refundable. */
+  constructor(public status: number, message: string, public modelCalled = false, public free = false) { super(message); }
 }
 
 // ---------- concurrency ----------
@@ -137,7 +138,7 @@ export const LIVE_ATTEMPTS = 2;
 export async function triageRound({ run, persona, tuning, sameSignature }: TriageInput, { root = process.cwd(), ask = triageBug, timeoutMs = 40_000, replayTimeoutMs = 30_000 }: TriageDeps = {}): Promise<TriageLiveResult> {
   const t0 = Date.now();
   const firstBug = run.ev.find(isBug);
-  if (!firstBug) throw new TriageError(422, "This round has no invariant violation to triage.");
+  if (!firstBug) throw new TriageError(422, "This round has no invariant violation to triage.", false, true);
   const job: RoundJob = { seed: run.seed, fighter: fighterFor(run.p), tuning, persona };
 
   // 1. Shipped game, recorded tuning: the baseline bug count plus the 10 Hz window around the first bug event (as engine/bugs.mjs).

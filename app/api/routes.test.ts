@@ -87,13 +87,13 @@ test("aiRoute: 400 on bad JSON, missing, blank or non-string field; 413 over 400
   assert.deepEqual((await send(echo, req({ text: "  hi  " }))).json, { got: "hi" });
 });
 
-test("aiRoute: 502 with a generic message when run throws; 501 for a not-implemented stub", async () => {
+test("aiRoute: 502 with a generic message when run throws, whatever the error text says", async () => {
   const boom = await send((r) => aiRoute(r, "text", async () => { throw new Error("secret upstream detail"); }, { route: "echo" }), req({ text: "x" }));
   assert.equal(boom.status, 502);
   assert.equal(boom.json.error, "The model call failed. Try again in a minute.");
   assert.ok(!JSON.stringify(boom.json).includes("secret"), "internal error text is not leaked");
   const stub = await send((r) => aiRoute(r, "text", async () => { throw new Error("bugReportToOracle: not implemented"); }, { route: "echo" }), req({ text: "x" }));
-  assert.equal(stub.status, 501);
+  assert.equal(stub.status, 502, "error text never changes the response class");
   const str = await send((r) => aiRoute(r, "text", async () => { throw "a string"; }, { route: "echo" }), req({ text: "x" }));
   assert.equal(str.status, 502);
 });
@@ -283,16 +283,21 @@ test("A5: repro, balance and eyes return 503 'not configured' with no NEBIUS_API
   } finally { process.env.NEBIUS_API_KEY = key; }
 });
 
-test("A6: calls that never reach a model (503 no key, 501 stub) do not use the caller's limit", async () => {
+test("A6: calls that never reach a model (503 no key) do not use the caller's limit", async () => {
   const ip = freshIp();
   const key = process.env.NEBIUS_API_KEY;
   delete process.env.NEBIUS_API_KEY;
   try { for (let i = 0; i < 15; i++) assert.equal((await send(echo, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 503); }
   finally { process.env.NEBIUS_API_KEY = key; }
-  const stub = (r: Request) => aiRoute(r, "text", async () => { throw new Error("not implemented"); }, { route: "echo" });
-  for (let i = 0; i < 15; i++) assert.equal((await send(stub, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 501);
   for (let i = 0; i < 10; i++) assert.equal((await send(echo, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 200, `real call ${i + 1}`);
   assert.equal((await send(echo, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 429);
+});
+
+test("security: a failure whose message says 'not implemented' is never refunded, so error text cannot buy free calls", async () => {
+  const ip = freshIp();
+  const crafted = (r: Request) => aiRoute(r, "text", async () => { throw new Error("model said: not implemented"); }, { route: "echo" });
+  for (let i = 0; i < 10; i++) assert.equal((await send(crafted, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 502, `call ${i + 1}`);
+  assert.equal((await send(crafted, req({ text: "x" }, { "x-forwarded-for": ip }))).status, 429, "the 11th is limited: none of the failures was refunded");
 });
 
 test("roast 7: Eyes on the sample round (p0537 round 1, default question) gets the recorded answer when rate limited", async () => {

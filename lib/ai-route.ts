@@ -94,12 +94,8 @@ export async function aiRoute<T>(req: Request, field: string, run: (text: string
   } catch (e) {
     // The model judged the input off-topic (e.g. not a bug report): a user problem with a reason, not a server failure.
     if (e instanceof RejectedInput) return Response.json({ error: `The model did not accept this input: ${e.message.slice(0, 300)}` }, { status: 422 });
-    const message = e instanceof Error ? e.message : String(e);
-    if (/not implemented/i.test(message)) {
-      refund(req, opts.route);
-      return Response.json({ error: "This mode's model call is not wired up yet (the AI layer is still a stub). Nothing was sent to a model." }, { status: 501 });
-    }
-    console.error("ai route failed:", message);
+    // No refund and no special status from the error text: it can carry model output, so it must not decide anything about the limit.
+    console.error("ai route failed:", e instanceof Error ? e.message : String(e));
     return Response.json({ error: "The model call failed. Try again in a minute." }, { status: 502 });
   }
 }

@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("triage route failed:", message);
     if (e instanceof TriageError) {
-      if (!e.modelCalled) refund(req, "triage");
+      if (e.free) refund(req, "triage"); // only errors raised before any replay or model call; CPU-heavy work stays counted
       return Response.json({ error: message }, { status: e.status });
     }
     return Response.json({ error: "Triage stopped before a verdict. Try again in a minute." }, { status: 500 });

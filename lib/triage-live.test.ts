@@ -181,3 +181,15 @@ test("live triage gives Ultra two attempts, so a patch that fails validation get
   await assert.rejects(triageRound(input, { ask: spy as never }), (e: TriageError) => e.status === 502 && /2 tries/.test(e.message) && !/no retry/.test(e.message));
   assert.equal(opts?.attempts, 2);
 });
+
+test("security: only an error that cost nothing is refundable; a replay that already ran stays counted", async () => {
+  const input = { run: bug4, persona: personas.get("p0653")!, tuning: RECORDED, sameSignature: [bug4] };
+  // The round shows no bug when replayed with today's game (no recorded rules): the CPU-heavy baseline replay ran, then it stopped.
+  const clean = await triageRound({ ...input, tuning: { "rules.knockdownOnPropFix": 1 } }, { ask: ask({}) }).then(() => null, (e: TriageError) => e);
+  assert.ok(clean instanceof TriageError && clean.status === 409, "did not reproduce");
+  assert.equal(clean.free, false, "a replay ran, so the call is not refundable");
+  assert.equal(clean.modelCalled, false);
+  const noBug = await triageRound({ ...input, run: { ...bug4, ev: [[1, "hit", 0]] } }, { ask: ask({}) }).then(() => null, (e: TriageError) => e);
+  assert.equal(noBug?.status, 422);
+  assert.equal(noBug?.free, true, "refused before any replay: nothing was spent");
+});
