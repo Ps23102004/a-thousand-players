@@ -1,4 +1,483 @@
 {
-  "placeholder": true,
-  "results": []
+  "placeholder": false,
+  "seed": 1,
+  "model": "nvidia/Nemotron-3.5-Super-VL",
+  "prompt": "Do these frames visibly show a physically impossible fighter position or motion, such as floating, clipping into scenery, being outside the arena, or being frozen? Answer YES or NO first, then briefly explain only what is visible.",
+  "source": "model",
+  "results": [
+    {
+      "key": "p0537:1",
+      "seed": 634310,
+      "truth": "flagged",
+      "types": [
+        "airborne",
+        "oob",
+        "softlock"
+      ],
+      "archetype": "casual",
+      "duration": 99,
+      "times": [
+        11.3,
+        13.8,
+        15.3
+      ],
+      "answer": "YES\n\nImage 1 shows a fighter lying on the ground with a large cardboard box overlapping their torso and legs, which appears to be clipping into the character's body. The other two images show an empty arena with no fighters visible, so no impossible positions can be assessed there."
+    },
+    {
+      "key": "p0731:2",
+      "seed": 497239,
+      "truth": "flagged",
+      "types": [
+        "airborne",
+        "oob",
+        "softlock"
+      ],
+      "archetype": "casual",
+      "duration": 99,
+      "times": [
+        9.5,
+        12,
+        13.5
+      ],
+      "answer": "YES\n\nIn the first two frames, the fighter in the red and black outfit is visibly floating in mid-air above the other fighter, with no visible support beneath his feet. In the third frame, the camera has pulled back to show the arena, and the fighters are no longer visible in the frame."
+    },
+    {
+      "key": "p0653:2",
+      "seed": 529060,
+      "truth": "flagged",
+      "types": [
+        "airborne",
+        "stuck",
+        "softlock"
+      ],
+      "archetype": "cheeser",
+      "duration": 99,
+      "times": [
+        16,
+        18.5,
+        20
+      ],
+      "answer": "YES\n\nThe frames show a fighter being kicked into a cardboard box, with their body partially inside it and legs sticking out. This is a physically impossible position for a human body to occupy in that manner, as the box is too small to contain the fighter's torso and head while their legs extend outward in that configuration. The fighter appears to be clipping into or fused with the box geometry."
+    },
+    {
+      "key": "p0009:3",
+      "seed": 822230,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "turtle",
+      "duration": 16.68,
+      "times": [
+        14.1,
+        16.6,
+        16.7
+      ],
+      "answer": "YES\n\nIn the first frame, one fighter is standing on a box while the other is lying on the floor. In the second and third frames, the fighter who was on the floor is now standing on the arena floor, while the other fighter remains standing on the box. The transition between frames shows an abrupt change in position without visible motion, which could indicate a physically impossible instantaneous movement or a replay cut."
+    },
+    {
+      "key": "p0129:3",
+      "seed": 689759,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "cheeser",
+      "duration": 23.67,
+      "times": [
+        13.6,
+        16.1,
+        17.6
+      ],
+      "answer": "YES\n\nThe frames show one fighter standing on the shoulders of another fighter, which is a physically impossible position in a real street fight. The top fighter is elevated high above the ground, supported only by the bottom fighter's hands/shoulders, defying normal human balance and strength limits."
+    },
+    {
+      "key": "p0744:3",
+      "seed": 360604,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "learner",
+      "duration": 19.72,
+      "times": [
+        10.7,
+        13.2,
+        14.7
+      ],
+      "answer": "NO\n\nThe frames show two fighters in a street fighting game. In the first frame, one fighter stands on a cardboard box while the other stands on the floor. In the second frame, the fighter who was on the box is now airborne above the other fighter, who remains on the floor. In the third frame, the airborne fighter has landed on top of the other fighter, who is lying on the ground. All positions and motions appear physically possible within the context of a fighting game, with no visible floating, clipping into scenery, being outside the arena, or freezing."
+    },
+    {
+      "key": "p0069:1",
+      "seed": 678098,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "turtle",
+      "duration": 24.9,
+      "times": [
+        8.6,
+        11.1,
+        12.6
+      ],
+      "answer": "YES\n\nIn the first frame, one fighter is standing on a small box while grappling with another fighter, which is an unusual but not necessarily impossible position. However, in the second and third frames, the same fighter is seen running away from the camera and moving toward the background railing. In the third frame, the fighter appears to be running directly toward or through the railing/barrier in the background, which would constitute clipping into scenery or moving outside the intended arena boundary."
+    },
+    {
+      "key": "p0355:2",
+      "seed": 278329,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "learner",
+      "duration": 18.13,
+      "times": [
+        14.1,
+        16.6,
+        18.1
+      ],
+      "answer": "YES\n\nIn the first two frames, the fighter in the red and black outfit is visibly floating in mid-air above the arena floor, with no visible support beneath their feet. This is a physically impossible position. In the third frame, both fighters are standing on the ground and appear to be in a normal fighting stance."
+    },
+    {
+      "key": "p0111:3",
+      "seed": 509784,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "turtle",
+      "duration": 26.15,
+      "times": [
+        15.5,
+        18,
+        19.5
+      ],
+      "answer": "YES\n\nIn the first frame, one fighter is visibly suspended in mid-air, clinging to a vertical pole or structure high above the ground, while the other fighter stands on the arena floor. This floating position is physically impossible without support. In the subsequent frames, the airborne fighter is no longer visible, having moved out of the frame or disappeared."
+    },
+    {
+      "key": "p0306:4",
+      "seed": 594319,
+      "truth": "flagged",
+      "types": [
+        "airborne"
+      ],
+      "archetype": "explorer",
+      "duration": 12.33,
+      "times": [
+        6.9,
+        9.4,
+        10.9
+      ],
+      "answer": "NO\n\nThe frames show a 3D street fighting game with two fighters in an arena. In the first frame, one fighter stands while the other lies on the ground. In the second, one fighter appears elevated above the other, who is running below. In the third, both fighters stand facing each other in fighting stances. All positions appear consistent with normal gameplay mechanics such as knockdowns, jumps, or movement, and there is no visible floating, clipping into scenery, leaving the arena, or freezing."
+    },
+    {
+      "key": "p0660:3",
+      "seed": 599857,
+      "truth": "clean",
+      "types": [],
+      "archetype": "casual",
+      "duration": 24.27,
+      "matchedTo": "p0537:1",
+      "times": [
+        6.1,
+        12.1,
+        18.2
+      ],
+      "answer": "NO\n\nThe frames show two fighters on a tiled arena floor with spectators behind a railing. In the first frame, one fighter is on the ground while the other is positioned over them near a cardboard box; in the second and third frames, both fighters are standing and appear to be grappling or clinching. All characters remain on the floor within the arena boundaries, and no floating, clipping into scenery, or freezing is visibly apparent."
+    },
+    {
+      "key": "p0626:1",
+      "seed": 904553,
+      "truth": "clean",
+      "types": [],
+      "archetype": "casual",
+      "duration": 22.2,
+      "matchedTo": "p0731:2",
+      "times": [
+        5.6,
+        11.1,
+        16.7
+      ],
+      "answer": "NO\n\nThe frames show two fighters in a fighting game arena. In the first frame, they are standing close together. In the second, they are in fighting stances. In the third, one fighter is knocked down onto the floor next to a box, while the other stands over them. All positions and motions appear physically plausible within the context of a fighting game, with no visible floating, clipping into scenery, being outside the arena, or freezing."
+    },
+    {
+      "key": "p0052:4",
+      "seed": 719067,
+      "truth": "clean",
+      "types": [],
+      "archetype": "cheeser",
+      "duration": 30.6,
+      "matchedTo": "p0653:2",
+      "times": [
+        7.7,
+        15.3,
+        23
+      ],
+      "answer": "NO\n\nThe frames show two fighters grappling on a tiled arena floor with spectators behind a railing. In the first frame, one fighter is on top of the other in a ground position. In the second, they are standing and grappling. In the third, the positions are reversed with the other fighter on top. All motion appears to be normal grappling animation within the arena boundaries; no floating, clipping into scenery, leaving the arena, or freezing is visible."
+    },
+    {
+      "key": "p0135:2",
+      "seed": 531761,
+      "truth": "clean",
+      "types": [],
+      "archetype": "turtle",
+      "duration": 16.68,
+      "matchedTo": "p0009:3",
+      "times": [
+        4.2,
+        8.3,
+        12.5
+      ],
+      "answer": "NO\n\nThe frames show two fighters standing on a tiled arena floor, facing each other in a fighting stance. Their feet are planted on the ground, they are not floating, and they are not clipping into scenery or outside the arena. The background spectators remain stationary behind a railing. The fighters appear to be in normal, physically plausible positions for a fighting game, with no visible freezing or impossible motion."
+    },
+    {
+      "key": "p0417:1",
+      "seed": 405647,
+      "truth": "clean",
+      "types": [],
+      "archetype": "cheeser",
+      "duration": 23.48,
+      "matchedTo": "p0129:3",
+      "times": [
+        5.9,
+        11.7,
+        17.6
+      ],
+      "answer": "NO\n\nThe frames show two fighters in a 3D street fighting game arena. In the first frame, one fighter is on the ground while the other is in a grappling position on top. In the second and third frames, both fighters are standing and appear to be grappling or exchanging blows. All characters remain on the tiled floor within the arena boundaries, with spectators visible behind a railing in the background. There is no visible floating, clipping into scenery, characters outside the arena, or frozen motion."
+    },
+    {
+      "key": "p0710:3",
+      "seed": 890425,
+      "truth": "clean",
+      "types": [],
+      "archetype": "learner",
+      "duration": 19.73,
+      "matchedTo": "p0744:3",
+      "times": [
+        4.9,
+        9.9,
+        14.8
+      ],
+      "answer": "NO\n\nThe frames show two fighters in a clinch or grappling position on a tiled arena floor. Both characters remain grounded with their feet on the surface throughout the sequence. There is no visible floating, clipping into scenery, movement outside the arena, or freezing. The camera angle shifts slightly between frames, but the fighters' positions and the environment appear physically consistent within the game's context."
+    },
+    {
+      "key": "p0938:2",
+      "seed": 297586,
+      "truth": "clean",
+      "types": [],
+      "archetype": "turtle",
+      "duration": 25.18,
+      "matchedTo": "p0069:1",
+      "times": [
+        6.3,
+        12.6,
+        18.9
+      ],
+      "answer": "YES\n\nThe frames show a fighter in a physically impossible position. In the first image, one fighter is lying flat on their back on the floor. In the second and third images, that same fighter is sitting upright on the floor in a stable, chair-like posture with their legs extended forward and back straight, while the other fighter stands over them. This seated position on a flat floor without any visible support is not physically possible for a human body to maintain stably."
+    },
+    {
+      "key": "p0159:2",
+      "seed": 695363,
+      "truth": "clean",
+      "types": [],
+      "archetype": "learner",
+      "duration": 18.15,
+      "matchedTo": "p0355:2",
+      "times": [
+        4.5,
+        9.1,
+        13.6
+      ],
+      "answer": "NO\n\nThe frames show two fighters in a boxing ring with spectators in the background. In the first frame, both fighters stand on the floor in fighting stances. In the second frame, they remain on the floor facing each other. In the third frame, one fighter is knocked down to the floor while the other stands over them. All positions appear physically possible within the context of a fighting game, with no visible floating, clipping into scenery, being outside the arena, or being frozen."
+    },
+    {
+      "key": "p0899:4",
+      "seed": 899482,
+      "truth": "clean",
+      "types": [],
+      "archetype": "turtle",
+      "duration": 26.15,
+      "matchedTo": "p0111:3",
+      "times": [
+        6.5,
+        13.1,
+        19.6
+      ],
+      "answer": "NO\n\nThe frames show two fighters in a fighting game arena. In the first two frames, one fighter is on top of the other in a grappling position on the floor. In the third frame, both fighters are standing and facing each other. All characters remain on the tiled floor within the arena boundaries, with spectators visible behind a railing in the background. No floating, clipping into scenery, leaving the arena, or freezing is visibly apparent."
+    },
+    {
+      "key": "p0046:2",
+      "seed": 884692,
+      "truth": "clean",
+      "types": [],
+      "archetype": "explorer",
+      "duration": 12.32,
+      "matchedTo": "p0306:4",
+      "times": [
+        3.1,
+        6.2,
+        9.2
+      ],
+      "answer": "YES\n\nIn the first frame, the fighter in the red outfit is visibly airborne in a horizontal, floating position, not touching the ground, which is physically impossible for a standing fighter. In the second and third frames, both fighters are on the ground and appear to be in normal fighting stances or contact."
+    }
+  ],
+  "score": {
+    "overall": {
+      "hit": {
+        "yes": 8,
+        "total": 10,
+        "rate": 0.8,
+        "interval": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "unparseable": 0
+      },
+      "falseAlarm": {
+        "yes": 2,
+        "total": 10,
+        "rate": 0.2,
+        "interval": [
+          0.05668215145437519,
+          0.5098375284633583
+        ],
+        "unparseable": 0
+      }
+    },
+    "byType": {
+      "airborne": {
+        "hit": {
+          "yes": 8,
+          "total": 10,
+          "rate": 0.8,
+          "interval": [
+            0.49016247153664183,
+            0.9433178485456247
+          ],
+          "unparseable": 0
+        },
+        "falseAlarm": {
+          "yes": 2,
+          "total": 10,
+          "rate": 0.2,
+          "interval": [
+            0.05668215145437519,
+            0.5098375284633583
+          ],
+          "unparseable": 0
+        }
+      },
+      "oob": {
+        "hit": {
+          "yes": 2,
+          "total": 2,
+          "rate": 1,
+          "interval": [
+            0.34238022750665303,
+            1
+          ],
+          "unparseable": 0
+        },
+        "falseAlarm": {
+          "yes": 0,
+          "total": 2,
+          "rate": 0,
+          "interval": [
+            0,
+            0.6576197724933469
+          ],
+          "unparseable": 0
+        }
+      },
+      "clip": {
+        "hit": {
+          "yes": 0,
+          "total": 0,
+          "rate": 0,
+          "interval": [
+            0,
+            0
+          ],
+          "unparseable": 0
+        },
+        "falseAlarm": {
+          "yes": 0,
+          "total": 0,
+          "rate": 0,
+          "interval": [
+            0,
+            0
+          ],
+          "unparseable": 0
+        }
+      },
+      "stuck": {
+        "hit": {
+          "yes": 1,
+          "total": 1,
+          "rate": 1,
+          "interval": [
+            0.20654931437723745,
+            1
+          ],
+          "unparseable": 0
+        },
+        "falseAlarm": {
+          "yes": 0,
+          "total": 1,
+          "rate": 0,
+          "interval": [
+            0,
+            0.7934506856227626
+          ],
+          "unparseable": 0
+        }
+      },
+      "nan": {
+        "hit": {
+          "yes": 0,
+          "total": 0,
+          "rate": 0,
+          "interval": [
+            0,
+            0
+          ],
+          "unparseable": 0
+        },
+        "falseAlarm": {
+          "yes": 0,
+          "total": 0,
+          "rate": 0,
+          "interval": [
+            0,
+            0
+          ],
+          "unparseable": 0
+        }
+      },
+      "softlock": {
+        "hit": {
+          "yes": 3,
+          "total": 3,
+          "rate": 1,
+          "interval": [
+            0.4385029682449546,
+            1
+          ],
+          "unparseable": 0
+        },
+        "falseAlarm": {
+          "yes": 0,
+          "total": 3,
+          "rate": 0,
+          "interval": [
+            5.551115123125783e-17,
+            0.5614970317550454
+          ],
+          "unparseable": 0
+        }
+      }
+    }
+  }
 }
