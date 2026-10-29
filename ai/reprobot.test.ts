@@ -41,3 +41,55 @@ test('fresh-play display distinguishes placeholder, fake data and high fallbacks
   const html = renderToStaticMarkup(React.createElement(FreshPlay, { results }));
   assert.match(html, /fake/i); assert.match(html, /42/); assert.match(html, /fallback/i); assert.match(html, /not a success rate/i);
 });
+
+test('FreshPlay renders real numbers for planned rounds and derives reproduced count consistently', async () => {
+  const React = await import('react');
+  const { createRequire } = await import('node:module');
+  const { readFileSync } = await import('node:fs');
+  const { renderToStaticMarkup } = createRequire(import.meta.url)('react-dom/server') as { renderToStaticMarkup: (node: import('react').ReactNode) => string };
+  const { FreshPlay } = await import('../app/modes/repro/FreshPlay');
+  const committed = JSON.parse(readFileSync(new URL('../data/reprobot/results.json', import.meta.url), 'utf8'));
+  const html = renderToStaticMarkup(React.createElement(FreshPlay, { results: committed }));
+  assert.ok(html.includes('2 of 20 planned rounds'), `expected "2 of 20 planned rounds" in output, got: ${html}`);
+  assert.doesNotMatch(html, /\{results\./);
+  assert.ok(html.includes('0 of 1 completed fresh rounds'));
+
+  // Consistency: count matched rounds among completed ones
+  const mixed = {
+    ...committed,
+    rounds: [
+      { seed: 2000000, matched: true, tFirstMatch: 1.2, completed: true, nanoCalls: 10, cacheHits: 0, fallbacks: 0 },
+      { seed: 2000001, matched: true, tFirstMatch: 1.5, completed: false, nanoCalls: 10, cacheHits: 0, fallbacks: 0 },
+      { seed: 2000002, matched: false, tFirstMatch: null, completed: true, nanoCalls: 10, cacheHits: 0, fallbacks: 0 },
+    ],
+    reproduced: 999, // Should be derived from completed matched rounds, not trusted blindly
+  };
+  const mixedHtml = renderToStaticMarkup(React.createElement(FreshPlay, { results: mixed }));
+  assert.ok(mixedHtml.includes('1 of 2 completed fresh rounds'));
+});
+
+test('ai/cli/reprobot.ts rejects imported results with matched:true and completed:false', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const { mkdtempSync, writeFileSync, rmSync, readFileSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'reprobot-test-'));
+  try {
+    const committed = JSON.parse(readFileSync(new URL('../data/reprobot/results.json', import.meta.url), 'utf8'));
+    const invalid = {
+      ...committed,
+      rounds: [
+        { seed: 2000000, matched: true, tFirstMatch: 1.2, completed: false, nanoCalls: 10, cacheHits: 0, fallbacks: 0 },
+      ],
+      reproduced: 1,
+      totals: { nanoCalls: 10, cacheHits: 0, fallbacks: 0 },
+    };
+    const file = join(dir, 'invalid.json');
+    writeFileSync(file, JSON.stringify(invalid));
+    const run = spawnSync(process.execPath, ['--import', 'tsx', 'ai/cli/reprobot.ts', '--results-from', file, '--out', join(dir, 'out.json')], { encoding: 'utf8' });
+    assert.equal(run.status, 1);
+    assert.match(run.stderr, /Invalid or inconsistent fresh-play results/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

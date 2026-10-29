@@ -60,7 +60,10 @@ test("explicit committed reviews reach synthesis as review sources; an absent re
   const sources = result.sources.filter((source) => source.kind === "review");
   assert.deepEqual(sources.map((source) => source.review), selected);
   const prompt = calls.filter((call) => call.url.includes("nebius"))[1].body.messages[1].content;
-  for (const entry of selected) assert.ok(prompt.includes(JSON.stringify({ kind: "review", ...entry })));
+  for (const entry of selected) {
+    const { theme, ...rest } = entry;
+    assert.ok(prompt.includes(JSON.stringify({ kind: "review", ...rest, "topic (keyword guess)": theme })));
+  }
   assert.equal(result.recommendations.length, 1);
   assert.equal(result.recommendations[0].evidence[0].type, "review");
   assert.equal(result.proposed, 2);

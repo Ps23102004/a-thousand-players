@@ -9,6 +9,7 @@ test('fresh-play block reflects the committed results', async ({ page }) => {
     await expect(block).toContainText('Not yet run');
   } else {
     await expect(block).toContainText(`${results.reproduced} of ${results.rounds.filter(r => r.completed).length} completed fresh rounds`);
+    await expect(block).toContainText(`${results.rounds.length} of ${results.requestedRounds} planned rounds`);
     await expect(block).toContainText('not a success rate');
     for (const round of results.rounds) await expect(block).toContainText(String(round.seed));
     if (results.model === 'fake') await expect(block).toContainText('fake-model');

@@ -5,9 +5,9 @@ export const REVIEW_THEMES = ["controls", "combat feel", "camera", "difficulty",
 export type ReviewTheme = (typeof REVIEW_THEMES)[number];
 export interface ReviewEntry {
   text: string; url: string; domain: string; query: string; retrievedAt: string;
-  theme: ReviewTheme; sentiment: "liked" | "missed";
+  theme: ReviewTheme;
 }
-export type ReviewCandidate = Omit<ReviewEntry, "theme" | "sentiment">;
+export type ReviewCandidate = Omit<ReviewEntry, "theme">;
 export interface ReviewCorpus { version: 1; placeholder: boolean; entries: ReviewEntry[] }
 export interface SavedSearch { query: string; retrievedAt: string; results: { url: string; content: string }[] }
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -25,13 +25,17 @@ export function reviewDomain(url: string): string | null {
 export function isReviewEntry(v: unknown): v is ReviewEntry {
   return object(v) && nonempty(v.text) && v.text.length <= 300 && nonempty(v.url) && reviewDomain(v.url) === v.domain &&
     nonempty(v.query) && typeof v.retrievedAt === "string" && /^\d{4}-\d\d-\d\dT/.test(v.retrievedAt) && Number.isFinite(Date.parse(v.retrievedAt)) &&
-    REVIEW_THEMES.includes(v.theme as ReviewTheme) && (v.sentiment === "liked" || v.sentiment === "missed");
+    REVIEW_THEMES.includes(v.theme as ReviewTheme);
 }
 
 export function parseReviewCorpus(raw: unknown): ReviewCorpus {
   if (!object(raw) || raw.version !== 1 || typeof raw.placeholder !== "boolean" || !Array.isArray(raw.entries) ||
     raw.entries.some((e) => !isReviewEntry(e)) || (raw.placeholder && raw.entries.length > 0)) throw new Error("Invalid review corpus: expected short attributed quotes and valid tags/dates.");
-  return raw as unknown as ReviewCorpus;
+  const entries: ReviewEntry[] = raw.entries.map((e) => {
+    const { text, url, domain, query, retrievedAt, theme } = e as ReviewEntry;
+    return { text, url, domain, query, retrievedAt, theme };
+  });
+  return { version: 1, placeholder: raw.placeholder, entries };
 }
 
 const THEME_WORDS: [ReviewTheme, RegExp][] = [
@@ -43,13 +47,11 @@ const THEME_WORDS: [ReviewTheme, RegExp][] = [
   ["visuals", /\b(visual\w*|graphic\w*|lighting|clutter|silhouette\w*|art|beautiful)\b/i],
 ];
 
-/** Conservative keyword tagging; ambiguous or mixed opinion is omitted unless a local tagger resolves it. */
-export function tagReview(text: string): Pick<ReviewEntry, "theme" | "sentiment"> | null {
+/** Conservative keyword tagging of topic only. Ambiguous or unthemed text is omitted. */
+export function tagReview(text: string): Pick<ReviewEntry, "theme"> | null {
   const theme = THEME_WORDS.find(([, re]) => re.test(text))?.[0];
-  const liked = /\b(love\w*|like[ds]?|enjoy\w*|satisfying|excellent|great|responsive|beautiful|praise\w*)\b/i.test(text);
-  const missed = /\b(dislike\w*|hate\w*|frustrat\w*|annoy\w*|clunky|unresponsive|unfair|poor|bad|awkward|wish|lack\w*|miss\w*|hides?)\b|\b(?:not|never)\s+(?:\w+\s+){0,2}(?:good|responsive|clear|fun|enjoy\w*|like\w*)\b/i.test(text);
-  if (!theme || liked === missed) return null;
-  return { theme, sentiment: liked ? "liked" : "missed" };
+  if (!theme) return null;
+  return { theme };
 }
 
 export function reviewCandidates(searches: SavedSearch[]): ReviewCandidate[] {
@@ -76,7 +78,7 @@ export function buildReviewCorpus(searches: SavedSearch[]): ReviewCorpus {
   return parseReviewCorpus({ version: 1, placeholder: false, entries });
 }
 
-/** Stable ties preserve file order; theme scores come only from the supplied crowd findings. */
+/** Stable ties preserve file order; topic scores come only from topic overlap with the supplied crowd findings. */
 export function selectReviews(entries: ReviewEntry[], crowd: CrowdRow[]): ReviewEntry[] {
   const findings = crowd.map((r) => `${r.id} ${r.label}`).join("\n");
   const themes = new Set(THEME_WORDS.filter(([, re]) => re.test(findings)).map(([theme]) => theme));
@@ -85,5 +87,5 @@ export function selectReviews(entries: ReviewEntry[], crowd: CrowdRow[]): Review
 }
 
 export function reviewSources(entries: ReviewEntry[]): Source[] {
-  return entries.filter(isReviewEntry).map((review) => ({ kind: "review", title: `${review.domain} · ${review.sentiment}: ${review.theme}`, url: review.url, snippet: review.text, query: review.query, review }));
+  return entries.filter(isReviewEntry).map((review) => ({ kind: "review", title: `${review.domain} · topic (keyword guess): ${review.theme}`, url: review.url, snippet: review.text, query: review.query, review }));
 }

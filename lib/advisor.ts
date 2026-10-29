@@ -196,7 +196,10 @@ export function synthesisPrompt(i: { frameNotes: string; crowd: CrowdRow[]; game
     "\n## Web search results (title | url | excerpt)",
     ...(i.sources.some((s) => s.kind !== "review") ? i.sources.filter((s) => s.kind !== "review").map((s) => `${s.title} | ${s.url} | ${s.snippet}`) : ["(no results; do not cite any web source)"]),
     "\n## Player opinion (public reviews)",
-    ...i.sources.filter((s) => s.kind === "review" && isReviewEntry(s.review)).map((s) => JSON.stringify({ kind: "review", ...s.review })),
+    ...i.sources.filter((s) => s.kind === "review" && isReviewEntry(s.review)).map((s) => {
+      const { text, url, domain, query, retrievedAt, theme } = s.review!;
+      return JSON.stringify({ kind: "review", text, url, domain, query, retrievedAt, "topic (keyword guess)": theme });
+    }),
     ...(i.sources.some((s) => s.kind === "review") ? [] : ["(no review quotes available; do not make public player opinion claims)"]),
     "\n## Tuning keys that exist (name one in howToTest for a gameplay change)",
     i.tuningKeys.join(", "),
@@ -208,7 +211,7 @@ export function synthesisPrompt(i: { frameNotes: string; crowd: CrowdRow[]; game
 export type Evidence =
   | { type: "frame"; index: number; note?: string }
   | { type: "crowd"; row: string; label: string; display: string }
-  | { type: "review"; url: string; quote: string; domain: string; retrievedAt: string; theme: ReviewEntry["theme"]; sentiment: ReviewEntry["sentiment"] }
+  | { type: "review"; url: string; quote: string; domain: string; retrievedAt: string; theme: ReviewEntry["theme"] }
   | { type: "web"; url: string; title: string };
 export interface Recommendation { area: Area; suggestion: string; evidence: Evidence[]; howToTest: string; strength: "suggestion" | "supported by crowd data" }
 export interface Dropped { recommendations: number; evidence: number; reasons: string[] }
@@ -228,11 +231,13 @@ function normUrl(u: unknown): string | null {
   } catch { return null; }
 }
 const HYPE = /\b(?:viral\w*|trend\w*|popular\w*)\b/gi;
-const OPINION_AUDIENCE = "(?:players?|fans?|reviewers?|critics?|users?|gamers?|player reviews?|reviews?)";
+const OPINION_AUDIENCE = "(?:players?|fans?|reviewers?|critics?|users?|gamers?|player reviews?|reviews?|audience|audiences|community|communities|customers?|testers?|playtesters?)";
+const OPINION_VERBS = "(?:say|says|said|think\\w*|thought|believ\\w*|agree\\w*|struggle\\w*|loath\\w*|appreciat\\w*|complain\\w*|prais\\w*|love\\w*|hate\\w*|enjoy\\w*|dislike\\w*|like\\w*|prefer\\w*|annoy\\w*|frustrat\\w*|wish\\w*|want\\w*|feel\\w*|felt|report\\w*|found|find|criticiz\\w*)";
+const OPINION_PASSIVE_VERBS = "(?:liked|disliked|loved|hated|preferred|praised|criticized|well.received|appreciated|loathed|believed|thought)";
 const PLAYER_OPINION = new RegExp([
-  `\\b${OPINION_AUDIENCE}\\b[^.!?\\n]{0,90}\\b(?:say|says|said|like\\w*|dislike\\w*|love\\w*|hate\\w*|prefer\\w*|prais\\w*|complain\\w*|enjoy\\w*|annoy\\w*|frustrat\\w*|wish\\w*|want\\w*|feel\\w*|felt|report\\w*|found|find|criticiz\\w*)\\b`,
-  `\\b(?:liked|disliked|loved|hated|preferred|praised|criticized|well.received)\\b[^.!?\\n]{0,60}\\b(?:by|in|among)\\s+(?:the\\s+)?${OPINION_AUDIENCE}\\b`,
-  "\\b(?:player|fan|user)\\s+(?:favorite|favourite|feedback|opinion|sentiment)\\b",
+  `\\b${OPINION_AUDIENCE}\\b[^.!?]*?\\b${OPINION_VERBS}\\b`,
+  `\\b${OPINION_PASSIVE_VERBS}\\b[^.!?]*?\\b(?:by|in|among)\\s+(?:the\\s+)?${OPINION_AUDIENCE}\\b`,
+  "\\b(?:player|fan|user|community|playtester|tester|reviewer)\\s+(?:favorite|favourite|feedback|opinion|sentiment)\\b",
 ].join("|"), "i");
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x);
 
@@ -289,7 +294,7 @@ export function validateRecommendations(raw: unknown, ctx: ValidationContext): {
         const review = (ctx.reviews ?? []).find((r) => isReviewEntry(r) && normUrl(r.url) === normUrl(e.url) && r.text === e.quote);
         const supplied = review && ctx.sources.some((s) => s.kind === "review" && normUrl(s.url) === normUrl(review.url) && s.snippet === review.text && isReviewEntry(s.review) && s.review.text === review.text);
         if (e.type !== "review" || !review || !supplied) { dropped.evidence++; badReview = true; }
-        else push(`review${review.url}\n${review.text}`, { type: "review", url: review.url, quote: review.text, domain: review.domain, retrievedAt: review.retrievedAt, theme: review.theme, sentiment: review.sentiment });
+        else push(`review${review.url}\n${review.text}`, { type: "review", url: review.url, quote: review.text, domain: review.domain, retrievedAt: review.retrievedAt, theme: review.theme });
       } else if (e.type === "web" && sourceByUrl.has(normUrl(e.url) ?? "")) {
         const s = sourceByUrl.get(normUrl(e.url)!)!;
         push(`w${s.url}`, { type: "web", url: s.url, title: s.title });
@@ -300,7 +305,7 @@ export function validateRecommendations(raw: unknown, ctx: ValidationContext): {
     if (!evidence.length) { drop("no valid evidence"); continue; }
     // "viral", "trending", "popular": each such word must appear in the title or snippet of a web source this same recommendation cites.
     const citedText = evidence.flatMap((e) => e.type === "review" ? [e.quote] : e.type === "web" ? [`${sourceByUrl.get(normUrl(e.url)!)!.title} ${sourceByUrl.get(normUrl(e.url)!)!.snippet}`] : []).join(" ");
-    const claim = [suggestion, howToTest, ...evidence.flatMap((e) => (e.type === "frame" && e.note ? [e.note] : []))].join(" ");
+    const claim = [suggestion, howToTest, ...evidence.flatMap((e) => (e.type === "frame" && e.note ? [e.note] : []))].join(" ").replace(/\s+/g, " ").trim();
     const hype = [...claim.matchAll(HYPE)].map((m) => m[0].toLowerCase());
     if (PLAYER_OPINION.test(claim) && !evidence.some((e) => e.type === "review")) { drop("public player opinion claim needs a cited corpus review"); continue; }
     if (hype.some((w) => !new RegExp(`\\b${w}\\b`, "i").test(citedText))) { drop('says "viral", "trending" or "popular" but no source it cites does'); continue; }
