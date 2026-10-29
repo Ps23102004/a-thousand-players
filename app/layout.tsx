@@ -34,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/modes/repro">Repro</Link>
               <Link href="/modes/balance">Balance</Link>
               <Link href="/modes/advisor">Advisor</Link>
+              <Link href="/modes/drift">Spec Drift</Link>
             </nav>
           </div>
         </header>
