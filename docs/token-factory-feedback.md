@@ -148,7 +148,7 @@ Draft: yes, as a description aid next to a deterministic check, and not as a det
 ### 1. What we used it for
 
 - **The crowd report.** One call read a summary of all 1000 players and 2,831 rounds (220,334 prompt tokens, 4,439 out) and returned 8 findings, each with structured claims and seeds (`data/run-main/findings.json`). Settings: thinking off, temperature 0.2, `max_tokens` 12000, answer in one fenced JSON block (`ai/README.md`).
-- **Bug triage.** Ultra reads a 10 Hz timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a patch. In the hosted app, **Triage this (Ultra)** makes one call of about 27K prompt tokens (up to two calls per click). The Ultra call took 2.6 to 6.0 s in the three recorded live runs and the whole click 4.9 to 7.1 s (`footage/08-repro*.live.json`); the page itself tells users to expect about 20-40 s. [PARTH/LEAD: confirm live routes hosted] Code applies the patch to a temp copy and replays the seed; the replay decides the verdict (`README.md`).
+- **Bug triage.** Ultra reads a 10 Hz timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a patch. In the hosted app, **Triage this (Ultra)** makes one call of about 27K prompt tokens (up to two calls per click). The Ultra call took 2.6 to 6.0 s in the three recorded live runs and the whole click 4.9 to 7.1 s (`docs/evidence/triage-live/`); the page itself tells users to expect about 20-40 s. [PARTH/LEAD: confirm live routes hosted] Code applies the patch to a temp copy and replays the seed; the replay decides the verdict (`README.md`).
 
 ### 2. What worked
 
