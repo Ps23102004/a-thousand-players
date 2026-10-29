@@ -162,7 +162,7 @@ npm run dev
 
 ### Steps that call models
 
-These need a `.env` file with `NEBIUS_API_KEY` (Token Factory) and `TAVILY_API_KEY`. Never commit it.
+These need a `.env` file with `NEBIUS_API_KEY` (Token Factory) and `TAVILY_API_KEY`: `cp .env.example .env` and fill it in. Never commit it. Without the keys the app still runs: recorded pages work and live routes answer 503 "not configured".
 
 ```bash
 npx tsx --env-file=.env ai/cli/personas.ts --n 1000 --out data/run-main/personas.json
