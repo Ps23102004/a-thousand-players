@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import glitchResults from "@/data/glitch-hunt/results.json";
+import GlitchScore from "./GlitchScore";
+import type { ScoredRound } from "@/ai/glitch";
 import SourceTag from "@/components/SourceTag";
 import { getData, getTriage } from "@/lib/data";
 import type { BugView, RegressionSide } from "@/lib/web-types";
@@ -91,6 +94,7 @@ export default function BugsPage() {
           <h1 id="bugs-title" style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", marginTop: 8 }}>Bugs the crowd found</h1>
         </div>
       </div>
+      <GlitchScore data={glitchResults as { placeholder: boolean; source?: string; results: ScoredRound[] }} />
       {bugs.length ? (
         <>
           <p className="lede" style={{ marginBottom: 20 }}>
