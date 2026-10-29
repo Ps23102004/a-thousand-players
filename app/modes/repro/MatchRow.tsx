@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { TRIAGE_CALIBRATION as CAL } from "@/lib/calibration";
 import type { ReproMatch, TriageLiveResponse, TriageVerdict } from "@/lib/web-types";
 
 const VERDICT: Record<TriageVerdict, { label: string; cls: string }> = {
@@ -62,8 +63,13 @@ export default function MatchRow({ m }: { m: ReproMatch }) {
                   <span className="chip">{result.signature}</span>
                   <span className="chip">{result.sameSignature} recorded round{result.sameSignature === 1 ? "" : "s"} share this signature</span>
                   <span className="chip">Ultra {secs(result.ms.model)} · {result.triage.tokensIn.toLocaleString()} tokens in</span>
-                  <span className="chip">confidence {Math.round(result.triage.confidence * 100)}%</span>
+                  <span className="chip" title="Ultra's own number, not calibrated: see the line below">Ultra states {Math.round(result.triage.confidence * 100)}% confidence</span>
                 </div>
+                <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", margin: 0 }}>
+                  Stated {Math.round(result.triage.confidence * 100)}% vs observed: {result.verdict === "fixed" ? "the replay is clean" : "the replay did not credit a fix"}.
+                  {" "}Ultra&apos;s confidence is not calibrated. In {CAL.triages} measured triages it said {Math.round(CAL.minConfidence * 100)}-{Math.round(CAL.maxConfidence * 100)}% every time, and {CAL.fixed} of the {CAL.triages} patches fixed the replay
+                  {" "}(Brier {CAL.brier.toFixed(2)}; always saying {Math.round((CAL.fixed / CAL.triages) * 100)}% would score {CAL.baseRateBrier.toFixed(2)}). The replay verdict decides; the number does not.
+                </p>
                 <h3 style={{ fontSize: "1.05rem", margin: 0 }}>{result.triage.title}</h3>
                 <div><div className="label">Root cause (Nemotron Ultra)</div><p>{result.triage.rootCause}</p></div>
                 {result.triage.playerImpact && <div><div className="label">Player impact</div><p>{result.triage.playerImpact}</p></div>}

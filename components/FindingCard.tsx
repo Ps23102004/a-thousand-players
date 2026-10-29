@@ -1,5 +1,6 @@
 import type { Claim, Finding } from "@/lib/types";
 import { getData, replayHref } from "@/lib/data";
+import { rateInterval } from "@/lib/calibration";
 
 const METRIC: Record<Claim["metric"], string> = {
   winRate: "win rate", quitRate: "quit rate", avgDuration: "avg round", koShare: "KO share", meanHpLoss: "mean hp loss",
@@ -8,12 +9,18 @@ const fmt = (c: Claim, v: number) => (c.metric === "avgDuration" ? `${v.toFixed(
 const scope = (c: Claim) => [c.scope.archetype ?? "everyone", c.scope.round ? `round ${c.scope.round}` : ""].filter(Boolean).join(", ");
 
 export default function FindingCard({ f }: { f: Finding }) {
+  const data = getData(), personas = [...data.personas.values()], runs = [...data.runs.values()];
+  // 95% interval over players for a verified rate, so "6%" reads as "6% (4-9%)": the crowd is a sample, not the population.
+  const ci = (c: Claim, actual: number) => {
+    const iv = rateInterval(c, actual, personas, runs);
+    return iv ? { text: ` (${Math.round(iv.lo * 100)}-${Math.round(iv.hi * 100)}%)`, title: `; 95% interval ${(iv.lo * 100).toFixed(1)}-${(iv.hi * 100).toFixed(1)}% over ${iv.players} players` } : { text: "", title: "" };
+  };
   return (
     <article className="panel finding" aria-labelledby={`${f.id}-title`}>
       <div className="finding-top">
         <span className={`sev sev-${f.severity}`}>{f.severity === "med" ? "medium" : f.severity}</span>
         <span className="chip">{f.kind}</span>
-        <span className="chip">confidence {Math.round(f.confidence * 100)}%</span>
+        <span className="chip" title="Ultra's own estimate. Not measured against outcomes; the claims below are what code checked.">Ultra states {Math.round(f.confidence * 100)}% confidence</span>
       </div>
       <h3 id={`${f.id}-title`}>{f.title}</h3>
       <p>{f.narrative}</p>
@@ -24,7 +31,7 @@ export default function FindingCard({ f }: { f: Finding }) {
           {f.claims.map((c, i) => {
             const v = f.verified?.find((x) => x.claim.metric === c.metric && JSON.stringify(x.claim.scope) === JSON.stringify(c.scope));
             const text = `${METRIC[c.metric]} ${scope(c)}: ${fmt(c, c.value)}`;
-            if (v?.ok) return <li key={i} className="chip chip-ok" title={`Recomputed from the runs: ${fmt(c, v.actual)}`}><span aria-hidden="true">✓</span>{text}<span className="sr-only">, verified by code</span></li>;
+            if (v?.ok) { const iv = ci(c, v.actual); return <li key={i} className="chip chip-ok" title={`Recomputed from the runs: ${fmt(c, v.actual)}${iv.title}`}><span aria-hidden="true">✓</span>{text}<span style={{ opacity: 0.75 }}>{iv.text}</span><span className="sr-only">, verified by code</span></li>; }
             return (
               <li key={i} className="chip chip-warn" title={v ? `Recomputed value ${fmt(c, v.actual)} does not match` : "Not checked against the runs"}>
                 <span aria-hidden="true">!</span>{text} <span>{v ? `(actual ${fmt(c, v.actual)})` : "unverified"}</span>

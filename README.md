@@ -90,6 +90,15 @@ Settings, latencies and token counts for each call are in [`ai/README.md`](ai/RE
 
 A replay token is base64 JSON in the URL: `{ "seed": 88123, "tuning": "base", "policy": {...}, "fighter": "kai", "maxT": 60 }`.
 
+## How much to trust the numbers
+
+Measured in [`docs/calibration.md`](docs/calibration.md) (small samples; intervals included there).
+
+- **Ultra's triage confidence is not meaningful.** Across 15 triages with a replay verdict it said 0.85 to 0.95 every time, and 3 patches fixed the replay (Brier 0.64; a constant 0.20 scores 0.16). Read the replay verdict, not the number. 5 of 12 single-attempt answers proposed a patch whose text is not in the source.
+- **Claim verification proves transcription.** All 31 main-run claims are cells of the code-computed table Ultra is shown, and the ±0.05 rate tolerance passes every claim shifted by 3 points.
+- **Headline rates carry intervals** (95% bootstrap over players): casual win 5.9% (3.5-8.5%), casual quit 97.0% (94.5-99.0%), cheeser win 92.3% (89.2-95.3%). The Findings cards show them.
+- **Repro oracle:** exact on the 4 reports that named a clear bug event; inverted on a "nobody could land a hit" report; crash reports are rejected because the prompt does not list `crash`. **Eyes:** 3 of 3 bug rounds flagged, 0 of 3 clean rounds, the real bug named in 2 of 3.
+
 ## Bug-triage loop
 
 ```

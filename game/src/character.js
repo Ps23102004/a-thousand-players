@@ -4,6 +4,7 @@ import { COLLISION_GROUPS, interactionGroups, registerColliderUserData } from '.
 import { startKnockdown } from './ground.js';
 import { direction } from './movement.js';
 import { playAnimation, ANIMATIONS } from './animation.js';
+import { RULES } from './tuning.js';
 
 let nextFighterId = 1;
 export const FIGHTERS = {
@@ -109,6 +110,10 @@ export function createFighterRig(scene, world, isPlayer = true, startX = 0, prof
         rb.setTranslation({ x: g.x + aim.x * .7, y: this.grapple ? g.y : g.y + .3, z: g.z + aim.z * .7 }, true);
         rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
       }
+      // A body held by setTranslation while GRABBED keeps a stale floor contact after the grab: it sinks ~0.3 m and is
+      // ejected upward (next to the wall it rides the wall out of the arena). Same refresh as mountReleaseFix (ground.js).
+      if (this.wasGrabbed && this.state !== 'GRABBED' && RULES.grabReleaseFix) { rb.sleep(); rb.wakeUp(); }
+      this.wasGrabbed = this.state === 'GRABBED';
       const p = rb.translation(); root.position.set(p.x, p.y - 0.80, p.z);
       const aim=direction(this); root.rotation.y = Math.atan2(aim.x,aim.z);
       if (this.state === 'BEING_THROWN' && t.y < 0.86 && rb.linvel().y <= 0) startKnockdown(this,{landed:true});
