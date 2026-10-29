@@ -35,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/modes/balance">Balance</Link>
               <Link href="/modes/advisor">Advisor</Link>
               <Link href="/modes/drift">Spec Drift</Link>
+              <Link href="/modes/onboarding">Onboarding</Link>
             </nav>
           </div>
         </header>
