@@ -541,29 +541,29 @@
   {
     "control": "gamepad-select-stick-left",
     "input": "stick left in fighter menu",
-    "expected": "changes selected fighter",
-    "observed": "kai → rook",
+    "expected": "selects kai from rook",
+    "observed": "rook → kai",
     "works": true
   },
   {
     "control": "gamepad-select-dpad-left",
     "input": "dpad left in fighter menu",
-    "expected": "changes selected fighter",
+    "expected": "selects kai from rook",
     "observed": "rook → kai",
     "works": true
   },
   {
     "control": "gamepad-select-stick-right",
     "input": "stick right in fighter menu",
-    "expected": "changes selected fighter",
+    "expected": "selects rook from kai",
     "observed": "kai → rook",
     "works": true
   },
   {
     "control": "gamepad-select-dpad-right",
     "input": "dpad right in fighter menu",
-    "expected": "changes selected fighter",
-    "observed": "rook → kai",
+    "expected": "selects rook from kai",
+    "observed": "kai → rook",
     "works": true
   },
   {

@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, test } from "node:test";
 import { runAdvisor } from "./advisor";
 import type { CrowdRow } from "../lib/advisor";
+import corpus from "../data/reviews/corpus.json";
+import { parseReviewCorpus, selectReviews, type ReviewEntry } from "../lib/reviews";
 
 process.env.NEBIUS_API_KEY = "test-key-not-real";
 process.env.TAVILY_API_KEY = "test-tavily-not-real";
@@ -34,8 +36,37 @@ beforeEach(() => {
 afterEach(() => { globalThis.fetch = realFetch; console.error = realError; });
 
 const crowd: CrowdRow[] = [{ id: "quit.casual", label: "Quit rate, casual", value: 0.97, display: "97%" }];
-const input = { frames: ["/9j/AAAA", "/9j/BBBB", "/9j/CCCC", "/9j/DDDD"], frameTimes: [1, 3, 5, 7], crowd, gameText: ["THE MARKET CLOSES."], genre: "3D physics brawler", tuningKeys: new Set(["rules.cpuLowBlock"]) };
+const input = { frames: ["/9j/AAAA", "/9j/BBBB", "/9j/CCCC", "/9j/DDDD"], frameTimes: [1, 3, 5, 7], crowd, gameText: ["THE MARKET CLOSES."], genre: "3D physics brawler", tuningKeys: new Set(["rules.cpuLowBlock"]), reviews: [] as ReviewEntry[] };
 const rec = (over = {}) => ({ area: "readability", suggestion: "Brighten hit sparks.", evidence: [{ type: "frame", index: 2 }], howToTest: "Human playtesters.", strength: "suggestion", ...over });
+
+test("omitting reviews does not load a corpus into the advisor", async () => {
+  const { reviews, ...withoutReviews } = input;
+  const result = await runAdvisor(withoutReviews);
+  assert.equal(result.sources.filter((source) => source.kind === "review").length, 0);
+});
+
+test("explicit committed reviews reach synthesis as review sources; an absent review drops its whole recommendation", async () => {
+  const reviews = parseReviewCorpus(corpus).entries;
+  assert.ok(reviews.length > 0, "the production corpus contains real quotes");
+  const selected = selectReviews(reviews, crowd);
+  const review = selected[0];
+  const missingUrl = "https://www.pcgamer.com/absent-advisor-test-review/";
+  assert.ok(!reviews.some((entry) => entry.url === missingUrl));
+  superAnswer = JSON.stringify({ recommendations: [
+    rec({ evidence: [{ type: "review", url: review.url, quote: review.text }] }),
+    rec({ evidence: [{ type: "review", url: missingUrl, quote: review.text }, { type: "frame", index: 1 }] }),
+  ] });
+  const result = await runAdvisor({ ...input, reviews });
+  const sources = result.sources.filter((source) => source.kind === "review");
+  assert.deepEqual(sources.map((source) => source.review), selected);
+  const prompt = calls.filter((call) => call.url.includes("nebius"))[1].body.messages[1].content;
+  for (const entry of selected) assert.ok(prompt.includes(JSON.stringify({ kind: "review", ...entry })));
+  assert.equal(result.recommendations.length, 1);
+  assert.equal(result.recommendations[0].evidence[0].type, "review");
+  assert.equal(result.proposed, 2);
+  assert.equal(result.dropped.recommendations, 1);
+  assert.ok(result.dropped.reasons.includes("review citation must match a supplied corpus quote exactly"));
+});
 
 test("one vision call with 4 images, 3 domain-limited searches, one Super call with thinking off", async () => {
   superAnswer = "```json\n" + JSON.stringify({ recommendations: [rec({ area: "difficulty", howToTest: "Set rules.cpuLowBlock to 0.5 and replay the crowd.", evidence: [{ type: "web", url: "https://gdcvault.com/play/1/onboarding" }, { type: "crowd", row: "quit.casual" }], strength: "supported by crowd data" })] }) + "\n```";

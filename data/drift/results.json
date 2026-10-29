@@ -1,8 +1,119 @@
 {
-  "placeholder": true,
-  "proposed": 0,
-  "verified": 0,
+  "proposed": 8,
+  "verified": 8,
   "dropped": 0,
-  "claims": [],
-  "rejections": []
+  "claims": [
+    {
+      "docClaim": "dist: far(>2.2) | mid(1.3-2.2) | close(<1.3).",
+      "docFile": "docs/design.md",
+      "codeSymbol": "decideRivalAction",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 35,
+      "whatCodeDoes": "The AI decision logic uses a distance threshold of 1.62 to decide between advancing and close-range combat, and 1.25 for grapple range, which does not match the design document's defined distance bands of far (>2.2), mid (1.3-2.2), and close (<1.3).",
+      "severity": "high",
+      "codeLineText": "  if(dist>1.62) return {type:'ADVANCE'};"
+    },
+    {
+      "docClaim": "rival phase: idle|startup|active|recovery|down|stunned.",
+      "docFile": "docs/design.md",
+      "codeSymbol": "decideRivalAction",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 70,
+      "whatCodeDoes": "The code checks for rival states 'STARTUP', 'ACTIVE', 'RECOVERY', 'HIT_STUN', 'KNOCKDOWN', 'BEING_THROWN', 'GRABBED', 'GRAB', which includes states like 'HIT_STUN', 'BEING_THROWN', 'GRABBED', 'GRAB' not listed in the design document's rival phase enumeration, and omits 'idle' and 'down'.",
+      "severity": "high",
+      "codeLineText": "  if(rival.ground || rival.mount || player.mount || rival.grapple || player.grapple || ['HIT_STUN','KNOCKDOWN','BEING_THROWN','GRABBED','GRAB'].includes(rival.state))return;"
+    },
+    {
+      "docClaim": "actions: advance retreat block punch kick low_punch sweep parry grab jump prop wait",
+      "docFile": "docs/design.md",
+      "codeSymbol": "decideRivalAction",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 48,
+      "whatCodeDoes": "The AI decision function returns action types like 'FEINT', 'THROW_PERSON', 'RETREAT', 'ADVANCE', 'SWEEP', 'ROUNDHOUSE', 'CROSS', 'JAB', 'BLOCK', 'PARRY', 'GRAB', 'THROW_PROP', 'KICK_PROP', which include several actions not in the design document's list (FEINT, THROW_PERSON, ROUNDHOUSE, CROSS, JAB, THROW_PROP, KICK_PROP) and uses different naming (e.g., 'BLOCK' vs 'block', 'ADVANCE' vs 'advance').",
+      "severity": "high",
+      "codeLineText": "    return weighted(options.filter(([type])=>type!==last),rng);"
+    },
+    {
+      "docClaim": "The CPU uses distance to select punches versus kicks, punch and kick combinations, including hooks, uppercuts and high/back kicks, recovery punishment, guard, parry cooldowns, feints, and guarded backsteps.",
+      "docFile": "game/README.md",
+      "codeSymbol": "decideRivalAction",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 60,
+      "whatCodeDoes": "The neutral move selection options array includes 'FEINT' with weight 1, but the FEINT action type is not handled in the player input processing or animation system, making it a non-functional action that contradicts the claim of working feints.",
+      "severity": "high",
+      "codeLineText": "  let options=dist>1.28?[['ROUNDHOUSE',6],['SWEEP',3],['ADVANCE',2]]:[['JAB',4],['CROSS',3],['HOOK',2],['UPPERCUT',1],['BODY_JAB',2],['ROUNDHOUSE',4],['HIGH_KICK',2],['BACK_KICK',1],['SWEEP',2],['FEINT',1]];"
+    },
+    {
+      "docClaim": "It tracks the last eight observed player attacks and changes tactics against repeated punches or sweeps.",
+      "docFile": "game/README.md",
+      "codeSymbol": "createAIMemory",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 13,
+      "whatCodeDoes": "The AI memory initializes observedMoves as an empty array and the code pushes to it, but the memory object stores 'lastSerial' and 'attacksSinceKick' while the design claims tracking of 'last eight observed player attacks'; the code limits history to 10 entries but the logic for detecting repeated punches uses a filter on the last 4 moves, not 8.",
+      "severity": "med",
+      "codeLineText": "  return { time:0, nextDecision:0, history:[], observedMoves:[], lastSerial:-1, guardTime:0, attacksSinceKick:0, nextParry:0, nextGrab:0, followUp:null, lastAction:'IDLE', previousPlayerPhase:null, previousPlayerTime:0 };"
+    },
+    {
+      "docClaim": "Neutral move selection avoids immediately repeating the same attack; kick scheduling prevents endless punch chains.",
+      "docFile": "game/README.md",
+      "codeSymbol": "decideRivalAction",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 62,
+      "whatCodeDoes": "The code filters out the last action type from options to avoid immediate repetition, but the kick scheduling logic checks 'attacksSinceKick >= 2' to force a kick, which only triggers after two non-kick attacks, not preventing longer punch chains as implied.",
+      "severity": "med",
+      "codeLineText": "  options=options.filter(([type])=>type!==last);"
+    },
+    {
+      "docClaim": "Guarding can invite a sweep or clinch, and throws have a cooldown.",
+      "docFile": "game/README.md",
+      "codeSymbol": "decideRivalAction",
+      "codeFile": "game/src/ai.js",
+      "codeLine": 44,
+      "whatCodeDoes": "When the player is guarding, the AI considers SWEEP and ROUNDHOUSE, and conditionally adds THROW_PERSON if grabReady and dist<=1.25, but the grapple cooldown is checked via 'grabReady' which uses 'rival.grappleCooldown', while the design document mentions 'throws have a cooldown' without specifying grapple cooldown.",
+      "severity": "low",
+      "codeLineText": "  if(player.isGuarding||player.state==='BLOCK') {"
+    },
+    {
+      "docClaim": "Kai and Rook both use punches and kicks.",
+      "docFile": "game/README.md",
+      "codeSymbol": "FIGHTERS",
+      "codeFile": "game/src/character.js",
+      "codeLine": 11,
+      "whatCodeDoes": "The FIGHTERS object defines 'kai' and 'rook' profiles with different styles ('KICKBOXING' vs 'STREET BOXING') but the AI decision logic in ai.js does not differentiate between fighter profiles; both use the same decideRivalAction function with identical move options.",
+      "severity": "low",
+      "codeLineText": "  kai: { name: 'KAI', title: 'THE NIGHTHAWK', style: 'KICKBOXING', color: 0xe85437, skin: 0xc38b65, hair: 0x151b22, pants: 0x1d2730 },"
+    }
+  ],
+  "rejections": [],
+  "placeholder": false,
+  "source": "model",
+  "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+  "generatedAt": "2026-10-29T21:46:28.260Z",
+  "prompt": {
+    "characters": 127144,
+    "estimatedTokens": 31786
+  },
+  "sourceHashes": {
+    "docs/design.md": "b3ffae243d48a22bf3de52c9c969d1a604f9d3feb66b18e198c4ed43df005b3b",
+    "game/README.md": "71f19157e82383bd08f6fd2d8655de8cec42fe04c980190a903b8f63df1693ae",
+    "game/src/ai.js": "58430c1299a7fb8ed8a5aac9dcd8afdc115de71d22f8852f23ee5a8358640274",
+    "game/src/animation.js": "16a7a08caa88b596f41ed0c0e6d8ebd45f8178a918dee2b9fe44bbc14e46ae5a",
+    "game/src/audio.js": "36a9093518b47d14348482fb899ae6bc07962f1844d2580b51e805aad3522137",
+    "game/src/camera.js": "be6cf8c3d0ee59da4e78688cc3579b69dfc6d3edf38cfc0f0b590a7c82c5d8f3",
+    "game/src/character.js": "4280b79b6a62ca2048f663e2b1dfc623e92e0d84ca5caf6d0b4995baa16d7ece",
+    "game/src/combat.js": "6bf18027bc3f96ed3783842ef7493109e5cc4e6c24df0ebfac1cff92f53784a1",
+    "game/src/crowd.js": "db0085c9dea67ded3cae6f2a84964c9d5237888179a256ce068c78a31b7dfdbe",
+    "game/src/gamepad.js": "5e9429d88c8aba4d20bf5f682861bdb3b908f14f165c9f73a20e93b4a11fc2de",
+    "game/src/grapple.js": "8749e19a322f296af0f50534145d62c7a37980d93eee5391f2aa40bd87586c04",
+    "game/src/ground.js": "844cfc143140296130ad5fac055af1dad6f351191c8c65ede4dfbdb13e8741ef",
+    "game/src/hud.js": "da8eef2ec76060dd072f793919683f230a8f2a2a0e391377f3a08e5b682ddd49",
+    "game/src/main.js": "ae7519a1e523bd4118474365d8243760d7662099a51807cb9c4aec90810276de",
+    "game/src/movement.js": "2e0593afe6fc0d495213f27136c5c994e86587288c58ea39d3a5556cac0cd4a2",
+    "game/src/moves.js": "781a15650e3b38b308ed2d5b79d3b2dd8add84e30c422e1f3d2740848e7e92f5",
+    "game/src/physics.js": "4154c5c6be752e6655f20b018ea9beac09ec92551ef774e9409cb82e0c96c7df",
+    "game/src/player.js": "e0c5cc934c33ec359378eb9a6cd56b7423be875e5cba920ddaa18c2191a2afdc",
+    "game/src/props.js": "4ebf9d6dd78b4e76e7615b4e0c7fc495cdc81295a6b35665822738107d794f40",
+    "game/src/tuning.js": "8e083e28e73e14a234336faab0aa8c63e747a5da7be5419682893d5b43cc35ac",
+    "game/src/world.js": "3dd134a946530898fc1b092d5ba32b334ca5399fd77417db1e14eafcaa465ad3"
+  }
 }

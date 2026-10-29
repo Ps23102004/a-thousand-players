@@ -82,3 +82,7 @@ node --import tsx --test --test-skip-pattern='a patched replay cannot reach the 
 ```
 
 This filtered run does not establish that the unfiltered suite passes. The lead must run `npm test` and the browser suite without the worker sandbox. Both the isolated review browser test and a full-suite attempt stopped at Chrome launch (`SIGABRT` / `EPERM`); the app also could not bind port 3163. Git staging/commit was denied when creating this worktree's shared `index.lock`, so the worker could not make commits. The intended commit trailer is `Co-Authored-By: gpt-6.1 via Codex <noreply@example.com>`. No push or branch change was performed.
+
+## Result of the one live collection (2026-10-29)
+
+`npx tsx --env-file=.env ai/cli/review-corpus.ts --live`: 12 Tavily searches, **12 quotes** kept (<= 300 characters each, with URL and retrieval date) from ign.com (4), reddit.com (3), gamespot.com (3) and steamcommunity.com (2). The sample is small and comes from search snippets, not full reviews; it covers many different games, not only fighting games. Theme and sentiment tags come from keyword rules in code, so some are wrong (for example a Reddit comment about "mind control" being tagged "controls"). The Advisor may cite an entry only if its URL and quote are in `data/reviews/corpus.json`; code drops any other review claim. Nothing was trained.

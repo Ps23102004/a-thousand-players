@@ -1,6 +1,12 @@
 # Spec Drift
 
-`/modes/drift` is a static page importing `data/drift/results.json`. The committed file has `"placeholder": true`: **not run yet**. No live Ultra result is claimed. No API route or deployment function is added. Rebuild the production app after replacing the results file.
+`/modes/drift` stays static, importing `data/drift/results.json` and bundling the optional `data/drift/judge.json` snapshot. There is no API route, request-time data loading, or model call on the page. Rebuild the production app after replacing either snapshot.
+
+The current results snapshot records eight existence-checked claims from `nvidia/Nemotron-3-Ultra-550b-a55b`, generated on **2026-10-29**. The second-model snapshot identifies its judge as **`gemini-3.8-flash-high via agy`**, read-only, run on **2026-10-29**. Its verdicts are **3 of 8 confirmed, 1 vague, 4 not drift**. This is **one second opinion, not ground truth**; neither the page nor this implementation independently establishes the semantic correctness of either model's conclusions. No design document or game code was changed to resolve these claims because of this review.
+
+The page shows **Confirmed by a second model** (`REAL_DRIFT`) first and prominently, then **Doc wording is vague** (`DOC_VAGUE`), then **Second model disagrees** (`NOT_DRIFT`) in a closed native `<details>`. Each checked candidate retains the judge's reason alongside the original proposal, quote, and code location. Counts are computed from the claims and judge JSON, never hard-coded. Judge keys are the original **1-based positions** in the results claims array, so grouping preserves those candidate numbers. Replacing or reordering results requires a matching judge snapshot.
+
+The optional judge uses a literal CommonJS import inside `try/catch` in `app/modes/drift/judge.cjs`. Next bundles this JSON statically; this permits a missing file without adding filesystem reads or fetches to the page. Without the file, or without a verdict for an index, the candidate remains visible as **not second-checked**. Unsupported verdicts are also unchecked, and orphan indexes do not inflate counts. The placeholder and empty-results states remain supported.
 
 The offline CLI reads `docs/design.md`, `game/README.md`, and regular `game/src/*.js` files. It supplies full documents and deterministic, line-numbered code prefixes under the character budget in `ai/drift.ts`; omitted lines are explicitly marked. It does not read environment files. Prompt token counts are estimates (`ceil(characters / 4)`), not provider measurements.
 
@@ -29,29 +35,30 @@ The live path is for the lead only, with credentials already supplied by their s
 node --import tsx ai/cli/drift.ts
 ```
 
-It calls `chat()` once with `ULTRA` from `ai/models.ts`, thinking off, retries disabled. There is no repair call or web lookup. This implementation session did not execute it. The lead can instead hand over a raw answer file for `--results-from`.
+It calls `chat()` once with `ULTRA` from `ai/models.ts`, thinking off, retries disabled. There is no repair call or web lookup. This display implementation made no network or model calls and did not read `.env`. Both data snapshots were left unchanged.
 
 Verification:
 
 ```bash
+node --import tsx --test app/modes/drift/*.test.*
 node --import tsx --test ai/drift.test.ts
 npm test
-npx tsc --noEmit -p .
+node node_modules/typescript/bin/tsc --noEmit --incremental false -p .
 node scripts/check-recorded-replays.mjs
 npm run engine:test
 npm run dev -- -p 3161
 E2E_BASE_URL=http://localhost:3161 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs
 ```
 
-The new browser spec swaps the static JSON to cover placeholder and injected results, then restores the original bytes in `finally`. It only enables fixture swaps on a loopback dev server at port 3161 in this worktree. Do not interrupt it during a swap. The existing `e2e/content.spec.cjs` exact nav list needs the new Spec Drift link added by the lead; that file is outside this task's allowed edits. The README also still lists Spec Drift as unbuilt and is outside this task's allowed edits.
+The focused unit command is required: the existing `test:ts` script does not discover tests under `app/modes/drift/`. Fixture tests cover grouping, counts, original indexes, missing judgments, empty claims, static display, and a physically missing judge file using a temporary copy of the loader.
 
-Implementation-session checks (2026-10-29):
+The browser spec covers placeholder and injected results, the recorded verdict groups and reasons, collapsed disagreements and expansion, mobile overflow, and a missing judge index. It swaps only `results.json` and restores the original bytes in `finally`; `judge.json` is read-only throughout. Fixture swaps are enabled only on a loopback dev server at port 3161 in this worktree. Do not interrupt it during a swap. This session did not execute e2e; the lead must run it.
 
-- `node --import tsx --test ai/drift.test.ts`: 7 passed, after observing failing tests before implementation.
-- `npx tsc --noEmit -p .` and `git diff --check`: passed.
-- `node scripts/check-recorded-replays.mjs`: `rounds 45 legacy identical to recorded 45 fixed identical 23`.
-- `npm run engine:test`: `16 seeds x2 runs, mismatches=0`.
-- `npm test`: engine section had 134 passes and 1 existing TODO, then the `tsx` launcher failed with sandbox `listen EPERM`.
-- Direct-loader equivalent `node --import tsx --test lib/*.test.ts ai/*.test.ts app/api/*.test.ts`: 297 passes, 0 assertion failures, 7 cancellations and 2 existing TODOs. The existing triage network-isolation test requires binding a local socket; the sandbox cannot do that. Rerunning with `--test-skip-pattern='a patched replay cannot reach the network'` excluded that test: 303 passes, 0 failures/cancellations, 2 TODOs.
-- Browser suite discovery: 91 tests in 13 files, including both new Drift tests. Browser execution is **not verified**: port 3161 failed with `listen EPERM`, and the focused spec failed during Chrome launch (the other serial test did not run). The lead must run the suite outside this sandbox.
-- Commit attempt failed because Git's worktree `index.lock` is outside the writable sandbox. Changes are uncommitted on `p2-drift`; no push was attempted. No live call ran, and the results file remains a placeholder.
+Display-session checks (2026-10-29):
+
+- Test-first: the new grouping and display tests failed with `ERR_MODULE_NOT_FOUND` before their implementation existed.
+- `node --import tsx --test app/modes/drift/*.test.*`: `# tests 7`, `# pass 7`, `# fail 0`.
+- `node --import tsx --test --test-name-pattern='static page renders' ai/drift.test.ts`: `# tests 1`, `# pass 1`, `# fail 0`. This regression covers the existing placeholder, empty, and imported-answer states without invoking the CLI or modifying data files.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false -p .`, `node --check e2e/drift.spec.cjs`, and `git diff --check`: passed.
+- Isolated bundling with Next's installed webpack: `Static JSON bundle (present fixture): PASS` and `Static JSON bundle (missing fixture): PASS`. Only temporary fixtures were created; the real judge file was never edited or renamed.
+- Production Next build and browser e2e were not run. No commit was made.

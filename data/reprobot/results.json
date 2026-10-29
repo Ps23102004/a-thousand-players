@@ -1,10 +1,33 @@
 {
-  "placeholder": true,
+  "placeholder": false,
   "model": "nano",
   "requestedRounds": 20,
-  "rounds": [],
+  "rounds": [
+    {
+      "seed": 2000000,
+      "matched": false,
+      "tFirstMatch": null,
+      "completed": true,
+      "nanoCalls": 27,
+      "cacheHits": 33,
+      "fallbacks": 0
+    },
+    {
+      "seed": 2000001,
+      "matched": false,
+      "tFirstMatch": null,
+      "completed": false,
+      "nanoCalls": 13,
+      "cacheHits": 35,
+      "fallbacks": 0
+    }
+  ],
   "reproduced": 0,
-  "totals": { "nanoCalls": 0, "cacheHits": 0, "fallbacks": 0 },
-  "budgetHit": false,
+  "totals": {
+    "nanoCalls": 40,
+    "cacheHits": 68,
+    "fallbacks": 0
+  },
+  "budgetHit": true,
   "maxCalls": 40
 }

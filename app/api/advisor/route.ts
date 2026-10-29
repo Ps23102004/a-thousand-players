@@ -2,6 +2,8 @@ import { runAdvisor } from "@/ai/advisor";
 import { notConfigured, rateLimited, readJson, sampleAnswer } from "@/lib/ai-route";
 import { validateAdvisorBody } from "@/lib/advisor";
 import { loadSample } from "@/lib/samples";
+import corpus from "@/data/reviews/corpus.json";
+import { parseReviewCorpus } from "@/lib/reviews";
 import { advisorContext } from "./context";
 
 // vision 60 s + searches 30 s + up to two synthesis tries of 45 s (VISION_TIMEOUT_MS / SYNTH_TIMEOUT_MS in ai/advisor.ts) = 180 s.
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
     return cached ? Response.json(cached) : limited;
   }
   try {
-    const result = await runAdvisor({ frames: v.frames, frameTimes: ctx.frameTimes, crowd: ctx.crowd, gameText: ctx.gameText, genre: ctx.genre, tuningKeys: ctx.tuningKeys });
+    const result = await runAdvisor({ frames: v.frames, frameTimes: ctx.frameTimes, crowd: ctx.crowd, gameText: ctx.gameText, genre: ctx.genre, tuningKeys: ctx.tuningKeys, reviews: parseReviewCorpus(corpus).entries });
     return Response.json({ ...result, key: ctx.key, game: ctx.game, crowd: ctx.crowd, gameTextLines: ctx.gameText.length });
   } catch (e) {
     console.error("advisor route failed:", e instanceof Error ? e.message : String(e));

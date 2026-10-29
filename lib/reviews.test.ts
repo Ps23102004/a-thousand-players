@@ -170,7 +170,7 @@ test("fake advisor model receives the selected corpus and cannot invent review q
     return Response.json({ choices: [{ message: { content: vision ? "Frame 1: fixture" : JSON.stringify({ recommendations: [rec(), rec([{ type: "review", url: entry.url, quote: "invented" }])] }) }, finish_reason: "stop" }] });
   }) as typeof fetch;
   try {
-    const result = await runAdvisor({ frames: ["/9j/AAAA"], frameTimes: [1], crowd, gameText: [], genre: "brawler", tuningKeys: new Set(), reviewCorpus: corpus });
+    const result = await runAdvisor({ frames: ["/9j/AAAA"], frameTimes: [1], crowd, gameText: [], genre: "brawler", tuningKeys: new Set(), reviews: corpus.entries });
     assert.ok(prompt.includes(quote));
     assert.equal(result.sources[0].kind, "review");
     assert.equal(result.recommendations.length, 1);

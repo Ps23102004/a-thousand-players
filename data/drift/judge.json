@@ -1,0 +1,38 @@
+{
+ "judge": "gemini-3.8-flash-high via agy, read-only, run 2026-10-29",
+ "note": "Second-model check of whether each code-verified claim is a real contradiction. Index = position in results.json claims (1-based).",
+ "verdicts": {
+  "1": {
+   "verdict": "REAL_DRIFT",
+   "reason": "The code at game/src/ai.js:35 advances at `dist > 1.62` and line 60 branches kicks at `dist > 1.28`, clearly contradicting the distance bands defined in docs/design.md:55 (`far > 2.2`, `mid 1.3-2.2`, `close < 1.3`)."
+  },
+  "2": {
+   "verdict": "REAL_DRIFT",
+   "reason": "The rival state check in game/src/ai.js:70 includes `'HIT_STUN'`, `'KNOCKDOWN'`, `'BEING_THROWN'`, `'GRABBED'`, and `'GRAB'`, which clearly goes beyond the six rival phases enumerated in docs/design.md:55."
+  },
+  "3": {
+   "verdict": "REAL_DRIFT",
+   "reason": "The action selection in game/src/ai.js:48 and game/src/ai.js:60-61 produces specific strike types including `'JAB'`, `'CROSS'`, `'HOOK'`, `'ROUNDHOUSE'`, `'THROW_PERSON'`, and `'FEINT'`, which clearly goes beyond the generic action tokens listed in docs/design.md:56."
+  },
+  "4": {
+   "verdict": "NOT_DRIFT",
+   "reason": "The claim is wrong because CPU feints are fully functional in game/src/ai.js:114-116 (playing `IDLE` with a `ROUNDHOUSE` follow-up executed at game/src/ai.js:52), while player input handling is irrelevant to the rival CPU tactics described in game/README.md:86."
+  },
+  "5": {
+   "verdict": "NOT_DRIFT",
+   "reason": "The claim is wrong because game/src/ai.js:81 explicitly caps `observedMoves` to the last 8 player attacks (confusing it with the 10-entry CPU history in game/src/ai.js:19), and game/src/ai.js:54-58 adapts tactics against repeated punches and sweeps as documented in game/README.md:86."
+  },
+  "6": {
+   "verdict": "NOT_DRIFT",
+   "reason": "The claim is wrong because game/src/ai.js:62 filters out the last action to prevent immediate repetition while game/src/ai.js:53 forces a kick whenever `attacksSinceKick >= 2`, directly preventing punch chains beyond two attacks as documented in game/README.md:86."
+  },
+  "7": {
+   "verdict": "DOC_VAGUE",
+   "reason": "There is no contradiction because game/src/ai.js:44-48 invites sweeps or throws against guarding opponents, and game/README.md:86 is just using general wording (\"throws have a cooldown\") for the grapple cooldown enforced by `rival.grappleCooldown` in game/src/ai.js:32 and game/src/grapple.js:4."
+  },
+  "8": {
+   "verdict": "NOT_DRIFT",
+   "reason": "The claim is speculative because fighter style labels in game/src/character.js:11-12 are cosmetic metadata, whereas game/README.md:86 and game/README.md:91-92 explicitly state that both fighters use punches and kicks and share balanced combat frame data."
+  }
+ }
+}

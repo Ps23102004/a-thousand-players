@@ -1,8 +1,10 @@
 # Playable game controls crawler
 
-Status (2026-10-29, run by the lead in system Chrome against `npm run dev -p 3142`): the crawler reports **92 of 92 controls work**; with the pause button deliberately broken (`E2E_BREAK_CONTROL=btn-pause`) the spec fails with `btn-pause: false !== true` and the game stays unpaused (`paused:false`), so the spec does catch a dead control. It was written by gpt-6.1-sol in a sandbox that could not run a browser; the browser runs were done afterwards.
+Status: the strengthened assertions await the lead's system-Chrome run. Earlier Chrome results predate this review fix and do not validate the new assertions.
 
-`node e2e/game-ui.spec.cjs --init-report` inventoried **92** control checks. As of the 2026-10-29 system-Chrome run the checked-in report has **92 working, 0 failed, 0 untested**, and `/games` displays “controls checked: 92 of 92 work”. (An earlier inventory-only report had `works: null` for all 92 rows.) A successful browser run replaces pending rows with measured results; rebuild/redeploy afterward to update the hosted static page.
+N of M (to be confirmed by lead run)
+
+The lead must replace that line with the measured working, total, failed and untested counts after running the updated spec. The browser run regenerates `docs/controls-report.json`; do not edit it by hand. `/games` reads that static file, so rebuild/redeploy after acceptance to update the hosted page. Totals come from the browser control catalog, not the number of offline tests or individual assertions.
 
 ## What is exercised
 
@@ -13,7 +15,11 @@ The source of truth is `game/index.html`, `game/src/main.js`, `player.js`, `game
 - Standard gamepad buttons and axes through an injected `navigator.getGamepads`: lateral/depth stick frames, all D-pad directions, face buttons, L1 combinations, analog L2, R1, R2, OPTIONS, CREATE, touchpad, R3, L3, fighter selection, menu focus navigation, confirm and back. Contextual combat is checked with the same state assertions as the keyboard.
 - Pause/resume checks run the real animation loop and inspect `getHUDState().gameTime`. Restart checks begin with damaged fighters and elapsed time (or game over), then assert both HP, health-bar ARIA values, the HUD timer and game time reset.
 
-The crawler uses the existing Playwright configuration unchanged: system Chrome, viewport and timeouts from `e2e/playwright.config.cjs`. It waits for the actual `gameApp.running` state, the enabled start button, document focus and real render frames. There are no fixed sleeps. The playable test rejects any base URL whose port is not **3142** and blocks external requests and `/api/` calls.
+The review fix adds explicit preconditions before keyboard/gamepad clinch release (an active `CHOOSE` grapple), Cross/Circle in pause/help (visible modal and paused fight), and Escape from help (visible help and paused fight). Release also requires a newly emitted `release` event. Fighter selection uses known starting fighters and exact destinations: left from Rook selects Kai; right from Kai selects Rook, for both stick and D-pad. The real menu orders Kai then Rook and toggles for either direction; with two choices these checks cannot distinguish reversed directions.
+
+The offline fake-pad self-check is **fixture validation**, not a mapping check, and is excluded from the browser control report and its totals. It was already outside the browser catalog; renaming it does not remove a control row. The mapper unit test's button-to-key loop derives expected pairs from `PS_BUTTONS` itself, so it cannot independently detect an incorrect mapping table. The browser checks send fixed button/axis frames through the real mapper and assert game behavior; those are the independent mapping checks, pending the lead's run.
+
+The crawler uses the existing Playwright configuration unchanged: system Chrome, viewport and timeouts from `e2e/playwright.config.cjs`. It waits for the actual `gameApp.running` state, the enabled start button, document focus and real render frames. There are no fixed sleeps. It accepts the configured local base URL and blocks external requests and `/api/` calls.
 
 Most combat checks stop the animation loop, disable the CPU and advance the real `updateFight(1 / 60)` simulation explicitly after real keyboard events or fake pad frames. Fixtures reset and position real fighters, place a real crate, and use exported knockdown/grapple/mount functions to reach contextual prompts. They do not replace input handlers or fake outcomes. Live animation-loop pause/resume is tested separately. The fake pad is polled explicitly, including neutral/context-transition frames and releases. Uncaught game errors fail the associated control check. Failure rows include the exception and observed game state; subsequent checks continue from reset fixtures.
 
@@ -22,36 +28,39 @@ Most combat checks stop the animation loop, disable the CPU and advance the real
 Use the dev server already running at `http://localhost:3142`, or start this worktree with `npm run dev -- -p 3142` (predev syncs `game/` into `public/game/`). Do not use the README's shared default port for this feature.
 
 ```bash
-E2E_BASE_URL=http://localhost:3140 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs
+E2E_BASE_URL=http://localhost:3142 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs
 ```
 
-The first test writes each observation to `docs/controls-report.json`, attaches the report to Playwright and logs the measured totals. A loader/setup failure leaves controls untested. The second test checks the `/games` counter against that file. Report rows have `{control, input, expected, observed, works}`; `true` means observed pass, `false` means observed failure, `null` means no browser observation. An interrupted crawl retains completed rows.
+The first test collects observations in memory and saves `docs/controls-report.json` once in its final cleanup, only when the serialized content differs from the existing file. Identical content keeps the file's modification time unchanged, and reports contain no timestamp. This avoids rewriting the static import used by `/games` during every control check or an identical repeat run. The report is attached to Playwright and measured totals are logged. A loader/setup failure leaves controls untested; cleanup saves completed rows after a caught interruption. The second test checks the `/games` counter against that file. Report rows have `{control, input, expected, observed, works}`; `true` means observed pass, `false` means observed failure, `null` means no browser observation.
 
-Run the full offline browser suite after the normal crawler:
+Repeat the normal crawler once, then run the full offline browser suite. With identical observations, the repeat must preserve the report's bytes and modification time. Confirm the full run, including `games.spec.cjs`, has no hydration errors:
 
 ```bash
-E2E_BASE_URL=http://localhost:3140 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs
+E2E_BASE_URL=http://localhost:3142 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs
 ```
 
 Do not set `E2E_REAL=1`.
 
 ## Deliberately broken button: proof run
 
-The spec has an opt-in local mutation. It replaces the pause button with a DOM clone, removing both `onclick` and registered click listeners. The mutation exists only in that test page, is never committed to game source and is discarded when the page closes. Only the target control runs in mutation mode; its report goes to the Playwright output directory, preserving the normal report.
+The spec has an opt-in local mutation. It replaces the pause button with a DOM clone, removing both `onclick` and registered click listeners. The mutation exists only in that test page, is never committed to game source and is discarded when the page closes. Only the target control runs in mutation mode; its report goes to the Playwright output directory, preserving the normal report. The offline logic tests verify that destination and that the committed report's bytes and modification time stay unchanged. `--init-report` also refuses to run when `E2E_BREAK_CONTROL` is set.
 
 ```bash
-E2E_BASE_URL=http://localhost:3140 E2E_BREAK_CONTROL=btn-pause NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs -g 'playable game'
+E2E_BASE_URL=http://localhost:3142 E2E_BREAK_CONTROL=btn-pause NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs -g 'playable game'
 ```
 
-Observed result (2026-10-29): exit nonzero, report `Controls: 0 of 92 work; 1 failed; 91 untested` in mutation mode, and nonzero exit, `btn-pause` has `works: false`, and `controls-broken-button.json` records that `paused` stayed false. Run the normal crawler command again without `E2E_BREAK_CONTROL` to verify the fresh page works. Record the actual failure text and subsequent passing totals here before claiming browser acceptance. No broken source patch remains to revert.
+Historical result (2026-10-29, before this review fix): exit nonzero, `btn-pause` had `works: false`, and `controls-broken-button.json` recorded that `paused` stayed false. The lead must repeat the mutation, then run the normal crawler command again without `E2E_BREAK_CONTROL` to verify the fresh page works. Record the actual failure text and subsequent measured totals here before claiming browser acceptance. No broken source patch remains to revert.
 
 ## Local evidence
 
+- Hydration fix (2026-10-29), test first: the new persistence and mutation tests initially failed because their helpers did not exist (**6 passed, 2 failed**). After implementation, `node e2e/game-ui.spec.cjs --logic-test` passed **8 tests**, including creation, changed content, no rewrite when identical, and mutation output isolation. `node --check e2e/game-ui.spec.cjs` and `./node_modules/.bin/tsc --noEmit -p .` passed. No Chrome run was performed for this fix; the existing generated report was left untouched.
+- Same session: `node --import tsx --test ai/advisor.test.ts lib/reviews.test.ts` passed **23/23**. The requested `node --import tsx --test ai/*.test.ts lib/*.test.ts app/api/*.test.ts` finished with **324 tests, 315 passed, 0 failed, 7 cancelled, 2 TODO**, exit 1. The seven cancellations in `lib/triage-live.test.ts` were present before this fix; the two Advisor assertion failures from the baseline are resolved. This is not a full-suite pass.
+- Review fix (2026-10-29): `node --check e2e/game-ui.spec.cjs` passed; `node e2e/game-ui.spec.cjs --logic-test` passed all 6 offline tests, including the renamed fixture validation. These results do not validate the browser assertions.
 - Test first: `node e2e/game-ui.spec.cjs --logic-test` initially failed all three report/fake-pad tests with “controlReport is not a function” / “fakePadFrame is not a function”. After additive helper implementation, all three passed.
 - UI test first: adding the static import/counter contract test produced **3 passed, 1 failed** because `/games` had no report import. After the UI change, **4 passed, 0 failed**.
 - The expanded offline suite now checks the HTML catalog, the real `GamepadControls` mapper and report semantics as well. Browser acceptance remains separate.
 
-No game bugs were found in the Chrome run, no game source was changed, and no new rule flags or API routes were added. Recorded data was not edited. Physical gamepad hardware, rumble and adaptive triggers are untested.
+The earlier Chrome run reported no game bugs. This review fix changes only the spec and this document; no browser was run and the generated report was left untouched. Physical gamepad hardware, rumble and adaptive triggers are untested.
 
 ## Commands run in this worktree
 
@@ -62,7 +71,7 @@ No game bugs were found in the Chrome run, no game source was changed, and no ne
 | Same command after adding the UI contract test, before UI implementation | 3 passed, 1 failed: missing static JSON import |
 | Same command after UI implementation | 4 passed, 0 failed |
 | Same command after catalog/mapping coverage was added (final) | 6 passed, 0 failed |
-| `node e2e/game-ui.spec.cjs --init-report` | Inventoried 92 controls; 0 browser observations; generated pending JSON |
+| `node e2e/game-ui.spec.cjs --init-report` (historical) | Generated an inventory-only pending report; not rerun for this review fix |
 | `node --check e2e/game-ui.spec.cjs` | Passed, including after the mutation-mode and error-reporting edits |
 | `node --check e2e/helpers.cjs` | Passed |
 | `npx tsc --noEmit -p .` | Passed, no diagnostics |
@@ -81,9 +90,9 @@ Read-only inspection commands were `pwd`, `rg --files` (project files and instal
 
 ## Remaining delivery work
 
-1. Done 2026-10-29: crawler run in system Chrome against `npm run dev -p 3142` (now also any base URL): 92 of 92 work, 0 failed, 0 untested.
-2. Done 2026-10-29: broken-button mutation (`E2E_BREAK_CONTROL=btn-pause`) failed with `btn-pause: false !== true`, `paused:false`; the report then shows `0 of 92 work; 1 failed; 91 untested` in mutation mode. Proof of the failure is recorded above.
+1. Run the strengthened crawler in system Chrome against port 3142, regenerate the report through the spec and fill in the measured totals above. Confirm `/games` displays the regenerated counts.
+2. Repeat the broken-button mutation (`E2E_BREAK_CONTROL=btn-pause`), expect failure, then repeat the normal crawler to confirm recovery.
 3. Run `npm test` and the full browser suite in an environment that permits their local sockets/browser. Recheck type compilation after any follow-up changes.
-4. Commit on `p1-controls` from a shell that can write the parent worktree metadata. Suggested small commits: first the crawler, additive helpers and report; then the static `/games` block and documentation. End each commit message with `Co-Authored-By: GPT-6 <noreply@example.com>`. Do not push.
+4. Leave this review fix uncommitted as requested.
 
 Files: `e2e/game-ui.spec.cjs`, `e2e/helpers.cjs` (additive only), `e2e/README.md` (one row), `docs/controls-report.json`, `docs/controls.md`, `app/games/page.tsx`.

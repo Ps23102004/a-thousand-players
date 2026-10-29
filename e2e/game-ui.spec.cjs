@@ -4,8 +4,55 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { controlReport, fakePadFrame } = require('./helpers.cjs');
 
+// /games statically imports this JSON: identical observations must not trigger dev-server reloads.
+function writeControlReport(outputPath, catalog, observations) {
+  const content = JSON.stringify(controlReport(catalog, observations), null, 2) + '\n';
+  try {
+    if (fs.readFileSync(outputPath, 'utf8') === content) return false;
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  fs.writeFileSync(outputPath, content);
+  return true;
+}
+
+function controlReportOutput(testInfo, mutation) {
+  return mutation ? testInfo.outputPath('controls-broken-button.json') : reportPath;
+}
+
 if (process.argv.includes('--logic-test')) {
   const { test } = require('node:test');
+  test('report creates and updates content, with no rewrite when identical and no timestamp', t => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'controls-report-test-'));
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const output = path.join(dir, 'report.json');
+    const catalog = [{ control: 'pause', input: 'Escape', expected: 'time stops' }];
+    assert.equal(writeControlReport(output, catalog, []), true);
+    const observations = [{ control: 'pause', observed: 'time unchanged', works: true }];
+    assert.equal(writeControlReport(output, catalog, observations), true);
+    const content = JSON.stringify(controlReport(catalog, observations), null, 2) + '\n';
+    assert.equal(fs.readFileSync(output, 'utf8'), content);
+    const sentinel = new Date('2000-01-01T00:00:00Z');
+    fs.utimesSync(output, sentinel, sentinel);
+    const before = fs.statSync(output).mtimeMs;
+    assert.equal(writeControlReport(output, catalog, observations), false);
+    assert.equal(fs.statSync(output).mtimeMs, before);
+    assert.equal(fs.readFileSync(output, 'utf8'), content);
+  });
+  test('mutation reports go only to test output and leave the committed report untouched', t => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'controls-mutation-test-'));
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const before = fs.readFileSync(reportPath, 'utf8');
+    const mtime = fs.statSync(reportPath).mtimeMs;
+    const testInfo = { outputPath: name => path.join(dir, name) };
+    assert.equal(controlReportOutput(testInfo, undefined), reportPath);
+    const output = controlReportOutput(testInfo, 'btn-pause');
+    assert.equal(output, path.join(dir, 'controls-broken-button.json'));
+    writeControlReport(output, [{ control: 'btn-pause', input: 'click', expected: 'paused' }], [{ control: 'btn-pause', observed: 'not paused', works: false }]);
+    assert.equal(JSON.parse(fs.readFileSync(output, 'utf8'))[0].works, false);
+    assert.equal(fs.readFileSync(reportPath, 'utf8'), before);
+    assert.equal(fs.statSync(reportPath).mtimeMs, mtime);
+  });
   test('unexecuted controls never count as working or broken', () => {
     const rows = controlReport([{ control: 'pause', input: 'Escape', expected: 'time stops' }], []);
     assert.deepEqual(rows, [{ control: 'pause', input: 'Escape', expected: 'time stops', observed: 'Not run in a browser', works: null }]);
@@ -57,7 +104,8 @@ if (process.argv.includes('--logic-test')) {
     assert.match(source, /works === true/);
     assert.match(source, /works === null/);
   });
-  test('fake standard pad supports simultaneous buttons, analog values, axes, and neutral release', () => {
+  // Fixture validation only: this is not a control row or mapping evidence in the report.
+  test('fixture validation: fake standard pad preserves buttons, analog values, axes, and neutral release', () => {
     const frame = fakePadFrame({ buttons: [2, 4], analog: { 6: .8 }, axes: [-.9, .9] });
     assert.equal(frame.mapping, 'standard');
     assert.equal(frame.index, 2);
@@ -143,6 +191,11 @@ async function resetAssertion(page) {
   assert.equal(await page.locator('#hud-timer').textContent(), '99');
   for (const who of ['player', 'rival']) assert.equal(await page.locator(`#${who}-health-bar`).evaluate(el => el.parentElement.getAttribute('aria-valuenow')), '100');
   return JSON.stringify(s);
+}
+async function assertPausedModal(page, context) {
+  assert.equal((await state(page)).screen, 'fight', `Precondition: ${context} opened during a fight`);
+  assert.equal((await state(page)).paused, true, `Precondition: ${context} paused the fight`);
+  assert.equal(await page.locator(`#${context}-modal`).isVisible(), true, `Precondition: ${context} modal is visible`);
 }
 async function assertPausedClock(page, paused) {
   const { renderFrames } = require('./helpers.cjs');
@@ -260,13 +313,20 @@ for (const source of ['keyboard', 'gamepad']) {
     assert.equal((await state(page)).state, 'GRAB'); return JSON.stringify(await state(page));
   });
   for (const [code, action] of [['j', 'PUNCH'], ['k', 'KNEE'], ['f', 'THROW'], ['l', 'RELEASE']]) add(`${source}-clinch-${action}`, `${source}: clinch ${code.toUpperCase()} / ${code === 'j' ? 'square' : code === 'k' ? 'triangle' : code === 'f' ? 'R1' : 'circle'} + shown prompt`, `clinch ${action.toLowerCase()} changes rival health or releases`, async page => {
-    await fight(page, true); await input(page, source, 'f'); await input(page, source, code);
+    await fight(page, true); await input(page, source, 'f');
+    assert.equal(await page.evaluate(() => window.gameApp.player.grapple?.phase), 'CHOOSE', 'Precondition: clinch opened before choosing an action');
+    assert.equal((await state(page)).state, 'GRAB');
+    if (action === 'RELEASE') assert.equal((await state(page)).events.includes('release'), false);
+    await input(page, source, code);
     if (action !== 'RELEASE') {
       assert.equal(await page.evaluate(() => window.gameApp.player.grapple?.action), action);
       await confirmPrompt(page, source); await ticks(page, 14);
       assert.ok((await state(page)).hp[1] < 100);
       if (action === 'THROW') assert.equal(await page.evaluate(() => !!window.gameApp.player.grapple), false);
-    } else assert.equal(await page.evaluate(() => !!window.gameApp.player.grapple), false);
+    } else {
+      assert.equal(await page.evaluate(() => !!window.gameApp.player.grapple), false);
+      assert.ok((await state(page)).events.includes('release'), 'Release input must emit a release event');
+    }
     return JSON.stringify(await state(page));
   });
   for (const [code, action] of [['j', 'HEAD'], ['k', 'BODY'], ['f', 'STAND']]) add(`${source}-mount-${action}`, `${source}: F / R1 then ${code.toUpperCase()} + shown prompt`, `mount and ${action.toLowerCase()}`, async page => {
@@ -365,15 +425,24 @@ add('gamepad-sound', 'L3 button 10 twice', 'sound flag and aria toggle twice', a
   return `sound toggled and restored to ${before}`;
 });
 add('keyboard-escape-help', 'Escape while help open', 'closes help and resumes fight', async page => {
-  await fight(page); await page.keyboard.press('h'); await page.keyboard.press('Escape');
+  await fight(page); await page.keyboard.press('h');
+  await assertPausedModal(page, 'help');
+  await page.keyboard.press('Escape');
   assert.equal(await page.locator('#help-modal').isVisible(), false); assert.equal((await state(page)).paused, false);
   return 'help closed, fight resumed';
 });
-for (const direction of ['left', 'right']) for (const device of ['stick', 'dpad']) add(`gamepad-select-${device}-${direction}`, `${device} ${direction} in fighter menu`, 'changes selected fighter', async page => {
-  await menu(page); await pad(page); const before = await page.evaluate(() => window.gameApp.selectedFighter);
+// main.js toggles Kai/Rook for both directions; index.html orders Kai then Rook.
+// Two choices cannot distinguish a reversed direction. Pin each starting point and destination.
+for (const [direction, before, expected] of [['left', 'rook', 'kai'], ['right', 'kai', 'rook']]) for (const device of ['stick', 'dpad']) add(`gamepad-select-${device}-${direction}`, `${device} ${direction} in fighter menu`, `selects ${expected} from ${before}`, async page => {
+  await menu(page);
+  await page.locator(`[data-fighter="${before}"]`).click(); await pad(page);
+  assert.equal((await state(page)).screen, 'menu', 'Precondition: fighter menu is open');
+  assert.equal(await page.evaluate(() => window.gameApp.selectedFighter), before, 'Precondition: known starting fighter');
+  assert.equal(await page.locator(`[data-fighter="${before}"]`).getAttribute('aria-pressed'), 'true');
   await pad(page, device === 'stick' ? { axes: [direction === 'left' ? -.9 : .9, 0] } : { buttons: [direction === 'left' ? 14 : 15] });
-  const after = await page.evaluate(() => window.gameApp.selectedFighter); assert.notEqual(after, before);
-  assert.equal(await page.locator(`[data-fighter="${after}"]`).getAttribute('aria-pressed'), 'true');
+  const after = await page.evaluate(() => window.gameApp.selectedFighter); assert.equal(after, expected);
+  assert.equal(await page.locator(`[data-fighter="${expected}"]`).getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator(`[data-fighter="${before}"]`).getAttribute('aria-pressed'), 'false');
   return `${before} → ${after}`;
 });
 for (const context of ['menu', 'pause', 'help', 'end']) add(`gamepad-confirm-${context}`, `cross button 0 in ${context}`, `confirms ${context === 'menu' ? 'start' : context === 'end' ? 'restart' : context === 'pause' ? 'resume' : 'close help'}`, async page => {
@@ -381,9 +450,12 @@ for (const context of ['menu', 'pause', 'help', 'end']) add(`gamepad-confirm-${c
   if (context === 'pause') await page.locator('#btn-pause').click();
   if (context === 'help') await page.locator('#btn-controls').click();
   if (context === 'end') await finish(page);
-  await pad(page); await pad(page); await pad(page, { buttons: [0] });
+  await pad(page); await pad(page);
+  if (context === 'pause' || context === 'help') await assertPausedModal(page, context);
+  await pad(page, { buttons: [0] });
   if (context === 'end' || context === 'menu') return resetAssertion(page);
   assert.equal((await state(page)).paused, false); assert.equal(await page.locator('#help-modal').isVisible(), false);
+  assert.equal(await page.locator('#pause-modal').isVisible(), false);
   return JSON.stringify(await state(page));
 });
 for (const context of ['pause', 'help', 'end']) add(`gamepad-back-${context}`, `circle button 1 in ${context}`, context === 'end' ? 'returns to menu' : 'returns to fight', async page => {
@@ -391,9 +463,12 @@ for (const context of ['pause', 'help', 'end']) add(`gamepad-back-${context}`, `
   if (context === 'pause') await page.locator('#btn-pause').click();
   if (context === 'help') await page.locator('#btn-controls').click();
   if (context === 'end') await finish(page);
-  await pad(page); await pad(page); await pad(page, { buttons: [1] });
+  await pad(page); await pad(page);
+  if (context === 'pause' || context === 'help') await assertPausedModal(page, context);
+  await pad(page, { buttons: [1] });
   assert.equal((await state(page)).screen, context === 'end' ? 'menu' : 'fight');
   assert.equal((await state(page)).paused, false); assert.equal(await page.locator('#help-modal').isVisible(), false);
+  assert.equal(await page.locator('#pause-modal').isVisible(), false);
   return JSON.stringify(await state(page));
 });
 for (const device of ['stick', 'dpad']) for (const direction of ['up', 'down']) add(`gamepad-menu-${device}-${direction}`, `${device} ${direction} in pause menu + cross`, 'moves focus to menu button and activates it', async page => {
@@ -409,7 +484,8 @@ for (const device of ['stick', 'dpad']) for (const direction of ['up', 'down']) 
 module.exports.catalog = cases.map(({ control, input, expected }) => ({ control, input, expected }));
 const reportPath = path.join(__dirname, '../docs/controls-report.json');
 if (process.argv.includes('--init-report')) {
-  fs.writeFileSync(reportPath, JSON.stringify(controlReport(module.exports.catalog, []), null, 2) + '\n');
+  assert.ok(!process.env.E2E_BREAK_CONTROL, 'Cannot initialize the committed report in mutation mode');
+  writeControlReport(reportPath, module.exports.catalog, []);
   console.log(`Inventoried ${cases.length} controls; 0 browser observations (works=null).`);
 } else if (!process.argv.includes('--logic-test')) {
   const { test, expect } = require('playwright/test');
@@ -421,8 +497,8 @@ if (process.argv.includes('--init-report')) {
     page.on('pageerror', error => pageErrors.push(error.message));
     const mutation = process.env.E2E_BREAK_CONTROL;
     if (mutation) assert.ok(HUD.includes(mutation), 'E2E_BREAK_CONTROL must name a real HUD button');
-    const outputPath = mutation ? testInfo.outputPath('controls-broken-button.json') : reportPath;
-    const write = () => fs.writeFileSync(outputPath, JSON.stringify(controlReport(module.exports.catalog, observations), null, 2) + '\n');
+    const outputPath = controlReportOutput(testInfo, mutation);
+    const write = () => writeControlReport(outputPath, module.exports.catalog, observations);
     await page.addInitScript(() => {
       window.__crawlerPad = null;
       Object.defineProperty(navigator, 'getGamepads', { configurable: true, value: () => window.__crawlerPad ? [null, null, window.__crawlerPad] : [] });
@@ -465,7 +541,7 @@ if (process.argv.includes('--init-report')) {
           await renderFrames(page, 2).catch(() => {});
           for (const key of ['a', 'd', 'q', 'v', 's', 'w', 'j', 'k', 'l', 'f', 'g', 'e', 'r', 'h', 'Escape']) await page.keyboard.up(key).catch(() => {});
         }
-        observations.push({ control: row.control, observed, works }); write();
+        observations.push({ control: row.control, observed, works });
         testInfo.annotations.push({ type: 'control', description: JSON.stringify(observations.at(-1)) });
         expect.soft(works, `${row.control}: ${observed}`).toBe(true);
       }

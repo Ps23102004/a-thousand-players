@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import stored from "@/data/drift/results.json";
 import type { VerifiedDriftClaim } from "@/ai/drift";
+import { loadStoredJudge } from "./judge.cjs";
+import { DriftClaimGroups } from "./results";
 
 export const metadata: Metadata = { title: "Spec Drift · A Thousand Players" };
 
 export default function DriftPage() {
-  const data: { placeholder: boolean; source?: string; proposed: number; verified: number; dropped: number; claims: VerifiedDriftClaim[] } = stored;
+  const data = stored as { placeholder: boolean; source?: string; proposed: number; verified: number; dropped: number; claims: VerifiedDriftClaim[] };
+  const judge = loadStoredJudge();
   return (
     <section className="section wrap" aria-labelledby="drift-title" style={{ overflowWrap: "anywhere" }}>
       <div className="kicker">Mode · Spec Drift</div>
@@ -23,17 +26,7 @@ export default function DriftPage() {
           <p>{data.source === "model" ? "Recorded offline Ultra call." : "Imported answer: provenance is not checked; it may be a fake fixture, not a live Ultra result."}</p>
           <p>Quotes and source locations below are copies from the checked snapshot. Symbol matching is textual and may match comments or strings; the cited line exists but need not contain the symbol. Severity and the contradiction explanation are model proposals.</p>
           {!data.claims.length && <p className="notice">No claims passed the existence checks. This does not prove the documents and code agree.</p>}
-          {data.claims.map((claim, index) => (
-            <article className="panel" key={`${claim.codeFile}:${claim.codeLine}:${index}`} style={{ marginTop: 20 }}>
-              <h2>Candidate {index + 1}: {claim.codeSymbol}</h2>
-              <p>Proposed severity: <strong>{claim.severity}</strong></p>
-              <p>{claim.whatCodeDoes}</p>
-              <p>Document: <code>{claim.docFile}</code> (verbatim copy)</p>
-              <blockquote style={{ whiteSpace: "pre-wrap" }}>{claim.docClaim}</blockquote>
-              <p>Code location: <code>{claim.codeFile}:{claim.codeLine}</code> · symbol: <code>{claim.codeSymbol}</code></p>
-              <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}><code>{claim.codeLineText}</code></pre>
-            </article>
-          ))}
+          <DriftClaimGroups claims={data.claims} judge={judge} />
         </div>
       )}
     </section>

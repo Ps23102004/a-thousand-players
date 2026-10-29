@@ -1,5 +1,114 @@
 {
   "version": 1,
-  "placeholder": true,
-  "entries": []
+  "placeholder": false,
+  "entries": [
+    {
+      "text": "The potential of Avatar Legends is immense. This is a gorgeous 2D fighting game that excels as both a throwback to the bygone era of sprite-based fighters and a faithful adaptation of the beloved cartoons it’s based on. It’s got some of the most satisfying movement of any 2D fighter I’ve played, com",
+      "url": "https://www.ign.com/articles/avatar-legends-the-fighting-game-review",
+      "domain": "ign.com",
+      "query": "fighting game review combat feels",
+      "retrievedAt": "2026-10-29T21:54:18.631Z",
+      "theme": "combat feel",
+      "sentiment": "liked"
+    },
+    {
+      "text": "Throw everything out the window like balance, depth, music, characters. I'm talking strictly game feel; i.e., how it feels to move around, how it",
+      "url": "https://www.reddit.com/r/Fighters/comments/1d8qwvq/which_fighting_game_has_the_best_game_feel",
+      "domain": "reddit.com",
+      "query": "fighting game review combat feels",
+      "retrievedAt": "2026-10-29T21:54:18.631Z",
+      "theme": "difficulty",
+      "sentiment": "liked"
+    },
+    {
+      "text": "When it comes to fighting games, aside from learning the controls, a lot of them require knowledge and experience. These kinds of games also require physical ability, like reflexes and mental prowess, to stay in control while under heat. There may be substantial gaps between players, but the fun and",
+      "url": "https://www.gamespot.com/articles/fighting-games-symposium/1100-6373250",
+      "domain": "gamespot.com",
+      "query": "fighting game player review responsive controls",
+      "retrievedAt": "2026-10-29T21:54:22.991Z",
+      "theme": "controls",
+      "sentiment": "liked"
+    },
+    {
+      "text": "It is an eyesore with clunky controls and painful sounds. Its only positive qualities are that the game works properly and is not prone to crashes or crippling",
+      "url": "https://gamefaqs.gamespot.com/nes/587105-bad-street-brawler/reviews/150546",
+      "domain": "gamespot.com",
+      "query": "brawler review clunky controls",
+      "retrievedAt": "2026-10-29T21:54:24.971Z",
+      "theme": "controls",
+      "sentiment": "missed"
+    },
+    {
+      "text": "Ultra bad controls. You can only jump and you have one attack move (punch). In every level you move from left to right. There are waves of",
+      "url": "https://steamcommunity.com/id/retooo/recommended/1558530",
+      "domain": "steamcommunity.com",
+      "query": "brawler review clunky controls",
+      "retrievedAt": "2026-10-29T21:54:24.971Z",
+      "theme": "controls",
+      "sentiment": "missed"
+    },
+    {
+      "text": "mind control is simply a flawed design, Taking over someone's brawler is frustrating for the person receiving it and turns every fight into 2v3.",
+      "url": "https://www.reddit.com/r/BrawlStarsCompetitive/comments/1j9kqi8/willow_is_disappointing_from_game_perspective",
+      "domain": "reddit.com",
+      "query": "brawler review clunky controls",
+      "retrievedAt": "2026-10-29T21:54:24.971Z",
+      "theme": "controls",
+      "sentiment": "missed"
+    },
+    {
+      "text": "no way to set the dummy to block randomly, making it very difficult to practice hit confirms. [...] Outside of the lackluster story mode, there’s really not much else here to hold the attention of anyone who isn’t interested in competing against other people online. There’s a traditional arcade mode",
+      "url": "https://www.ign.com/articles/avatar-legends-the-fighting-game-review",
+      "domain": "ign.com",
+      "query": "fighting game review difficulty balance",
+      "retrievedAt": "2026-10-29T21:54:34.400Z",
+      "theme": "difficulty",
+      "sentiment": "missed"
+    },
+    {
+      "text": "First, you're going to want to learn MK1's defensive mechanics. That means learning how to do things that will serve you well in any fighting game (like blocking low by default, and trying to react to high hits), but it also means mastering Mortal Kombat-specific mechanics like combo breakers, flawl",
+      "url": "https://www.ign.com/wikis/mortal-kombat-1/Beginner%27s_Guide_-_Essential_Tips_and_Tricks",
+      "domain": "ign.com",
+      "query": "fighting game beginner review tutorial",
+      "retrievedAt": "2026-10-29T21:54:37.682Z",
+      "theme": "combat feel",
+      "sentiment": "liked"
+    },
+    {
+      "text": "# Bad Street Brawler – Review. Log in to add games to your lists. Add this game to my:. Bad Street Brawler is a beat-'em-up game and an exercise in frustration. Poor controls, bad graphics, aggravating gameplay and awful sound and music merge to create one terrible gaming experience. Depending on th",
+      "url": "https://gamefaqs.gamespot.com/nes/587105-bad-street-brawler/reviews/150546",
+      "domain": "gamespot.com",
+      "query": "brawler review onboarding confusing",
+      "retrievedAt": "2026-10-29T21:54:43.053Z",
+      "theme": "controls",
+      "sentiment": "missed"
+    },
+    {
+      "text": "The visuals are spot on too. It genuinely looks like you're playing an episode of the show, and seeing all the bending effects flying across the screen never gets old. More importantly, the gameplay actually backs it up. It’s easy enough to jump into, but there’s clearly a lot to learn if you want t",
+      "url": "https://steamcommunity.com/app/2424420/reviews?browsefilter=toprated",
+      "domain": "steamcommunity.com",
+      "query": "fighting game review visuals readability",
+      "retrievedAt": "2026-10-29T21:54:45.388Z",
+      "theme": "difficulty",
+      "sentiment": "liked"
+    },
+    {
+      "text": "Combine all that with an excellent story mode, detailed teaching tools, tons of concept art and customization options to unlock, a rockin’ soundtrack spanning nearly every game in the franchise, and some of the most impressive visuals in the genre, and it’s easy to see why Strive has taken the fight",
+      "url": "https://www.ign.com/articles/the-10-best-fighting-games",
+      "domain": "ign.com",
+      "query": "fighting game review visuals readability",
+      "retrievedAt": "2026-10-29T21:54:45.388Z",
+      "theme": "difficulty",
+      "sentiment": "liked"
+    },
+    {
+      "text": "The main visual clutter issue with this game are the vfx particles that stay way too long or larger than they should be, things like Solomon's",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1x81mki/visual_clutter_in_this_game_is_the_worst_its_ever",
+      "domain": "reddit.com",
+      "query": "brawler player review visual clutter",
+      "retrievedAt": "2026-10-29T21:54:47.281Z",
+      "theme": "visuals",
+      "sentiment": "liked"
+    }
+  ]
 }

@@ -4,8 +4,7 @@
 import { advisorQueries, ADVISOR_DOMAINS, synthesisPrompt, validateRecommendations, type CrowdRow, type Dropped, type Recommendation, type Source } from "../lib/advisor";
 import { chat, extractJson, SUPER, VL } from "./models";
 import { searchPrecedent } from "./precedent";
-import corpus from "../data/reviews/corpus.json";
-import { parseReviewCorpus, reviewSources, selectReviews } from "../lib/reviews";
+import { reviewSources, selectReviews, type ReviewEntry } from "../lib/reviews";
 
 export interface AdvisorInput {
   frames: string[];          // 4 base64 JPEG/PNG frames, in time order
@@ -14,8 +13,8 @@ export interface AdvisorInput {
   gameText: string[];
   genre: string;
   tuningKeys: Set<string>;
-  /** Offline dependency injection for tests; the API never takes this from its request body. */
-  reviewCorpus?: unknown;
+  /** Trusted corpus entries supplied by the caller; omitted means no reviews. Never taken from the API request body. */
+  reviews?: ReviewEntry[];
 }
 export interface AdvisorResult {
   frameNotes: string;
@@ -51,7 +50,7 @@ export async function runAdvisor(i: AdvisorInput): Promise<AdvisorResult> {
     for (const r of s.value) if (!seen.has(r.url)) { seen.add(r.url); sources.push({ ...r, query: queries[k] }); }
   });
 
-  const reviews = selectReviews(parseReviewCorpus(i.reviewCorpus ?? corpus).entries, i.crowd);
+  const reviews = selectReviews(i.reviews ?? [], i.crowd);
   sources.push(...reviewSources(reviews));
 
   const p = synthesisPrompt({ frameNotes, crowd: i.crowd, gameText: i.gameText, sources, tuningKeys: [...i.tuningKeys], frameTimes: i.frameTimes });
