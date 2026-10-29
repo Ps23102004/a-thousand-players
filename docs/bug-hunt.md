@@ -9,13 +9,13 @@ performance pass. No Nebius or Tavily credit was spent. Output is under `.work/h
 
 | # | Finding | Where | Severity | Status |
 |---|---|---|---|---|
-| H1 | **bug2 still happens on the shipped build.** After a throw, the thrown fighter keeps a stale floor contact, sinks 0.3 m and is ejected upward. Next to the wall, it rides the wall over the top. The same cause produces 25 of the 33 remaining `airborne` rounds (the open part of bug1). | `game/src/character.js` | High (visible, 1 in 2,500 rounds) | **Fix written, tested, behind `rules.grabReleaseFix`, default off** (see below) |
-| H2 | **Mindless input wins every round.** Hold crouch, tap J at 6 Hz: 6 of 6 KOs in about 11 s. Hold every key and release one tick in three: 100 of 100 perfect KOs, all at exactly 9.9 s, whatever the seed or fighter. | `game/src/ai.js`, crouch attacks | High (balance) | Documented |
-| H3 | **A knockdown can never end** when the fighter lands on a crate. `FALL` waits for `y < 1.08`, and a body resting on a crate sits at y = 1.23. That is also below the 1.3 `airborne` threshold, so only `stuck`/`softlock` fire. This is bug4's cause through a new route. | `game/src/ground.js:40` | Medium | Documented (bug4's patch is still unshipped) |
-| H4 | **Balance range has a dead zone.** With every `anim.*.active` at its allowed minimum (25% of default), no strike ever lands. 1,500 rounds gave 0 strike hits and 76% softlocks. At 50% the game works normally. | `data/baseline-tuning.json` bounds, `applyTuning` | Medium (Balance mode can propose it) | Documented |
+| H1 | **bug2 still happens on the shipped build.** After a throw, the thrown fighter keeps a stale floor contact, sinks 0.3 m and is ejected upward. Next to the wall, it rides the wall over the top. The same cause produces 25 of the 33 remaining `airborne` rounds (the open part of bug1). | `game/src/character.js` | High (visible, 1 in 2,500 rounds) | **Fixed, on by default** (`rules.grabReleaseFix: 1`; test fixtures re-pinned, see below) |
+| H2 | **Mindless input wins every round.** Hold crouch, tap J at 6 Hz: 6 of 6 KOs in about 11 s. Hold every key and release one tick in three: 100 of 100 perfect KOs, all at exactly 9.9 s, whatever the seed or fighter. | `game/src/ai.js`, crouch attacks | High (balance) | Optional rule `rules.cpuLowBlock`, **off by default** ([numbers](#h2-crouch-attack-spam-beats-the-cpu-every-time)) |
+| H3 | **A knockdown can never end** when the fighter lands on a crate. `FALL` waits for `y < 1.08`, and a body resting on a crate sits at y = 1.23. That is also below the 1.3 `airborne` threshold, so only `stuck`/`softlock` fire. This is bug4's cause through a new route. | `game/src/ground.js:40` | Medium | **Fixed, on by default** (`rules.knockdownOnPropFix: 1`; the height guard stays) |
+| H4 | **Balance range has a dead zone.** With every `anim.*.active` at its allowed minimum (25% of default), no strike ever lands. 1,500 rounds gave 0 strike hits and 76% softlocks. At 50% the game works normally. | `data/baseline-tuning.json` bounds, `applyTuning` | Medium (Balance mode can propose it) | **Fixed** (raised minimums, plus a 2-tick window guard in `applyTuning`) |
 | H5 | 7 `oob` escapes under extreme tunings that the grab fix does not clear (mostly `max-reach-drive`). | tuning extremes | Low | Documented |
 | H6 | First ever `clip` (bodies overlapping for 2 s), in 1 `all-min` round. | | Low | Documented |
-| A1–A12 | API and replay-page abuse: 12 issues. The worst: a crafted `/replay?t=` token gets a 500, and a triage timeout returns 500. | `app/api/*`, `app/replay`, `lib/` | Low to Medium | Documented ([API abuse](#api-and-app-abuse)) |
+| A1–A12 | API and replay-page abuse: 12 issues. The worst: a crafted `/replay?t=` token gets a 500, and a triage timeout returns 500. | `app/api/*`, `app/replay`, `lib/` | Low to Medium | Fixed and tested; A10's engine half is `applyTuning` ([API abuse](#api-and-app-abuse)) |
 | P1–P5 | Performance: `/replay?key=` loads 2.2 MB of game JS eagerly (mobile Lighthouse 82, TBT 572 ms). Every other page scores 94 or more. | `components/GameEmbed.tsx`, `public/game` | Medium | Documented ([Performance](#performance)) |
 
 Held up: 65,000 crowd rounds, 500 fuzzed rounds and a 200-round soak, with **0 game crashes, 0 NaN, 0 crate
@@ -86,12 +86,12 @@ the throw's physics step, does **not** clear it; I tested that. `data/run-main/m
 Win rate stays the same (0.308 vs 0.307 on seed 8080). Test: `engine/tests/hunt-grab-release.test.mjs` (both seeds
 reproduce with the rule off and are clean with it on; the rule is inert in a round without a grab).
 
-**Why it is off by default.** With the fix on, 4 existing engine tests fail, because they pin rounds that only
-show bugs on the old physics. The fixture `airborne` rounds p0263 r1 and p0367 r2 in `helpers.makeFixtureRun`
-(used by `bugs.test.mjs` and `cli.test.mjs`) are **cleared by this fix**. The mount-divergence seeds in
-`sim-core.test.mjs` also change. This hunt may only add test files, so shipping it is one line plus re-pinning
-those fixtures: set `grabReleaseFix: 1` in `game/src/tuning.js`, pick new fixture personas whose `airborne` survives,
-then run `node scripts/sync-game.mjs`.
+**Now on by default.** `rules.grabReleaseFix` is 1 in `game/src/tuning.js`; `data/run-main/meta.json` keeps it at 0 for the
+recorded rounds (45 of 45 sampled recorded rounds, including the sweep-nerf crash rounds, still replay event for event). The fix cleared the
+test fixtures that pinned pre-fix rounds, so they were re-pinned: a 1,000-persona crowd at base seed 1 has **0** bug rounds with the fix on
+(3,019 rounds), so `helpers.makeFixtureRun` now runs base seed 2, where p0609 r3 and p0686 r1 still go `airborne` (personas 47, 609, 686).
+The `sim-core.test.mjs` mount-divergence case p0023 seed 799 no longer diverges and became p0029 seed 884 (rook). `engine/verify-fix.mjs`
+takes `--seed` so its regression crowd plays the same base seed as the run it compares with.
 
 ### H2: crouch-attack spam beats the CPU every time
 
@@ -115,6 +115,24 @@ So crouch plus a 6 Hz jab tap is enough, which a human can do. Mechanism, from t
 Fix direction (design, not small): when the player has been crouching for more than about 0.5 s, the CPU should
 answer with low or crouching attacks or a throw. Alternatively, crouch attacks could give up their frame advantage on block.
 
+**Optional rule, off by default.** `rules.cpuLowBlock` (default 0, so the shipped game is unchanged and draws no extra random
+numbers) is a probability p. With p > 0: when the CPU blocks a crouch attack (BODY_JAB, BODY_HOOK, SWEEP) it crouch-blocks with
+probability p, and while a crouching player recovers it answers with SWEEP instead of CROSS or ROUNDHOUSE with probability p.
+Crouch-blocking alone changes nothing (the CPU's standing block already stops body jabs; it loses because its high counters whiff),
+so the low answer is what breaks the loop. 1,000 seeds per exploit, 5,000 crowd rounds per setting (all 1,000 personas, base seed 8080,
+`--noquit 1`):
+
+| `rules.cpuLowBlock` | S+J at 6 Hz: player wins (perfect) | All keys, released 1 tick in 3 | Persona crowd win rate | Crowd bug rounds |
+|---|---|---|---|---|
+| 0 (shipped) | 100% (995 at 100 HP) | 100% (1,000) | 30.7% | 1 |
+| 0.5 | 59.1% (87) | 88.9% (62) | 28.1% | 1 |
+| 1 | **0.4%** (0) | 47.7% (0) | 24.9% | 1 |
+| 1, crouch-block only (no low answer, scratch copy) | 100% (994) | 100% (1,000) | | |
+
+So at 1 the crouch-jab exploit is gone and the all-keys flicker is cut in half, but casual players lose 6 more rounds in 100. It stays
+off: making it the default is a balance call for the game, not a bug fix. Test: `engine/tests/hunt-cpu-low-block.test.mjs`. Harness:
+`.work/h2-exploit.mjs`.
+
 ### H3: knockdown on top of a crate never ends
 
 Fuzz `taps` seed 7184 (kai): a BACK_KICK at 11.0 s knocks the player onto the left crate. The body comes to rest at
@@ -123,6 +141,13 @@ FALL to DOWNED when `y < 1.08`. Because 1.23 is under the `airborne` threshold (
 `stuck:KNOCKDOWN` (21.1 s) and `softlock`. The new `stuck:KNOCKDOWN+softlock` cluster (2 all-min rounds) is the same
 cause. bug4's patch (drop the height guard) would fix it and is still unshipped. A narrower fix would be to also
 allow FALL to end once the body is asleep, or after fallTime + 1 s.
+
+**Fixed, narrow version.** `rules.knockdownOnPropFix` (default 1) also ends FALL once the body is asleep, i.e. at rest; the
+`y < 1.08` guard stays for everything else, and a time-based end was rejected because a body still falling would freeze mid-air
+in DOWNED. bug4's representative round (p0653 r2, seed 529060) with the rule off: knocked onto the left crate at 15.87 s, rests at
+y = 1.395, `airborne` 18.5 s, `stuck:KNOCKDOWN` 26 s, `softlock` 41 s, time-out loss. With it on: DOWNED at 17.25 s, the CPU mounts,
+the player gets up, and the round ends by KO at 19.53 s with no bug events. `data/run-main/meta.json` records the run with the rule at 0.
+Test: `engine/tests/hunt-knockdown-prop.test.mjs` (also checks a round whose knockdowns land on the floor is unchanged).
 
 ### H4: the `active` minimum makes every strike whiff
 
@@ -137,6 +162,40 @@ active window most likely closes before the striking limb is extended. This expl
 cluster; guard multiplier 0, minimum damage, minimum reach and minimum AI delay alone give 0 to 100 softlocks.
 The Balance model may propose any value inside these bounds, so either raise the `active` minimums to about 50%
 of default or scale the keyframes with `startup` and `active` too.
+
+**Fixed.** The real cause is simpler: `active` is the **end** of the hit window (`animation.js`: `startup <= animTime < active`),
+so any `active` at or below `startup` leaves no window at all. 25% of default does that to every move, and so does `startup` near its
+own maximum at the default `active` (JAB: startup max 0.24 > active 0.14). Balance clamps each key on its own, so bounds alone cannot
+stop the second case. Two changes:
+1. Every `anim.*.active` minimum is now halfway between the default startup and the default active (JAB 0.035 to 0.10, BACK_KICK 0.1 to 0.355).
+2. `applyTuning` keeps at least 2 ticks of window (`active >= startup + 2/60`). No-op on the shipped game and on `sweep-nerf` (window 0.04 s).
+
+Every `active` (or `startup`) at the given edge, everything else default, 300 rounds each (`.work/h4.mjs`):
+
+| Tuning | Strike hits before | Strike hits after | Softlock rounds after | Mean length after |
+|---|---|---|---|---|
+| shipped | 2,091 | 2,091 | 1 | 11.9 s |
+| active 25% of default (old min) | 0 | 2,120 | 1 | 12.0 s |
+| active at the new min | | 2,119 | 1 | 12.1 s |
+| startup at max | 0 (35 of 60 softlock) | 1,634 | 15 | 31.7 s |
+| startup max + active new min | 0 (36 of 60 softlock) | 1,634 | 15 | 31.7 s |
+
+Test: `engine/tests/hunt-tuning-range.test.mjs` (bounds, the guard, and five range corners: strikes land, at most 1 in 4 rounds softlocks).
+
+### Random-input baseline (roast fix 14)
+
+Does a crowd of personas find more than mashing keys does? `node engine/fuzz-baseline.mjs --rounds 2000` plays rounds whose input
+ignores the game (the `engine/tests/hunt-lib.mjs` fuzzers), base seed 60000, kai and rook alternating:
+
+| Input | Shipped build (all fixes on) | Build as recorded (`recordedWith` rules at 0) |
+|---|---|---|
+| random key mask every tick, 2,000 rounds | 0 bug rounds per 1,000 | 0 per 1,000 |
+| single-key taps, 2,000 rounds | 0 | 0 |
+| attack mash while walking, 2,000 rounds | 0 | 0 |
+| **persona crowd**, 5,000 rounds (base seed 8080) | **0.2 per 1,000** (1 round) | **2.8 per 1,000** (14 of 4,996) |
+
+Random input found nothing in 6,000 rounds on either build, while the persona crowd found 14 bug rounds on the recorded build. The bugs
+need play that reacts to the game (grabs, throws into walls, knockdowns next to crates), which random input almost never produces.
 
 ### H5, H6: leftover escapes and the first clip
 
@@ -176,20 +235,20 @@ Dev server with `NEBIUS_API_KEY=` and `TAVILY_API_KEY=` set empty. `@next/env` o
 paths, and no pollution afterwards. Already documented elsewhere and not repeated here: a refusal returns 502
 instead of 422, and `x-forwarded-for` can be rotated.
 
-| # | Issue | Severity | Suggested fix |
+| # | Issue | Severity | Status and test |
 |---|---|---|---|
-| A1 | `/replay?t=` with `persona.skill`, `bio` or `id` set to an object or array gives **500** ("Objects are not valid as a React child") | Medium | `decodeToken` should type-check every persona field the page renders |
-| A2 | `/api/triage` returns **500** "Triage stopped before a verdict" when the replay hits its 30 s timeout (all 10 of a parallel burst on a loaded machine) | Medium | 504 via `TriageError`, never 500 |
-| A3 | `/api/triage` with no key still runs the full replay (2 to 7.5 s of CPU) before its 503 | Low/Med | check the key first |
-| A4 | No cap on concurrent triage replay processes (1 per request; many IPs means many processes; latency at 10 parallel went to 30 s or more) | Medium | at most about 2 at a time, 503 with Retry-After |
-| A5 | `/api/repro`, `/balance`, `/eyes` with no key give 502 "try again in a minute" | Low | 503 "not configured", as precedent and triage do |
-| A6 | One shared daily cap of 200 for all AI routes, and calls that spend nothing (503s, 502s, precedent with no key) count against it. 20 IPs × 10 calls lock every AI feature until midnight UTC | Medium | count only real model calls, and give precedent its own limiter |
-| A7 | POST bodies have no size limit: a 200 MB body was parsed in full and the server grew to about 1.1 GB | Low on Vercel (4.5 MB cap), Med self-hosted | check `Content-Length` before `req.json()` |
-| A8 | POST accepts `text/plain`, a CORS-simple request, so any website can make its visitors use up the cap | Low/Med | require `application/json` or check `Origin` |
-| A9 | `/game/replay.html`: a persona with no `id`, null `rules` entries or null `inputs` entries crashes `start()` silently (blank canvas) | Low | share one validator with the server and catch errors from `start()` |
-| A10 | Token tuning key `"rules.__proto__"` swaps `RULES`' prototype in the replay page, and resetting the tuning does not undo it | Low | `applyTuning` should accept only known keys with finite numbers |
-| A11 | Tokens of 16 KB to 20 K chars get a raw 431 from Node's header limit before the 20,000-char check | Info | cap at about 8,000 |
-| A12 | `null` JSON body on repro and balance says "Body must be JSON." | Info | `body?.[field]` |
+| A1 | `/replay?t=` with `persona.skill`, `bio` or `id` set to an object or array gives **500** ("Objects are not valid as a React child") | Medium | **Fixed.** `isReplayToken` in `lib/replay-token.ts` type-checks every persona, rule, input and tuning field; `/replay` shows "This replay link is not valid." Tests: `A1: persona fields the page renders must be strings or numbers` (`lib/replay-token.test.ts`), `/replay with A1 ...` (`e2e/token-abuse.spec.cjs`) |
+| A2 | `/api/triage` returns **500** "Triage stopped before a verdict" when the replay hits its 30 s timeout (all 10 of a parallel burst on a loaded machine) | Medium | **Fixed.** A replay timeout is `TriageError` 504 ("the server is busy, no model was called"). Test: `A2: a replay that hits its timeout becomes TriageError 504` (`lib/triage-live.test.ts`) |
+| A3 | `/api/triage` with no key still runs the full replay (2 to 7.5 s of CPU) before its 503 | Low/Med | **Fixed.** The key is checked before the round lookup and any replay. Test: `A3: with no NEBIUS_API_KEY the route answers 503 'not configured' at once` (`app/api/triage.test.ts`) |
+| A4 | No cap on concurrent triage replay processes (1 per request; many IPs means many processes; latency at 10 parallel went to 30 s or more) | Medium | **Fixed.** `liveSlot()` allows 2 live triages per instance; the third gets 503 with `Retry-After: 30`. Test: `A4: at most 2 live triages run at once per instance` (`app/api/triage.test.ts`) |
+| A5 | `/api/repro`, `/balance`, `/eyes` with no key give 502 "try again in a minute" | Low | **Fixed.** 503 "not configured" before the limiter. Test: `A5: repro, balance and eyes return 503 'not configured'` (`app/api/routes.test.ts`) |
+| A6 | One shared daily cap of 200 for all AI routes, and calls that spend nothing (503s, 502s, precedent with no key) count against it. 20 IPs × 10 calls lock every AI feature until midnight UTC | Medium | **Fixed.** Each route has its own daily cap (repro 80, balance 40, eyes 40, triage 40, precedent 100); key checks run before the limiter and calls that end before a model (501 stub, triage 409 or replay timeout, triage busy) give their unit back. The built-in examples for triage (p0537 round 1), Eyes (p0537 round 1, default question) and precedent are served from recordings in `data/samples/` when refused. Tests: `A6: calls that never reach a model ... do not use the caller's limit`, `A6 / roast 7: each route has its own daily cap` (`app/api/routes.test.ts`), `A6: with no TAVILY_API_KEY ...` (`app/api/precedent.test.ts`), the three `roast 7:` sample tests |
+| A7 | POST bodies have no size limit: a 200 MB body was parsed in full and the server grew to about 1.1 GB | Low on Vercel (4.5 MB cap), Med self-hosted | **Fixed.** `readJson` refuses bodies over 64 KB by `Content-Length` and by bytes read (Eyes: 1.1 MB, for 3 frames). Test: `A7: bodies over 64 KB are refused with 413` (`app/api/routes.test.ts`) |
+| A8 | POST accepts `text/plain`, a CORS-simple request, so any website can make its visitors use up the cap | Low/Med | **Fixed.** 415 unless `Content-Type: application/json`. Test: `A8: a body that is not content-type application/json gets 415` (`app/api/routes.test.ts`) |
+| A9 | `/game/replay.html`: a persona with no `id`, null `rules` entries or null `inputs` entries crashes `start()` silently (blank canvas) | Low | **Fixed.** `game/replay.html` runs the same checks as `isReplayToken` and catches errors from `start()`, showing a message. Tests: `A9: a persona with no id, null or non-object rules ...` (`lib/replay-token.test.ts`), `A9: game/replay.html with a ...` (`e2e/token-abuse.spec.cjs`) |
+| A10 | Token tuning key `"rules.__proto__"` swaps `RULES`' prototype in the replay page, and resetting the tuning does not undo it | Low | **Token side fixed** (`applyTuning` is the engine's): tokens with tuning keys outside `data/baseline-tuning.json` or `rules.<name>`, or non-finite values, are refused. Test: `A10: tuning keys must be in data/baseline-tuning.json or rules.<name>` (`lib/replay-token.test.ts`). **Engine side fixed too**: `applyTuning` applies only keys in `data/baseline-tuning.json` or rules `RULES` already has, with finite numbers, and ignores `__proto__`, `constructor` and the like (`engine/tests/apply-tuning.test.mjs`) |
+| A11 | Tokens of 16 KB to 20 K chars get a raw 431 from Node's header limit before the 20,000-char check | Info | **Fixed.** Cap is 8,000 chars (shipped links are under 1,000), so 8 K to 16 K gets the invalid-link page; over 16 KB Node still answers 431 before the app runs. Test: `A11: size cap is 8000 characters` (`lib/replay-token.test.ts`, `e2e/token-abuse.spec.cjs`) |
+| A12 | `null` JSON body on repro and balance says "Body must be JSON." | Info | **Fixed.** "Body must be a JSON object." Test: `A12: a JSON null, array or number body is refused` (`app/api/routes.test.ts`) |
 
 Concurrency, 100 simultaneous POSTs per route at load average 190 to 275:
 
@@ -240,6 +299,8 @@ HUNT_FUZZ_ROUNDS=500 HUNT_FUZZ_MAXT=99 node --test engine/tests/hunt-fuzz.test.m
 HUNT_SOAK_ROUNDS=200 HUNT_SOAK_MAXT=99 node --expose-gc --test engine/tests/hunt-soak.test.mjs
 HUNT_DET_SEEDS=50 HUNT_DET_MAXT=99 node --test engine/tests/hunt-determinism.test.mjs
 node --test engine/tests/hunt-grab-release.test.mjs
+node --test engine/tests/hunt-knockdown-prop.test.mjs engine/tests/hunt-tuning-range.test.mjs engine/tests/hunt-cpu-low-block.test.mjs engine/tests/apply-tuning.test.mjs
+node engine/fuzz-baseline.mjs --rounds 2000
 ```
 
 The browser determinism spec needs a server for `public/` (`npm run dev` or any static server) and the Playwright

@@ -8,5 +8,5 @@ export async function POST(req: Request) {
   return aiRoute(req, "report", async (report) => {
     const oracle = await bugReportToOracle(report);
     return { oracle, ...findOracleMatches(oracle) };
-  }, { sample: loadSample("repro") });
+  }, { route: "repro", sample: loadSample("repro") });
 }

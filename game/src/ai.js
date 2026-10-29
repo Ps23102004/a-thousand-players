@@ -8,6 +8,7 @@ import { RULES } from './tuning.js';
 let memories = new WeakMap();
 const ATTACKS = ['JAB','CROSS','HOOK','UPPERCUT','BODY_JAB','BODY_HOOK','ROUNDHOUSE','HIGH_KICK','BACK_KICK','SWEEP'];
 const KICKS = ['ROUNDHOUSE','HIGH_KICK','BACK_KICK','SWEEP'];
+const LOW_ATTACKS = ['BODY_JAB','BODY_HOOK','SWEEP']; // the player's crouch attacks (player.js)
 export function createAIMemory() {
   return { time:0, nextDecision:0, history:[], observedMoves:[], lastSerial:-1, guardTime:0, attacksSinceKick:0, nextParry:0, nextGrab:0, followUp:null, lastAction:'IDLE', previousPlayerPhase:null, previousPlayerTime:0 };
 }
@@ -38,6 +39,7 @@ export function decideRivalAction(rival,player,nearbyProps=[],{rng=Math.random}=
     if(m.time>=m.nextParry)choices.push(['PARRY',1]);
     return weighted(choices,rng);
   }
+  if(player.state==='RECOVERY' && RULES.cpuLowBlock>0 && player.isCrouching && rng()<RULES.cpuLowBlock) return {type:'SWEEP',target:'player'}; // a low answer to a crouching player
   if(player.state==='RECOVERY') return {type:dist<=1.32 && last!=='CROSS' && m.attacksSinceKick<2?'CROSS':last==='ROUNDHOUSE'?'SWEEP':'ROUNDHOUSE',target:'player'};
   if(player.isGuarding||player.state==='BLOCK') {
     if(player.isCrouching && dist>1.25)return {type:'ADVANCE'};
@@ -83,6 +85,7 @@ export function updateRivalAI(rival,player,props=[],delta=0.016) {
   const action=decideRivalAction({...rival,x:rp.x,aiMemory:m},{...player,distance:dist},enriched);
   m.followUp=null;
   m.nextDecision=m.time+RULES.decisionDelayMin+Math.random()*0.15;
+  if(RULES.cpuLowBlock>0)rival.isCrouching=action.type==='BLOCK'&&LOW_ATTACKS.includes(player.currentAnim)&&Math.random()<RULES.cpuLowBlock;
   const rb=rival.rigidBody;
   if(!['ADVANCE','RETREAT'].includes(action.type))rb?.setLinvel({x:0,y:rb.linvel().y,z:0},true);
   if(action.type==='ADVANCE'||action.type==='RETREAT'){

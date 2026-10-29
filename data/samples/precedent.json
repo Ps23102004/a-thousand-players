@@ -1,0 +1,19 @@
+{
+ "input": "The player floats upward while blocking after being released by the rival near the wall, then flies out of bounds.",
+ "recordedAt": "2026-10-28T19:38:56Z",
+ "source": "footage/08-repro.old.live.json",
+ "response": {
+  "results": [
+   {
+    "title": "Godot 4.6 Collision Bug? CharacterBody2D “Sticking” Explained & Fixed",
+    "url": "https://www.youtube.com/watch?v=7M47Hu9EzYM",
+    "snippet": "[17:51] looking at. It's a top down view. So by say leaving the motion mode as grounded, we are saying that there's gravity involved. And if the player goes up,\n[18:00] which is negative Y on the screen, they're going to fall back down with gravity. What we have to do is we have to change grounded i"
+   },
+   {
+    "title": "Fix 1.21.x pathfinder collision bug by slightly expanding client hitbox by invisbleia · Pull Request #364 · PrismarineJS/mineflayer-pathfinder · GitHub",
+    "url": "https://github.com/PrismarineJS/mineflayer-pathfinder/pull/364",
+    "snippet": "|  |\n\n| // By slightly increasing the client's physical half-width, the client stops just barely |\n| // short of perfectly aligning with walls. This leaves a micro-gap on the server, |\n| // bypassing the floating-point edge case that causes movement rejection. |\n| if (bot.physics && bot.physics.play"
+   }
+  ]
+ }
+}

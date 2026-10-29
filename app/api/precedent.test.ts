@@ -74,3 +74,33 @@ test("precedent route: rate limited like the model routes (10 per minute per IP)
   assert.equal(limited.status, 429);
   assert.equal(calls.length, 10);
 });
+
+test("A6: with no TAVILY_API_KEY the 503 comes before the limiter, so it does not use the caller's limit", async () => {
+  const ip = freshIp();
+  delete process.env.TAVILY_API_KEY;
+  for (let i = 0; i < 15; i++) assert.equal((await send(req({ description: "bug" }, ip))).status, 503);
+  process.env.TAVILY_API_KEY = "tvly-test-not-real";
+  for (let i = 0; i < 10; i++) assert.equal((await send(req({ description: "bug" }, ip))).status, 200, `call ${i + 1}`);
+  assert.equal((await send(req({ description: "bug" }, ip))).status, 429);
+});
+
+test("A7, A8, A12: precedent refuses non-JSON content types (415), bodies over 64 KB (413) and non-object JSON (400)", async () => {
+  const typed = (type: string) => new Request("http://localhost/api/precedent", { method: "POST", headers: { "content-type": type, "x-forwarded-for": freshIp() }, body: JSON.stringify({ description: "bug" }) });
+  assert.equal((await send(typed("text/plain"))).status, 415);
+  assert.equal((await send(req({ description: "bug", pad: "a".repeat(70_000) }))).status, 413);
+  for (const body of ["null", "[]"]) assert.deepEqual(await send(req(body)).then((r) => [r.status, r.json.error]), [400, "Body must be a JSON object."]);
+  assert.equal(calls.length, 0);
+});
+
+test("roast 7: the sample report's precedent search is served from its recording when rate limited", async () => {
+  const sample = JSON.parse((await import("node:fs")).readFileSync("data/samples/precedent.json", "utf8"));
+  respond = () => Response.json({ results: [] });
+  const ip = freshIp();
+  for (let i = 0; i < 10; i++) assert.equal((await send(req({ description: "bug" }, ip))).status, 200);
+  const cached = await send(req({ description: sample.input }, ip));
+  assert.equal(cached.status, 200);
+  assert.equal(cached.json.cached, true);
+  assert.deepEqual(cached.json.results, sample.response.results);
+  assert.equal(calls.length, 10, "no Tavily call for the cached answer");
+  assert.equal((await send(req({ description: "another bug" }, ip))).status, 429);
+});

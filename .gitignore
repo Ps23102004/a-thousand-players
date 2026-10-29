@@ -17,3 +17,7 @@ e2e/test-results/
 
 # screen footage for the video (e2e/footage.cjs)
 footage/
+
+# e2e screenshots are regenerated on every run
+e2e/screenshots/
+adapters/*/out/

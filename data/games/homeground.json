@@ -1,0 +1,54 @@
+{
+ "id": "homeground",
+ "order": 2,
+ "name": "Homeground",
+ "genre": "Longboard downhill physics on map tiles (TypeScript)",
+ "recordedAt": "2026-10-29",
+ "command": "node --import tsx adapters/crowd.mjs --game homeground --n 100 --fuzz 100 --seed 1 --maxT 240",
+ "players": {
+  "personas": 100,
+  "fuzzers": 100
+ },
+ "rounds": 200,
+ "roundsPerSecond": 12.1,
+ "speedNote": "One core, 16.53 s wall, 2670 simulated seconds per wall second.",
+ "outcomes": {
+  "timeout": 164,
+  "finish": 35,
+  "oob": 1
+ },
+ "stalledRounds": 76,
+ "events": [
+  {
+   "kind": "stuck",
+   "rounds": 1,
+   "verdict": "not a bug: nose-first at rest, by design; pump while carving escapes",
+   "example": {
+    "player": "fuzz29",
+    "seed": 100132,
+    "t": 111
+   }
+  },
+  {
+   "kind": "oob",
+   "rounds": 1,
+   "verdict": "real design gap: no map boundary, the rider leaves the 1 km tile",
+   "example": {
+    "player": "fuzz32",
+    "seed": 100135,
+    "t": 194.3
+   }
+  }
+ ],
+ "replays": {
+  "checked": 22,
+  "matched": 22,
+  "note": "Every round with an event plus every 10th round, replayed from recorded inputs alone; hash and event list compared."
+ },
+ "adapter": "Board physics was already three.js-free with a fixed 120 Hz step. Real levels need the live tile server, so the adapter builds seeded synthetic tiles. About half a day.",
+ "notes": [
+  "Persona rules (fighting vocabulary) were dropped; archetype, skill and reaction time carried over.",
+  "New action vocabulary and situation buckets: road, offroad, wall, air, bail.",
+  "A first \"softlock\" invariant gave 16 false positives; the game has no fail state, so not moving is a choice. It is now counted as \"stalled\", not a bug."
+ ]
+}

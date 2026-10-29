@@ -204,11 +204,11 @@ test('applyTuning: anim overrides apply, recovery rescales the clip, null/{} res
   } finally { applyTuning(null); }
 });
 
-test('applyTuning: rules.* and rival.decisionDelayMin set RULES; unknown keys are ignored; null restores RULE_DEFAULTS', () => {
+test('applyTuning: known rules.* and rival.decisionDelayMin set RULES; unknown keys are ignored; null restores RULE_DEFAULTS', () => {
   try {
     applyTuning({ 'rules.guardDamageMultiplier': 0.9, 'rules.postureOnBlock': 40, 'rival.decisionDelayMin': 0.5, 'rules.brandNew': 7 });
     assert.equal(RULES.guardDamageMultiplier, 0.9); assert.equal(RULES.postureOnBlock, 40); assert.equal(RULES.decisionDelayMin, 0.5);
-    assert.equal(RULES.brandNew, 7, 'rules.* is open-ended');
+    assert.ok(!('brandNew' in RULES), 'only rules RULES already has (bug hunt A10)');
     assert.equal(RULES.postureOnHit, RULE_DEFAULTS.postureOnHit, 'untouched rules stay default');
     applyTuning({ 'anim.NOT_A_MOVE.damage': 5, 'anim.JAB.nonsense.extra': 1, 'garbage': 3, 'anim.jab.damage': 5 });
     assert.equal(RULES.guardDamageMultiplier, RULE_DEFAULTS.guardDamageMultiplier, 'second call is absolute, not cumulative');
@@ -248,7 +248,7 @@ test('tuning changes the round: more JAB damage / stronger guard give different 
 // ------------------------------------------------------------------ rules.mountReleaseFix
 test('rules.mountReleaseFix: 0 (original) and 1 (default) change mount-release outcomes', async () => {
   // Seeds found by sweep: both rounds contain mounts and diverge after the first release.
-  for (const [i, seed, fighter] of [[0, 500, 'kai'], [23, 799, 'rook']]) {
+  for (const [i, seed, fighter] of [[0, 500, 'kai'], [29, 884, 'rook']]) {
     const persona = syntheticPersona(i);
     const dflt = (await play(persona, seed, { fighter })).res;
     const on = (await play(persona, seed, { fighter, tuning: { 'rules.mountReleaseFix': 1 } })).res;

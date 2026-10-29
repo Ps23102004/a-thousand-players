@@ -16,7 +16,7 @@
  {
   "key": "anim.JAB.active",
   "default": 0.14,
-  "min": 0.035,
+  "min": 0.1,
   "max": 0.56,
   "description": "JAB active"
  },
@@ -65,7 +65,7 @@
  {
   "key": "anim.CROSS.active",
   "default": 0.2,
-  "min": 0.05,
+  "min": 0.15,
   "max": 0.8,
   "description": "CROSS active"
  },
@@ -114,7 +114,7 @@
  {
   "key": "anim.ROUNDHOUSE_KICK.active",
   "default": 0.24,
-  "min": 0.06,
+  "min": 0.18,
   "max": 0.96,
   "description": "ROUNDHOUSE_KICK active"
  },
@@ -163,7 +163,7 @@
  {
   "key": "anim.SWEEP.active",
   "default": 0.18,
-  "min": 0.045,
+  "min": 0.13,
   "max": 0.72,
   "description": "SWEEP active"
  },
@@ -212,7 +212,7 @@
  {
   "key": "anim.THROW_PERSON.active",
   "default": 0.32,
-  "min": 0.08,
+  "min": 0.2,
   "max": 1.28,
   "description": "THROW_PERSON active"
  },
@@ -247,7 +247,7 @@
  {
   "key": "anim.THROW_PROP.active",
   "default": 0.22,
-  "min": 0.055,
+  "min": 0.15,
   "max": 0.88,
   "description": "THROW_PROP active"
  },
@@ -282,7 +282,7 @@
  {
   "key": "anim.HOOK.active",
   "default": 0.24,
-  "min": 0.06,
+  "min": 0.18,
   "max": 0.96,
   "description": "HOOK active"
  },
@@ -331,7 +331,7 @@
  {
   "key": "anim.UPPERCUT.active",
   "default": 0.29,
-  "min": 0.0725,
+  "min": 0.23,
   "max": 1.16,
   "description": "UPPERCUT active"
  },
@@ -380,7 +380,7 @@
  {
   "key": "anim.BODY_JAB.active",
   "default": 0.17,
-  "min": 0.0425,
+  "min": 0.125,
   "max": 0.68,
   "description": "BODY_JAB active"
  },
@@ -429,7 +429,7 @@
  {
   "key": "anim.BODY_HOOK.active",
   "default": 0.24,
-  "min": 0.06,
+  "min": 0.18,
   "max": 0.96,
   "description": "BODY_HOOK active"
  },
@@ -478,7 +478,7 @@
  {
   "key": "anim.HIGH_KICK.active",
   "default": 0.31,
-  "min": 0.0775,
+  "min": 0.27,
   "max": 1.24,
   "description": "HIGH_KICK active"
  },
@@ -527,7 +527,7 @@
  {
   "key": "anim.BACK_KICK.active",
   "default": 0.4,
-  "min": 0.1,
+  "min": 0.355,
   "max": 1.6,
   "description": "BACK_KICK active"
  },

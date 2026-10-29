@@ -10,7 +10,8 @@ import { fighterFor } from "./replay-token";
 import type { Persona, RunLine, Tuning } from "./types";
 
 const ROOT = process.cwd();
-const RECORDED: Tuning = { "rules.mountReleaseFix": 0 };
+// The rules the recorded data predates, read from the data so a newly added fix flag cannot leave this test replaying the wrong build.
+const RECORDED: Tuning = JSON.parse(readFileSync(join(ROOT, "data/run-main/meta.json"), "utf8")).recordedWith;
 const personas = new Map((JSON.parse(readFileSync(join(ROOT, "data/run-main/personas.json"), "utf8")) as Persona[]).map((p) => [p.id, p]));
 const runs = new Map(readFileSync(join(ROOT, "data/run-main/runs.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l) as RunLine).map((r) => [`${r.p}:${r.round}`, r]));
 const bug4 = runs.get("p0653:2")!;           // stuck:KNOCKDOWN+airborne+softlock, seed 529060
@@ -95,6 +96,14 @@ test("triageRound turns model failures into readable errors with a status", asyn
   await assert.rejects(triageRound(input, { ask: fails(Object.assign(new Error("HTTP 429: slow down"), { status: 429 })) }), (e: TriageError) => e.status === 503);
   await assert.rejects(triageRound(input, { ask: fails(new Error("triage answer failed validation 1 time; last: patch 0: find text occurs 0 times")) }), (e: TriageError) => e.status === 502 && /find text occurs 0 times/.test(e.message));
   await assert.rejects(triageRound({ ...input, run: { ...bug4, ev: [[1, "hit", 0]] } }, { ask: ask({}) }), (e: TriageError) => e.status === 422);
+});
+
+test("A2: a replay that hits its timeout becomes TriageError 504, never a plain error (the route would answer 500)", async () => {
+  const input = { run: bug4, persona: personas.get("p0653")!, tuning: RECORDED, sameSignature: [bug4] };
+  let asked = false;
+  await assert.rejects(triageRound(input, { ask: async () => { asked = true; throw new Error("unreachable"); }, replayTimeoutMs: 50 }),
+    (e: unknown) => e instanceof TriageError && e.status === 504 && /replay did not finish/.test(e.message));
+  assert.equal(asked, false, "no model call after a replay timeout");
 });
 
 // ---------- sandbox for model-written patches (security review 2026-10-28) ----------

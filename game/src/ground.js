@@ -39,6 +39,9 @@ export function updateGround(f,dt) {
  if(g.phase==='FALL'){
   pronePose(f,Math.min(1,g.elapsed/GROUND_RULES.fallTime));
   if(g.elapsed>=GROUND_RULES.fallTime && pos(f).y<1.08){g.phase='DOWNED';g.elapsed=0;f.state='DOWNED';stop(f);emit(f,'slam',{defender:f})}
+  // A body knocked onto a crate rests at y 1.2 to 1.4 and never gets under 1.08; knockdownOnPropFix also ends FALL once it is at rest (asleep).
+  // A separate branch so the line above stays byte-identical: data/run-main/fixes/bug4.json (Ultra's patch) finds it by exact text.
+  else if(RULES.knockdownOnPropFix && g.elapsed>=GROUND_RULES.fallTime && f.rigidBody?.isSleeping()){g.phase='DOWNED';g.elapsed=0;f.state='DOWNED';stop(f);emit(f,'slam',{defender:f})}
  }else if(g.phase==='DOWNED'){
   pronePose(f);stop(f);g.remaining=Math.max(0,g.window-g.elapsed);
   if(f.health>0 && ((!f.isPlayer && g.elapsed>1.65)||g.remaining<=0))rise(f,false);

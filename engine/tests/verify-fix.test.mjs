@@ -1,8 +1,8 @@
 // engine/verify-fix.mjs: apply a patch to a scratch copy of game/src, replay the bug's seeds, regress a crowd.
-// Runs in child processes from the repo root; scratch copies land in .work/zt-* (gitignored) and are removed afterwards.
+// Runs in child processes from the repo root; scratch copies land in a fresh .work/zt-*-XXXXXX per run (gitignored) and are removed afterwards.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { node, tmp, writeJson, makeFixtureRun, ROOT, CRASH_CASE } from './helpers.mjs';
 
@@ -20,7 +20,7 @@ const verify = (bug, patches, extra = []) => {
   const r = node(['engine/verify-fix.mjs', '--bug', bug, '--dir', dir, '--regress', '0', ...extra]);
   return { ...r, out: r.code === 0 ? JSON.parse(r.stdout) : null, report: existsSync(join(dir, 'fixes', `${bug}.verify.json`)) ? JSON.parse(readFileSync(join(dir, 'fixes', `${bug}.verify.json`), 'utf8')) : null };
 };
-const scratch = (bug, file = 'props.js') => readFileSync(join(ROOT, '.work', bug, 'game/src', file), 'utf8');
+const scratch = (r, file = 'props.js') => readFileSync(join(ROOT, r.out.scratch, 'game/src', file), 'utf8');
 
 before(() => {
   makeFixtureRun(dir);
@@ -31,7 +31,7 @@ before(() => {
   const crash = { id: CRASH, signature: 'crash:RuntimeError: unreachable in throwProp (props.js:303)', count: 1, rounds: [{ p: CRASH_CASE.persona.id, round: 1, seed: CRASH_CASE.seed, label: 'base' }] };
   writeJson(join(dir, 'bugs.json'), [crash, { ...airBug, id: AIR }]);
 });
-after(() => { for (const id of [CRASH, AIR]) rmSync(join(ROOT, '.work', id), { recursive: true, force: true }); });
+after(() => { for (const d of readdirSync(join(ROOT, '.work')).filter(d => d.startsWith(`${CRASH}-`) || d.startsWith(`${AIR}-`))) rmSync(join(ROOT, '.work', d), { recursive: true, force: true }); });
 
 test('unknown bug id: exits non-zero with a clear message', () => {
   const r = node(['engine/verify-fix.mjs', '--bug', 'zt-nope', '--dir', dir]);
@@ -51,7 +51,7 @@ test('patch with a find text that matches 0 times does not apply', () => {
   assert.deepEqual(r.report.after, [], 'no patched replay when nothing applied');
   assert.equal(r.report.fixedRounds, 0);
   assert.equal(r.report.before.length, 1, 'the shipped game is still replayed for reference');
-  assert.equal(scratch(CRASH), readFileSync(join(ROOT, 'game/src/props.js'), 'utf8'), 'scratch copy untouched');
+  assert.equal(scratch(r), readFileSync(join(ROOT, 'game/src/props.js'), 'utf8'), 'scratch copy untouched');
 });
 
 test('patch whose find text matches more than once does not apply (ambiguous)', () => {
@@ -60,7 +60,7 @@ test('patch whose find text matches more than once does not apply (ambiguous)', 
   const r = verify(CRASH, [{ file: 'props.js', find: 'prop.rigidBody', replace: 'prop.body' }]);
   assert.equal(r.out.verdict, 'patch-did-not-apply');
   assert.deepEqual(r.out.applied, [{ file: 'props.js', ok: false, why: `find text matches ${n} times` }]);
-  assert.equal(scratch(CRASH), src);
+  assert.equal(scratch(r), src);
 });
 
 test('patch to a non game/src/*.js file is refused: json, mjs, subdirectory, traversal, absolute, missing, empty', () => {
@@ -94,8 +94,8 @@ test('a harmless patch applies but does not fix: "not-fixed", every round replay
   assert.equal(r.out.verdict, 'not-fixed');
   assert.equal(r.out.fixedRounds, 0); assert.equal(r.out.rounds, 2);
   assert.deepEqual(r.out.applied, [{ file: 'props.js', ok: true }]);
-  assert.ok(scratch(AIR).includes(`${marker}export function throwProp(`), 'special replacement patterns are not interpreted');
-  assert.deepEqual(r.report.before.map(b => b.p).sort(), ['p0263', 'p0367']);
+  assert.ok(scratch(r).includes(`${marker}export function throwProp(`), 'special replacement patterns are not interpreted');
+  assert.deepEqual(r.report.before.map(b => b.p).sort(), ['p0609', 'p0686']);
   assert.ok(r.report.after.every(a => a.bugs.includes('airborne')));
 });
 
@@ -105,7 +105,7 @@ test('a patch that removes the bug is "fixed": the shipped replay still shows it
   assert.equal(r.out.fixedRounds, 2);
   assert.ok(r.report.before.every(b => b.bugs.includes('airborne')));
   assert.ok(r.report.after.every(a => !a.bugs.includes('airborne')));
-  assert.ok(scratch(AIR, 'character.js').includes('rb.translation().y > 1.2'));
+  assert.ok(scratch(r, 'character.js').includes('rb.translation().y > 1.2'));
   assert.ok(!readFileSync(join(ROOT, 'game/src/character.js'), 'utf8').includes('rb.translation().y > 1.2'), 'the real game/src is never modified');
 });
 
@@ -135,7 +135,7 @@ test('--fix points at an explicit patch file and the default is <dir>/fixes/<bug
 });
 
 test('regression crowd: a no-op patch plays the same crowd as the shipped game; a fix lowers bug rounds; a reverted fix crashes a session', () => {
-  const run = (bug, patches) => { writeJson(join(dir, 'fixes', `${bug}.json`), { patches }); return JSON.parse(node(['engine/verify-fix.mjs', '--bug', bug, '--dir', dir, '--regress', '3']).stdout); };
+  const run = (bug, patches, seed = '2') => { writeJson(join(dir, 'fixes', `${bug}.json`), { patches }); return JSON.parse(node(['engine/verify-fix.mjs', '--bug', bug, '--dir', dir, '--regress', '3', '--seed', seed]).stdout); };
   const noop = run(AIR, [HARMLESS]);
   assert.equal(noop.regression.personas, 3);
   assert.deepEqual(noop.regression.patched, noop.regression.shipped, 'scratch copy of engine + patched game reproduces the shipped crowd exactly');
@@ -143,8 +143,20 @@ test('regression crowd: a no-op patch plays the same crowd as the shipped game; 
   assert.deepEqual(Object.keys(noop.regression.shipped), ['rounds', 'winRate', 'avgT', 'bugRounds']);
   const fixed = run(AIR, [AIR_FIX]);
   assert.ok(fixed.regression.patched.bugRounds < fixed.regression.shipped.bugRounds);
-  const reverted = run(CRASH, [REVERT_CRASH_FIX]);
-  assert.ok(reverted.regression.patched.rounds < reverted.regression.shipped.rounds, 'the crashed session ends early');
+  // The fixture run is base seed 2; the old crash is p0047 r1 at base seed 1 (CRASH_CASE), so that crowd is played at seed 1.
+  const reverted = run(CRASH, [REVERT_CRASH_FIX], '1');
+  const crashed = readFileSync(join(ROOT, reverted.scratch, 'out/runs.jsonl'), 'utf8').trim().split('\n').map(JSON.parse).filter(r => r.ev.some(e => e[1] === 'crash'));
+  assert.deepEqual(crashed.map(r => `${r.p}:${r.round}`), ['p0047:1'], 'the reverted fix crashes the session at the old crash round');
+});
+
+test('parallel runs of the same bug get their own scratch folders (roast fix 10)', async () => {
+  const { spawn } = await import('node:child_process');
+  writeJson(join(dir, 'fixes', `${AIR}.json`), { patches: [AIR_FIX] });
+  const once = () => new Promise(res => { let out = ''; const c = spawn(process.execPath, ['engine/verify-fix.mjs', '--bug', AIR, '--dir', dir, '--regress', '0'], { cwd: ROOT }); c.stdout.on('data', d => { out += d; }); c.on('close', code => res({ code, out: JSON.parse(out) })); });
+  const runs = await Promise.all([once(), once(), once()]);
+  assert.deepEqual(runs.map(r => [r.code, r.out.verdict]), Array(3).fill([0, 'fixed']));
+  assert.equal(new Set(runs.map(r => r.out.scratch)).size, 3);
+  for (const r of runs) assert.match(r.out.scratch, new RegExp(`^\\.work/${AIR}-\\w{6}$`));
 });
 
 test('a bug that does not reproduce on the shipped game is reported "did-not-reproduce", never "fixed"', () => {

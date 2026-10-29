@@ -65,7 +65,7 @@ test("persona must have a string name and a rules array; inputs must be an array
   for (const p of [null, 5, "x", [], {}, { name: "x" }, { rules: [] }, { name: 5, rules: [] }, { name: "x", rules: "none" }, { name: "x", rules: {} }]) {
     assert.equal(decodeToken(tokenOf({ ...base, persona: p })), null, JSON.stringify(p));
   }
-  assert.ok(decodeToken(tokenOf({ ...base, persona: { name: "x", rules: [] } })), "minimal persona");
+  assert.ok(decodeToken(tokenOf({ ...base, persona: { ...persona, rules: [] } })), "persona with no rules");
   for (const i of [null, 5, "x", {}, { length: 1 }]) assert.equal(decodeToken(tokenOf({ ...base, inputs: i })), null, JSON.stringify(i));
   assert.deepEqual(decodeToken(tokenOf({ ...base, inputs: [] }))?.inputs, []);
 });
@@ -75,38 +75,55 @@ test("unknown extra fields pass through (the engine stamps an `exp` field)", () 
   assert.equal(t.exp.hash, "abc");
 });
 
-test("size cap: exactly 20000 characters is accepted, one more is refused before any decoding", () => {
-  // 15000 JSON bytes -> exactly 20000 base64 chars. Pad the bio to hit that.
+test("A11: size cap is 8000 characters, below Node's 16 KB header limit, so an oversized link gets the invalid-link page, not a raw 431", () => {
+  // 6000 JSON bytes -> exactly 8000 base64 chars. Pad the bio to hit that.
   const make = (bytes: number) => {
     const empty = JSON.stringify({ ...base, persona: { ...persona, bio: "" } }).length;
     return encodeToken({ ...base, persona: { ...persona, bio: "x".repeat(bytes - empty) } });
   };
-  const at = make(15000), over = make(15001), under = make(14999);
-  assert.equal(at.length, 20000); assert.equal(under.length, 19999); assert.ok(over.length > 20000);
+  const at = make(6000), over = make(6001), under = make(5999);
+  assert.equal(at.length, 8000); assert.equal(under.length, 7999); assert.ok(over.length > 8000);
   assert.ok(decodeToken(at)); assert.ok(decodeToken(under)); assert.equal(decodeToken(over), null);
-  assert.equal(decodeToken("A".repeat(20001)), null);
+  assert.equal(decodeToken("A".repeat(8001)), null);
   assert.equal(decodeToken("A".repeat(10_000_000)), null, "huge input is cut off immediately");
 });
 
-test("a 600-key-change round of recorded inputs still fits in the cap (spotlight / exploit replays)", () => {
+test("a 300-key-change round of recorded inputs still fits in the cap; every shipped link is under 1000 chars", () => {
   let tick = 0;
-  const inputs: [number, number][] = Array.from({ length: 600 }, (_, i) => [tick += 9 + (i % 7), (i * 37) % 4096]);
+  const inputs: [number, number][] = Array.from({ length: 300 }, (_, i) => [tick += 9 + (i % 7), (i * 37) % 4096]);
   const s = encodeToken({ ...base, maxT: 99, persona, inputs });
-  assert.ok(s.length < 20000, `${s.length} chars`);
+  assert.ok(s.length < 8000, `${s.length} chars`);
   assert.deepEqual(decodeToken(s)?.inputs, inputs);
 });
 
-test("LIMIT: a replay carrying >1300 recorded key changes exceeds the 20000-char cap and silently stops decoding", { todo: "replay-token.ts hard-caps at 20000 chars. Shipped data does not hit it (genomes carry a persona, not inputs), but a long input-recorded replay link would be dead with no error." }, () => {
-  let tick = 0;
-  const inputs: [number, number][] = Array.from({ length: 1400 }, (_, i) => [tick += 4, (i * 37) % 4096]);
-  assert.ok(decodeToken(encodeToken({ ...base, maxT: 99, inputs })));
+test("A1: persona fields the page renders must be strings or numbers, never objects or arrays", () => {
+  for (const [k, v] of [["skill", { a: 1 }], ["skill", [1]], ["bio", { a: 1 }], ["bio", ["x"]], ["id", { a: 1 }], ["id", []], ["name", ["x"]], ["archetype", {}], ["skill", "0.5"], ["reaction_ticks", null], ["patience", NaN], ["frustration_tolerance", "x"]] as const) {
+    assert.equal(decodeToken(tokenOf({ ...base, persona: { ...persona, [k]: v } })), null, `${k}=${JSON.stringify(v)}`);
+  }
 });
 
-test("BUG: shallow validation lets nonsense through to the simulator (tuning array / non-numeric tuning values / negative maxT / bad inputs)", { todo: "replay-token.ts validates types one level deep; the URL value is untrusted and feeds applyTuning()/createSim()" }, () => {
-  assert.equal(decodeToken(tokenOf({ ...base, tuning: [] })), null, "tuning must be a plain object, not an array");
-  assert.equal(decodeToken(tokenOf({ ...base, tuning: { "anim.JAB.damage": "lots" } })), null, "tuning values must be finite numbers");
-  assert.equal(decodeToken(tokenOf({ ...base, maxT: -5 })), null, "maxT must be positive");
-  assert.equal(decodeToken(tokenOf({ ...base, inputs: ["x", [1]] })), null, "inputs must be [tick, mask] number pairs");
+test("A9: a persona with no id, null or non-object rules, bad rule weights, or malformed inputs is refused", () => {
+  const { id: _id, ...noId } = persona;
+  const bad: unknown[] = [
+    { ...base, persona: noId }, { ...base, persona: { ...persona, id: "" } },
+    { ...base, persona: { ...persona, rules: [null] } }, { ...base, persona: { ...persona, rules: [5] } }, { ...base, persona: { ...persona, rules: [[]] } },
+    { ...base, persona: { ...persona, rules: [{ weights: null }] } }, { ...base, persona: { ...persona, rules: [{ weights: { sweep: "4" } }] } },
+    { ...base, persona: { ...persona, rules: [{ dist: 5, weights: {} }] } },
+    { ...base, inputs: [null] }, { ...base, inputs: ["x", [1]] }, { ...base, inputs: [[1]] }, { ...base, inputs: [[1, 2, 3]] }, { ...base, inputs: [[1, "2"]] }, { ...base, inputs: [[Infinity, 2]] },
+    { ...base, tuning: [] }, { ...base, maxT: -5 }, { ...base, maxT: 0 },
+  ];
+  for (const b of bad) assert.equal(decodeToken(tokenOf(b)), null, JSON.stringify(b));
+  assert.ok(decodeToken(tokenOf({ ...base, inputs: [[0, 8], [12, 0]] })));
+});
+
+test("A10: tuning keys must be in data/baseline-tuning.json or rules.<name>, with finite number values", () => {
+  for (const tuning of [{ "rules.__proto__": 1 }, { "rules.constructor": 1 }, { "rules.": 1 }, { "nope.key": 1 }, { "anim.JAB.damage": "lots" }, { "anim.JAB.damage": null }, { "rules.mountReleaseFix": {} }]) {
+    assert.equal(decodeToken(tokenOf({ ...base, tuning })), null, JSON.stringify(tuning));
+  }
+  assert.equal(decodeToken(b64(`{"seed":1,"maxT":60,"fighter":"kai","tuning":{"rules.__proto__":{"x":1}}}`)), null, "raw JSON rules.__proto__ key");
+  assert.equal(decodeToken(b64(`{"seed":1,"maxT":60,"fighter":"kai","tuning":{"__proto__":{"x":1}}}`)), null, "raw JSON __proto__ key");
+  assert.ok(decodeToken(tokenOf({ ...base, tuning: { "anim.JAB.damage": 12.5, "rules.mountReleaseFix": 0, "rules.someNewRule": 1 } })));
+  assert.ok(decodeToken(tokenOf({ ...base, tuning: {} })));
 });
 
 // ------------------------------------------------------------------ fighterFor and the engine contract

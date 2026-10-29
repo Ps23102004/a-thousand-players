@@ -1,0 +1,30 @@
+{
+ "id": "clean-getaway",
+ "order": 3,
+ "name": "Clean Getaway",
+ "genre": "9-seat heist, investigation and trial (state machine)",
+ "recordedAt": "2026-10-29",
+ "command": "node --import tsx adapters/crowd.mjs --game clean-getaway --n 100 --fuzz 100 --seed 1",
+ "players": {
+  "personas": 100,
+  "fuzzers": 100
+ },
+ "rounds": 200,
+ "roundsPerSecond": 11.1,
+ "speedNote": "One core, 18.01 s wall, 1534 simulated seconds per wall second.",
+ "outcomes": {
+  "closed": 200
+ },
+ "events": [],
+ "replays": {
+  "checked": 20,
+  "matched": 20,
+  "note": "Every round with an event plus every 10th round, replayed from recorded inputs alone; hash and event list compared."
+ },
+ "adapter": "Pure engine with explicit time and its own seeded RNG; only player ids needed seeding. Fuzz goes through the server's own parseAction. About half a day.",
+ "notes": [
+  "Moves are typed actions with arguments, not a key mask, so the replay records actions.",
+  "Competent play is the game's own bot; the archetype sets how a persona deviates from it.",
+  "Zero events is a real result: a well-tested state machine with input validation held up. Constructed bad states do trip the detectors in tests."
+ ]
+}

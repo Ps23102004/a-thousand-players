@@ -29,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/#crowd">Crowd</Link>
               <Link href="/#findings">Findings</Link>
               <Link href="/bugs">Bugs</Link>
+              <Link href="/games">Games</Link>
               <Link href="/modes/exploit">Exploit</Link>
               <Link href="/modes/repro">Repro</Link>
               <Link href="/modes/balance">Balance</Link>

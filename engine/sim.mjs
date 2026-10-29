@@ -50,24 +50,32 @@ for (const [name, a] of Object.entries(ANIMATIONS)) {
   if (a.type !== 'attack') continue;
   BASE_ANIM[name] = { damage: a.damage, startup: a.startup, active: a.active, recovery: a.recovery, duration: a.duration, hitStop: a.hitStop, reach: a.reach, drive: a.drive, kf: a.keyframes.map(k => k.t) };
 }
-/** Absolute overrides keyed like data/baseline-tuning.json. null/{} restores the shipped game. */
+const MIN_WINDOW = 2 / 60; // 2 ticks
+const ANIM_FIELDS = ['damage', 'startup', 'active', 'recovery', 'duration', 'hitStop', 'reach', 'drive'];
+/** The non-rules keys of data/baseline-tuning.json (engine/tests/apply-tuning.test.mjs checks they match). */
+export const TUNABLE = new Set(['rival.decisionDelayMin', ...Object.entries(BASE_ANIM).flatMap(([name, b]) =>
+  ANIM_FIELDS.filter(f => f !== 'duration' && b[f] !== undefined).map(f => `anim.${name}.${f}`))]);
+/** Absolute overrides keyed like data/baseline-tuning.json. null/{} restores the shipped game.
+ *  Tokens and model answers reach this, so only known keys (TUNABLE, rules.* already in RULES) with finite numbers apply; the rest is ignored. */
 export function applyTuning(tuning) {
   for (const [name, b] of Object.entries(BASE_ANIM)) {
     const a = ANIMATIONS[name];
-    for (const f of ['damage', 'startup', 'active', 'recovery', 'duration', 'hitStop', 'reach', 'drive']) a[f] = b[f];
+    for (const f of ANIM_FIELDS) a[f] = b[f];
     a.keyframes.forEach((k, i) => { k.t = b.kf[i]; });
   }
   Object.assign(RULES, RULE_DEFAULTS);
   for (const [key, v] of Object.entries(tuning || {})) {
-    const m = /^anim\.([A-Z_]+)\.(\w+)$/.exec(key);
-    if (m) {
-      const a = ANIMATIONS[m[1]], b = BASE_ANIM[m[1]]; if (!a || !b) continue;
-      if (m[2] === 'recovery') { // recovery == clip duration; keep keyframes proportional
+    if (!Number.isFinite(v)) continue;
+    if (TUNABLE.has(key) && key.startsWith('anim.')) {
+      const [, name, field] = key.split('.'), a = ANIMATIONS[name], b = BASE_ANIM[name];
+      if (field === 'recovery') { // recovery == clip duration; keep keyframes proportional
         a.recovery = a.duration = v; a.keyframes.forEach((k, i) => { k.t = b.kf[i] * v / b.duration; });
-      } else a[m[2]] = v;
-    } else if (key.startsWith('rules.')) RULES[key.slice(6)] = v;
+      } else a[field] = v;
+    } else if (key.startsWith('rules.') && Object.hasOwn(RULE_DEFAULTS, key.slice(6))) RULES[key.slice(6)] = v;
     else if (key === 'rival.decisionDelayMin') RULES.decisionDelayMin = v;
   }
+  // `active` is the END of the hit window (animation.js), so a startup tuned past it would leave a move that can never hit (bug hunt H4).
+  for (const a of Object.values(ANIMATIONS)) if (a.type === 'attack' && a.active < a.startup + MIN_WINDOW) a.active = a.startup + MIN_WINDOW;
 }
 
 // ---------------------------------------------------------------- helpers

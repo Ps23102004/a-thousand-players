@@ -35,10 +35,11 @@ export function node(args, opts = {}) {
 }
 export { execFileSync };
 
-/** A small real crowd run on disk (3 personas, default seed 1 / 5 rounds): includes the former crash round (p0047 r1) and two airborne rounds (p0263 r1, p0367 r2). */
+/** A small real crowd run on disk (3 personas, base seed 2, up to 5 rounds): two airborne rounds (p0609 r3, p0686 r1) that survive
+ *  rules.grabReleaseFix (base seed 1's former ones, p0263 r1 and p0367 r2, are cleared by it), plus p0047 (CRASH_CASE's persona). */
 export function makeFixtureRun(dir) {
-  writeJson(join(dir, 'personas.json'), [47, 263, 367].map(syntheticPersona));
-  const r = node(['engine/crowd.mjs', '--personas', join(dir, 'personas.json'), '--out', dir, '--workers', '2']);
+  writeJson(join(dir, 'personas.json'), [47, 609, 686].map(syntheticPersona));
+  const r = node(['engine/crowd.mjs', '--personas', join(dir, 'personas.json'), '--out', dir, '--workers', '2', '--seed', '2']);
   if (r.code !== 0) throw new Error('fixture crowd failed: ' + r.stderr);
   return dir;
 }

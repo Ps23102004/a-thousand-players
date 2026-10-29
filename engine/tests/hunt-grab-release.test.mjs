@@ -1,7 +1,7 @@
 // rules.grabReleaseFix (bug hunt, docs/bug-hunt.md): a fighter held by setTranslation while GRABBED keeps a stale floor
 // contact after the grab ends, sinks ~0.3 m into the floor and is ejected upward; next to the wall it rides the wall up
 // and leaves the arena. This is bug2's cause (2) reached through a throw instead of a mount, so bug2 still happened on
-// the shipped build. 0 = the original behavior and today's default (see game/src/tuning.js), 1 = the fix.
+// the shipped build. 0 = the original behavior (data/run-main/meta.json records the run with it), 1 = the fix and the default.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -16,7 +16,7 @@ const CASES = [{ seed: 777603, oobAt: 35.1 }, { seed: 741228, oobAt: 20.1 }];
 
 const ON = { 'rules.grabReleaseFix': 1 };
 test('grabReleaseFix is a known rule and data/run-main/meta.json records the run without it', () => {
-  assert.ok('grabReleaseFix' in RULE_DEFAULTS);
+  assert.equal(RULE_DEFAULTS.grabReleaseFix, 1);
   assert.equal(JSON.parse(readFileSync(`${ROOT}/data/run-main/meta.json`, 'utf8')).recordedWith['rules.grabReleaseFix'], 0);
 });
 

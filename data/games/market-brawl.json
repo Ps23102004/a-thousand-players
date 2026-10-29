@@ -1,0 +1,70 @@
+{
+ "id": "market-brawl",
+ "order": 1,
+ "name": "Market Brawl",
+ "genre": "3D physics brawler (Three.js + Rapier)",
+ "command": "node engine/crowd.mjs --personas data/run-main/personas.json",
+ "players": {
+  "personas": 1000,
+  "fuzzers": 0
+ },
+ "rounds": 2831,
+ "roundsPerSecond": 199,
+ "speedNote": "Measured on the current build, 11 worker threads (README, Throughput). The recorded run's own wall time was not logged.",
+ "outcomes": {
+  "win": 891,
+  "loss": 1940
+ },
+ "events": [
+  {
+   "kind": "airborne",
+   "rounds": 21,
+   "verdict": "partly fixed",
+   "example": {
+    "player": "p0009",
+    "seed": 822230,
+    "t": 16.6
+   }
+  },
+  {
+   "kind": "oob+airborne+softlock",
+   "rounds": 4,
+   "verdict": "fixed by hand, replay-verified 4 of 4",
+   "example": {
+    "player": "p0537",
+    "seed": 634310,
+    "t": 13.8
+   }
+  },
+  {
+   "kind": "crash:RuntimeError: unreachable in throwProp (props.js:303)",
+   "rounds": 3,
+   "verdict": "fixed, replay-verified 3 of 3",
+   "example": {
+    "player": "p0233",
+    "seed": 901214,
+    "t": 11.32
+   }
+  },
+  {
+   "kind": "stuck:KNOCKDOWN+airborne+softlock",
+   "rounds": 1,
+   "verdict": "fixed on 1 of 1 seeds, not shipped",
+   "example": {
+    "player": "p0653",
+    "seed": 529060,
+    "t": 18.5
+   }
+  }
+ ],
+ "replays": {
+  "checked": 42,
+  "matched": 42,
+  "note": "Sampled recorded rounds replayed event for event in the browser (README, Replay)."
+ },
+ "adapter": "The original target. Needed window and DOM shims plus Three.js in Node to run headless.",
+ "notes": [
+  "Personas were written for this game: their rules use fighting vocabulary (distance, rival, punch).",
+  "Real-time contact between two physics bodies is where the crowd found the most bugs."
+ ]
+}

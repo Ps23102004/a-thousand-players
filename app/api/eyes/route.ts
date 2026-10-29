@@ -1,15 +1,30 @@
 import { describeFrames } from "@/ai";
-import { rateLimited } from "@/lib/ai-route";
-import { validateEyes } from "@/lib/eyes";
+import { notConfigured, rateLimited, readJson, sampleAnswer } from "@/lib/ai-route";
+import { DEFAULT_QUESTION, validateEyes } from "@/lib/eyes";
+import { loadSample } from "@/lib/samples";
+
+const MAX_BODY = 1_100_000; // 3 frames of up to 350,000 base64 chars each (lib/eyes.ts) plus the question
+
+/** The replay round the request came from (the Eyes panel lives on /replay?key=p0537:1); "" when unknown. */
+function refererKey(req: Request): string {
+  try { return new URL(req.headers.get("referer") ?? "").searchParams.get("key") ?? ""; } catch { return ""; }
+}
 
 // Super-VL (the only model call) describes up to 3 frames captured from a replay. Nothing is stored.
 export async function POST(req: Request) {
-  let body: unknown;
-  try { body = await req.json(); } catch { return Response.json({ error: "Body must be JSON." }, { status: 400 }); }
+  const body = await readJson(req, MAX_BODY);
+  if (body instanceof Response) return body;
   const v = validateEyes(body);
   if ("error" in v) return Response.json({ error: v.error }, { status: v.status });
-  const limited = rateLimited(req);
-  if (limited) return limited;
+  const off = notConfigured("NEBIUS_API_KEY", "The vision model");
+  if (off) return off;
+  const limited = rateLimited(req, "eyes");
+  if (limited) {
+    // The sample round's frames are a deterministic re-simulation, so the recorded answer describes the same round.
+    const cached = v.question === DEFAULT_QUESTION ? sampleAnswer(loadSample("eyes"), refererKey(req)) : null;
+    // The Eyes panel shows only `text`, so the notice goes in it too.
+    return cached ? Response.json({ ...cached, text: `${cached.cachedNotice}\n\n${cached.text}` }) : limited;
+  }
   try {
     return Response.json({ text: await describeFrames(v.frames, v.question), frames: v.frames.length });
   } catch (e) {

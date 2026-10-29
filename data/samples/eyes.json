@@ -1,0 +1,9 @@
+{
+ "input": "p0537:1",
+ "recordedAt": "2026-10-28T19:29:35Z",
+ "source": "footage/09-eyes.live.json",
+ "response": {
+  "text": "In frame 1, one fighter is sitting on the floor with a large cardboard box overlapping their body, which looks like a clipping issue. The other fighter is standing normally. In frames 2 and 3, the camera has pulled back to show the arena exterior; the fighters are too small to assess clearly, but nothing obviously wrong is visible at that distance.",
+  "frames": 3
+ }
+}

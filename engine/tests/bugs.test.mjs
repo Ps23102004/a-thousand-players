@@ -112,8 +112,8 @@ test('end to end on a real crowd run: the airborne rounds become one cluster wit
   const { clusters: cs } = runBugs(d);
   assert.ok(!cs.some(c => c.signature.startsWith('crash:')), 'the props.js throwProp crash is fixed');
   const air = cs.find(c => c.signature === 'airborne');
-  assert.equal(air.count, 2); assert.deepEqual(air.rounds.map(r => r.p).sort(), ['p0263', 'p0367']);
-  assert.ok(air.timeline.some(r => / EVENT airborne by player/.test(r)), 'the evidence re-sim reproduces the bug event');
+  assert.equal(air.count, 2); assert.deepEqual(air.rounds.map(r => r.p).sort(), ['p0609', 'p0686']);
+  assert.ok(air.timeline.some(r => / EVENT airborne by (player|CPU)/.test(r)), 'the evidence re-sim reproduces the bug event');
   assert.ok(existsSync(join(d, 'bugs.json')));
 });
 

@@ -61,16 +61,26 @@ import { createPolicy } from '../engine/policy.mjs';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
+// Same checks as isReplayToken in lib/replay-token.ts (the server validates links it builds; this page can be opened directly).
+const isObj = v => typeof v === 'object' && v !== null && !Array.isArray(v);
+const num = v => typeof v === 'number' && Number.isFinite(v), str = v => typeof v === 'string';
+const okRule = r => isObj(r) && (r.dist === undefined || str(r.dist)) && (r.rival === undefined || str(r.rival)) && (r.weights === undefined || (isObj(r.weights) && Object.values(r.weights).every(num)));
+const okPersona = p => isObj(p) && str(p.id) && p.id !== '' && str(p.name) && str(p.archetype) && str(p.bio) && num(p.skill) && num(p.reaction_ticks) && num(p.patience) && num(p.frustration_tolerance) && Array.isArray(p.rules) && p.rules.every(okRule);
+const okTuningKey = k => /^\w+(\.\w+)+$/.test(k) && !k.split('.').some(seg => seg in Object.prototype);
 function decode(s) {
-  if (!s || s.length > 20000) return null;
+  if (!s || s.length > 8000) return null;
   try {
     const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
     const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
-    return o && Number.isFinite(o.seed) && Number.isFinite(o.maxT) && (o.fighter === 'kai' || o.fighter === 'rook') && (o.tuning === null || typeof o.tuning === 'object') ? o : null;
+    return isObj(o) && num(o.seed) && num(o.maxT) && o.maxT > 0 && (o.fighter === 'kai' || o.fighter === 'rook')
+      && (o.tuning === null || (isObj(o.tuning) && Object.entries(o.tuning).every(([k, v]) => okTuningKey(k) && num(v))))
+      && (o.persona === undefined || okPersona(o.persona))
+      && (o.inputs === undefined || (Array.isArray(o.inputs) && o.inputs.every(i => Array.isArray(i) && i.length === 2 && num(i[0]) && num(i[1])))) ? o : null;
   } catch { return null; }
 }
+function fail(msg) { $('err').style.display = 'grid'; $('err').textContent = msg; }
 const token = decode(params.get('t'));
-if (!token) { $('err').style.display = 'grid'; $('err').textContent = 'This replay link is missing or malformed.'; throw new Error('bad token'); }
+if (!token) { fail('This replay link is missing or malformed.'); throw new Error('bad token'); }
 
 const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6)); renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -93,7 +103,7 @@ async function start() {
   acc = 0; seen = 0; $('ticker').textContent = ''; $('end').classList.remove('show');
   $('pname').textContent = (token.persona ? `${token.persona.name} · ${token.persona.archetype}` : 'RECORDED INPUT') + ` (${sim.player.name})`;
   $('rname').textContent = `${sim.rival.name} · built-in CPU`;
-  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? (Object.keys(token.tuning).every(k => ['rules.mountReleaseFix', 'rules.throwPropGuard', 'rules.grabReleaseFix'].includes(k)) ? 'build as recorded (before the bug fixes)' : 'patched tuning') : 'shipped tuning'} · deterministic re-simulation`;
+  $('badge').textContent = `seed ${token.seed} · ${token.tuning ? (Object.entries(token.tuning).every(([k, v]) => k.startsWith('rules.') && v === 0) ? 'build as recorded (before the bug fixes)' : 'patched tuning') : 'shipped tuning'} · deterministic re-simulation`;
 }
 function seekTo(t) { while (!sim.done && sim.time() < t) sim.step(ctrl.step(sim)); }
 function tickerAdd(e) {
@@ -132,7 +142,7 @@ function frame(now) {
 }
 
 $('play').onclick = () => { paused = !paused; $('play').textContent = paused ? 'Play' : 'Pause'; };
-$('restart').onclick = $('again').onclick = async () => { ended = false; await start(); };
+$('restart').onclick = $('again').onclick = async () => { ended = false; try { await start(); } catch (e) { sim = null; fail('This replay could not restart: ' + (e?.message || e)); } };
 document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { speed = +b.dataset.speed; document.querySelectorAll('[data-speed]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
 
 // Frame capture for vision checks (Super-VL): parent posts {type:'capture', times:[s...]}; we reply with PNG base64 frames.
@@ -147,7 +157,7 @@ addEventListener('message', async ev => {
   ev.source.postMessage({ type: 'frames', frames }, ev.origin);
 });
 
-await start();
+try { await start(); } catch (e) { sim = null; fail('This replay could not start: ' + (e?.message || e) + '. The link may be damaged.'); throw e; }
 if (params.get('at')) { seekTo(+params.get('at')); paused = true; $('play').textContent = 'Play'; }
 requestAnimationFrame(frame);
 </script>

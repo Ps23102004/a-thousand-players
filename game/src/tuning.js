@@ -6,6 +6,10 @@ export const RULES = { guardDamageMultiplier: 0.2, postureOnBlock: 15, postureOn
   // 1 = throwProp skips a crate that broke while carried (bug3, Ultra's verified patch); 0 = original behavior, which crashes Rapier.
   throwPropGuard: 1,
   // 1 = a fighter released from a grab gets its contacts refreshed (docs/bug-hunt.md: bug2's sink-and-eject after a throw).
-  // Off until the existing engine tests that pin pre-fix rounds (fixture airborne rounds p0263/p0367) are re-pinned.
-  grabReleaseFix: 0 };
+  grabReleaseFix: 1,
+  // 1 = a knockdown also ends once the body is at rest, so landing on a crate no longer stays in KNOCKDOWN forever (bug4, H3).
+  knockdownOnPropFix: 1,
+  // Probability that the CPU crouch-blocks when it blocks a crouch attack (bug hunt H2: crouch + jab spam wins every round).
+  // 0 = the shipped CPU, which only blocks standing; an optional rule for Balance mode, not on by default.
+  cpuLowBlock: 0 };
 export const RULE_DEFAULTS = Object.freeze({ ...RULES });

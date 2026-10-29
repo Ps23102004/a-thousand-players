@@ -1,4 +1,4 @@
-// Live "Triage this" for one recorded round: evidence timeline -> ONE Nemotron Ultra call -> patch applied to a scratch copy of
+// Live "Triage this" for one recorded round: evidence timeline -> up to TWO Nemotron Ultra calls (the second only after a failed validation) -> patch applied to a scratch copy of
 // game/src -> the exact seed replayed before and after. Plain Node (fs, child_process); the model call is injected (`ask`) so the
 // apply/replay half is testable without credits. Each replay runs in its own process: see app/api/triage/round.mjs.
 import { execFile } from "node:child_process";
@@ -29,7 +29,20 @@ export function validateTriageBody(body: unknown): { p: string; round: number } 
 }
 
 export class TriageError extends Error {
-  constructor(public status: number, message: string) { super(message); }
+  /** modelCalled: the error came after an Ultra call was sent, so the call counts against the rate limit. */
+  constructor(public status: number, message: string, public modelCalled = false) { super(message); }
+}
+
+// ---------- concurrency ----------
+// ponytail: per process, like the rate limiter. A shared store would be needed to cap across instances.
+export const MAX_LIVE_TRIAGES = 2;
+let liveTriages = 0;
+/** Takes one of this instance's live-triage slots and returns its release function, or null when all are taken. */
+export function liveSlot(): (() => void) | null {
+  if (liveTriages >= MAX_LIVE_TRIAGES) return null;
+  liveTriages++;
+  let released = false;
+  return () => { if (!released) { released = true; liveTriages--; } };
 }
 
 // ---------- replay in a child process ----------
@@ -53,6 +66,7 @@ export function sandboxArgs(engineDir: string): string[] {
 export function playRound(engineDir: string, job: RoundJob, timeoutMs = 30_000): Promise<RoundResult> {
   return new Promise((resolve, reject) => {
     execFile(process.execPath, [...sandboxArgs(engineDir), WORKER, engineDir, JSON.stringify(job)], { timeout: timeoutMs, maxBuffer: 1e7, env: { PATH: process.env.PATH ?? "", NODE_ENV: "production" } }, (err, stdout, stderr) => {
+      if (err?.killed) return reject(Object.assign(new Error(`the replay did not finish within ${timeoutMs} ms`), { timedOut: true }));
       if (err) return reject(new Error(errorLine(stderr) || err.message));
       try { resolve(JSON.parse(stdout.trim().split("\n").pop()!) as RoundResult); } catch { reject(new Error("the replay printed no result")); }
     });
@@ -92,7 +106,7 @@ export function applyPatches(srcDir: string, patches: Patch[]): Applied[] {
 
 // ---------- the flow ----------
 export interface TriageInput { run: RunLine; persona: Persona; tuning: Tuning | null; sameSignature: RunLine[] }
-export interface TriageDeps { root?: string; ask?: typeof triageBug; timeoutMs?: number }
+export interface TriageDeps { root?: string; ask?: typeof triageBug; timeoutMs?: number; replayTimeoutMs?: number }
 
 const side = (r: RoundResult): TriageLiveSide => {
   const bugs = r.ev.filter(isBug);
@@ -103,13 +117,13 @@ const side = (r: RoundResult): TriageLiveSide => {
 function modelError(e: unknown, timeoutMs: number): TriageError {
   const err = e as { name?: string; status?: number; message?: string };
   const msg = err?.message ?? String(e);
-  if (err?.name === "TimeoutError") return new TriageError(504, `Nemotron Ultra did not answer within ${Math.round(timeoutMs / 1000)} s. Each of its ${LIVE_ATTEMPTS} tries has that limit; press the button again.`);
-  if (err?.status === 429) return new TriageError(503, "Token Factory is rate-limiting Nemotron Ultra (HTTP 429). Try again in a minute.");
-  if (typeof err?.status === "number") return new TriageError(502, `Token Factory returned HTTP ${err.status} for the Ultra call.`);
+  if (err?.name === "TimeoutError") return new TriageError(504, `Nemotron Ultra did not answer within ${Math.round(timeoutMs / 1000)} s. Each of its ${LIVE_ATTEMPTS} tries has that limit; press the button again.`, true);
+  if (err?.status === 429) return new TriageError(503, "Token Factory is rate-limiting Nemotron Ultra (HTTP 429). Try again in a minute.", true);
+  if (typeof err?.status === "number") return new TriageError(502, `Token Factory returned HTTP ${err.status} for the Ultra call.`, true);
   if (/NEBIUS_API_KEY/.test(msg)) return new TriageError(503, "NEBIUS_API_KEY is not set on the server, so no model can be called.");
-  if (/failed validation/.test(msg)) return new TriageError(502, `Ultra answered, but the answer failed validation: ${msg.replace(/^.*last: /, "")}. It failed on both of its ${LIVE_ATTEMPTS} tries; press the button again for a new answer.`);
+  if (/failed validation/.test(msg)) return new TriageError(502, `Ultra answered, but the answer failed validation: ${msg.replace(/^.*last: /, "")}. It failed on both of its ${LIVE_ATTEMPTS} tries; press the button again for a new answer.`, true);
   console.error("live triage: Ultra call failed:", msg);
-  return new TriageError(502, "The Ultra call failed. Try again in a minute.");
+  return new TriageError(502, "The Ultra call failed. Try again in a minute.", true);
 }
 
 /**
@@ -120,14 +134,20 @@ function modelError(e: unknown, timeoutMs: number): TriageError {
 // triage does with 3. Each attempt has its own timeout, so the worst case is about 2 x timeoutMs.
 export const LIVE_ATTEMPTS = 2;
 
-export async function triageRound({ run, persona, tuning, sameSignature }: TriageInput, { root = process.cwd(), ask = triageBug, timeoutMs = 40_000 }: TriageDeps = {}): Promise<TriageLiveResult> {
+export async function triageRound({ run, persona, tuning, sameSignature }: TriageInput, { root = process.cwd(), ask = triageBug, timeoutMs = 40_000, replayTimeoutMs = 30_000 }: TriageDeps = {}): Promise<TriageLiveResult> {
   const t0 = Date.now();
   const firstBug = run.ev.find(isBug);
   if (!firstBug) throw new TriageError(422, "This round has no invariant violation to triage.");
   const job: RoundJob = { seed: run.seed, fighter: fighterFor(run.p), tuning, persona };
 
   // 1. Shipped game, recorded tuning: the baseline bug count plus the 10 Hz window around the first bug event (as engine/bugs.mjs).
-  const baseline = await playRound(join(root, "engine"), { ...job, window: [Math.max(0, firstBug[0] - 4), firstBug[0] + 2] });
+  let baseline: RoundResult;
+  try { baseline = await playRound(join(root, "engine"), { ...job, window: [Math.max(0, firstBug[0] - 4), firstBug[0] + 2] }, replayTimeoutMs); }
+  catch (e) {
+    // A loaded server, not a bad request and not a crash: 504, and no model was called.
+    if ((e as { timedOut?: boolean }).timedOut) throw new TriageError(504, `The replay did not finish within ${Math.round(replayTimeoutMs / 1000)} s because the server is busy. No model was called; try again in a minute.`);
+    throw e;
+  }
   // No Ultra call when the replay does not show the bug: any patch would then be credited as a fix it is not.
   if (!baseline.ev.some(isBug)) throw new TriageError(409, "This round did not reproduce its bug on replay, so there is nothing to triage and no model was called.");
   // Ultra sees the source, not the tuning. A rule the replay forces to 0 (rules.mountReleaseFix for rounds recorded before that fix) makes any
@@ -138,7 +158,7 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
     : baseline.timeline;
   const t1 = Date.now();
 
-  // 2. One Ultra call with the same prompt as the offline triage.
+  // 2. Up to two Ultra calls (LIVE_ATTEMPTS) with the same prompt as the offline triage.
   const signature = signatureOf(run.ev);
   const cluster: BugCluster = {
     id: `${run.p}-r${run.round}`, signature, count: Math.max(1, sameSignature.length),
@@ -165,7 +185,7 @@ export async function triageRound({ run, persona, tuning, sameSignature }: Triag
       if (!applied.length || !applied.every((a) => a.ok)) verdict = "patch-did-not-apply";
       else {
         try {
-          after = side(await playRound(join(scratch, "engine"), job));
+          after = side(await playRound(join(scratch, "engine"), job, replayTimeoutMs));
           verdict = after.bugEvents === 0 ? "fixed" : "not-fixed";
         } catch (e) {
           console.error("live triage: patched replay failed:", (e as Error).message);

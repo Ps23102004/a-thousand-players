@@ -1,18 +1,21 @@
 // Apply a proposed fix to a scratch copy of the game, replay the bug's exact seeds, and run a regression crowd.
-//   node engine/verify-fix.mjs --bug bug2 [--dir data/run-main] [--fix data/run-main/fixes/bug2.json] [--regress 200]
+//   node engine/verify-fix.mjs --bug bug2 [--dir data/run-main] [--fix data/run-main/fixes/bug2.json] [--regress 200] [--seed 1]
+// --seed is the run's crowd base seed, so the regression crowd plays the same rounds as <dir>/runs.jsonl.
 // fix JSON: { "patches": [ { "file": "ground.js", "find": "exact text", "replace": "new text" } ] }
-import { readFileSync, writeFileSync, cpSync, rmSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
-const bugId = arg('bug'), dir = arg('dir', 'data/run-main'), fixPath = arg('fix', `${dir}/fixes/${bugId}.json`), regressN = +arg('regress', '200');
+const bugId = arg('bug'), dir = arg('dir', 'data/run-main'), fixPath = arg('fix', `${dir}/fixes/${bugId}.json`), regressN = +arg('regress', '200'), seed = arg('seed', '1');
 const bug = JSON.parse(readFileSync(`${dir}/bugs.json`, 'utf8')).find(b => b.id === bugId);
 if (!bug) throw new Error(`no ${bugId} in ${dir}/bugs.json`);
 const fix = JSON.parse(readFileSync(fixPath, 'utf8'));
 
 // Scratch copy: patched game/src next to an engine copy, so the engine's '../game/src' imports pick up the patch.
-const work = `.work/${bugId}`;
-rmSync(work, { recursive: true, force: true });
+// A fresh folder per run (inside the repo, so 'three' and Rapier still resolve from node_modules): parallel runs never share one.
+// It is left in place for inspection (stdout names it); .work/ is git-ignored.
+mkdirSync('.work', { recursive: true });
+const work = mkdtempSync(`.work/${bugId.replace(/[^\w-]/g, '_')}-`);
 cpSync('game/src', `${work}/game/src`, { recursive: true });
 mkdirSync(`${work}/engine`, { recursive: true });
 for (const f of readdirSync('engine').filter(f => f.endsWith('.mjs'))) cpSync(`engine/${f}`, `${work}/engine/${f}`);
@@ -36,7 +39,7 @@ const fixedRounds = after.filter(a => !a.bugs.some(c => codes.has(c))).length;
 // Regression: the first N personas, base tuning, patched vs shipped game.
 let regression = null;
 if (allApplied && regressN > 0) {
-  execFileSync(process.execPath, [`${work}/engine/crowd.mjs`, '--personas', `${dir}/personas.json`, '--limit', String(regressN), '--out', `${work}/out`, '--traces', '0'], { stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync(process.execPath, [`${work}/engine/crowd.mjs`, '--personas', `${dir}/personas.json`, '--limit', String(regressN), '--out', `${work}/out`, '--traces', '0', '--seed', seed], { stdio: ['ignore', 'ignore', 'ignore'] });
   const load = f => readFileSync(f, 'utf8').trim().split('\n').map(JSON.parse);
   const ids = new Set(JSON.parse(readFileSync(`${dir}/personas.json`, 'utf8')).slice(0, regressN).map(p => p.id));
   const base = load(`${dir}/runs.jsonl`).filter(r => ids.has(r.p)), patched = load(`${work}/out/runs.jsonl`);
@@ -50,4 +53,4 @@ const verdict = !allApplied ? 'patch-did-not-apply' : !reproduced ? 'did-not-rep
 const report = { bug: bugId, signature: bug.signature, verdict, applied, rounds: rounds.length, fixedRounds, before, after, regression };
 mkdirSync(`${dir}/fixes`, { recursive: true });
 writeFileSync(`${dir}/fixes/${bugId}.verify.json`, JSON.stringify(report, null, 1));
-console.log(JSON.stringify({ verdict, fixedRounds, rounds: rounds.length, applied, regression }, null, 1));
+console.log(JSON.stringify({ verdict, fixedRounds, rounds: rounds.length, applied, regression, scratch: work }, null, 1));

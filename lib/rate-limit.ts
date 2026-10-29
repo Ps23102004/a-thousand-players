@@ -1,13 +1,13 @@
 // ponytail: in-memory, per process. Resets on restart and is not shared across instances; use a store (Redis/KV) if deployed to more than one.
-export function createLimiter(perMinute: number, perDay: number) {
+export function createLimiter(perMinute: number, perDay: number, name = "") {
   const recent = new Map<string, number[]>();
   let day = "";
   let dayCount = 0;
 
-  return function check(ip: string, now = Date.now()): { ok: true } | { ok: false; retryAfter: number; reason: string } {
+  function check(ip: string, now = Date.now()): { ok: true } | { ok: false; retryAfter: number; reason: string } {
     const today = new Date(now).toISOString().slice(0, 10);
     if (today !== day) { day = today; dayCount = 0; recent.clear(); }
-    if (dayCount >= perDay) return { ok: false, retryAfter: 3600, reason: `daily cap of ${perDay} requests reached` };
+    if (dayCount >= perDay) return { ok: false, retryAfter: 3600, reason: `daily cap of ${perDay}${name ? ` ${name}` : ""} requests reached` };
 
     const hits = (recent.get(ip) ?? []).filter((t) => now - t < 60_000);
     if (hits.length >= perMinute) {
@@ -18,5 +18,11 @@ export function createLimiter(perMinute: number, perDay: number) {
     recent.set(ip, hits);
     dayCount++;
     return { ok: true };
-  };
+  }
+  /** Gives back the unit an accepted call used, for a call that ended before reaching a model. */
+  function refund(ip: string) {
+    recent.get(ip)?.pop();
+    if (dayCount > 0) dayCount--;
+  }
+  return Object.assign(check, { refund });
 }

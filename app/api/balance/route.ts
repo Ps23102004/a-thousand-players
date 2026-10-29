@@ -3,5 +3,5 @@ import { aiRoute } from "@/lib/ai-route";
 import { loadSample } from "@/lib/samples";
 
 export async function POST(req: Request) {
-  return aiRoute(req, "notes", (notes) => patchNotesToTuning(notes), { sample: loadSample("balance") });
+  return aiRoute(req, "notes", (notes) => patchNotesToTuning(notes), { route: "balance", sample: loadSample("balance") });
 }
