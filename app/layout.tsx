@@ -8,8 +8,8 @@ const chakra = Chakra_Petch({ subsets: ["latin"], weight: ["600", "700"], variab
 const plexSans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-plex-sans" });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-mono" });
 
-// Render per request so a new data/run-main drop shows up without a rebuild (lib/data.ts caches by file mtime).
-export const dynamic = "force-dynamic";
+// No force-dynamic here: pages read data/run-main at build time (Vercel Hobby allows 12 functions; see lib/layout-static.test.ts).
+// A new data/run-main drop needs a rebuild with `next start`; `next dev` still picks it up per request.
 
 export const metadata: Metadata = {
   title: "A Thousand Players",
