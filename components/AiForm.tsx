@@ -26,7 +26,7 @@ export default function AiForm<T>({ endpoint, field, label, placeholder, example
   }
 
   return (
-    <div style={{ display: "grid", gap: 20 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 20 }}>
       <form className="panel" onSubmit={submit}>
         <label htmlFor={`${field}-input`}>{label}</label>
         <textarea id={`${field}-input`} rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder={placeholder} maxLength={4000} required />

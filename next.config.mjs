@@ -5,6 +5,12 @@ const nextConfig = {
   // straight from disk, plus three and the self-contained Rapier compat build (its WASM is inlined, no .wasm file). The bundler
   // never sees those imports, so the function bundle gets them by hand.
   outputFileTracingIncludes: {
+    "/api/prophet": [
+      "./engine/crowd.mjs", "./engine/crowd-worker.mjs", "./engine/sim.mjs", "./engine/policy.mjs", "./game/src/**/*",
+      "./data/run-main/personas.json", "./data/run-main/meta.json", "./data/prophet/example.json",
+      "./node_modules/three/package.json", "./node_modules/three/build/three.module.js", "./node_modules/three/build/three.core.js",
+      "./node_modules/@dimforge/rapier3d-compat/package.json", "./node_modules/@dimforge/rapier3d-compat/dist/rapier.mjs",
+    ],
     "/api/triage": [
       "./app/api/triage/round.mjs", "./engine/sim.mjs", "./engine/policy.mjs", "./game/src/**/*",
       "./node_modules/three/package.json", "./node_modules/three/build/three.module.js", "./node_modules/three/build/three.core.js",
