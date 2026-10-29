@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('playwright/test');
 const results = require('../data/reprobot/results.json');
 
 test('fresh-play block reflects the committed results', async ({ page }) => {
