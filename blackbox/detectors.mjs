@@ -4,13 +4,16 @@ const STILL = 0.0001;
 
 // Browser capability refusals are environment evidence, not proof of a game defect.
 export function classifyPageError(message) {
-  // Missing APIs and broken handlers are still defects even when their names mention a capability.
-  if (/\b(?:TypeError|ReferenceError|SyntaxError)\b/i.test(message) && /not a function|undefined|not defined|cannot (?:read|set)|unexpected/i.test(message)) return null;
-  const refusal = /refus|denied|not allowed|not valid|requires?|required|fail|permission|user (?:gesture|activation)|not supported|unsupported|not available|unable|blocked|sandbox/i;
-  if (/pointer[\s-]*lock/i.test(message) && refusal.test(message)) return 'pointer-lock-refused';
-  if (/full[\s-]*screen/i.test(message) && refusal.test(message)) return 'fullscreen-refused';
-  if (/user (?:gesture|activation)/i.test(message) && refusal.test(message)) return 'user-gesture-refused';
-  if (/\bwebgl\b/i.test(message) && /driver|gpu (?:stall|reset)|software rendering/i.test(message)) return 'webgl-context-warning';
+  // Programming errors must not disappear merely because they name a browser API.
+  if (/\b(?:TypeError|ReferenceError|SyntaxError)\b/i.test(message)) return null;
+  const policyRefusal = /denied|not allowed|user (?:gesture|activation)|transient activation|permissions? (?:check|policy)|sandbox/i;
+  if (/pointer[\s-]*lock/i.test(message) && (policyRefusal.test(message) || /root document of this element is not valid for pointer lock/i.test(message))) return 'pointer-lock-refused';
+  if (/full[\s-]*screen/i.test(message) && policyRefusal.test(message)) return 'fullscreen-refused';
+  if (/(?:user (?:gesture|activation).*(?:required|requires|denied)|(?:requires|required).*user (?:gesture|activation)|user (?:didn't|did not|hasn't) interact)/i.test(message)) return 'user-gesture-refused';
+  if (/permissions[ -]policy/i.test(message) && /blocked|denied|disallow/i.test(message)) return 'permission-policy-refused';
+  if (/NotAllowedError:.*(?:permission denied|permission dismissed)/i.test(message)) return 'permission-refused';
+  if (/blocked by CORS policy|net::ERR_INTERNET_DISCONNECTED/i.test(message)) return 'network-policy-refused';
+  if (/\bwebgl\b/i.test(message) && /gpu stall due to ReadPixels|software rendering/i.test(message) && !/reset|context.?lost/i.test(message)) return 'webgl-context-warning';
   return null;
 }
 function validate(frame) {
@@ -39,39 +42,58 @@ export function frozenStreak(diffs, inputsSent) {
   for (let i = diffs.length - 1; i >= 0 && diffs[i] <= STILL && inputsSent[i] > 0; i--) streak++;
   return streak;
 }
-export function classifyControlsResponse(probeDiffs) {
+export function classifyControlsResponse(probeDiffs, expectedControlProbes = 11) {
   if (probeDiffs.some(d => d > STILL)) return 'responsive';
-  return probeDiffs.length >= 4 ? 'unresponsive' : 'inconclusive';
+  return probeDiffs.length >= expectedControlProbes ? 'unresponsive' : 'inconclusive';
 }
 // Frames bound each diff interval. Blank pixels must never establish a freeze streak.
-function visualObservation({ frames = [], diffs = [], inputsSent = [], responded = false } = {}) {
-  if (frames.some((frame, i) => i > 0 && frame.blank && frames[i - 1].blank)) return { kind: 'blank' };
+function visualObservation({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], animationEvidence = false, intervalActivity = [] } = {}) {
+  if (frames.some((frame, i) => i > 0 && frame.blank && frames[i - 1].blank && frame.t - frames[i - 1].t >= 5000)) return { kind: 'blank' };
   let stillIntervals = 0, freeze;
+  let previouslyChanged = animationEvidence || controlDiffs.some(d => d > STILL);
   for (let i = 0; i < diffs.length; i++) {
-    if (diffs[i] > STILL) responded = true;
     const nonBlank = !frames[i]?.blank && !frames[i + 1]?.blank;
-    stillIntervals = responded && nonBlank && diffs[i] <= STILL && inputsSent[i] > 0 ? stillIntervals + 1 : 0;
+    // A complete unchanged repeat suite remains evidence through adjacent still
+    // intervals. Budget-truncated probes do not erase it; any response resets it.
+    const controlsStill = intervalActivity[i] === false || (intervalActivity[i] == null && stillIntervals > 0);
+    stillIntervals = previouslyChanged && controlsStill && nonBlank && diffs[i] <= STILL && inputsSent[i] > 0 ? stillIntervals + 1 : 0;
     if (stillIntervals >= 2 && !freeze) freeze = { kind: 'freeze', t: frames[i + 1]?.t };
+    if (diffs[i] > STILL) previouslyChanged = true;
   }
   return freeze ?? { kind: null };
 }
 export function classifyVisualState(observation = {}) {
   return visualObservation(observation).kind;
 }
-export function summarize({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], events = [] } = {}) {
+export function summarize({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], animationEvidence = false, intervalActivity = [], expectedControlProbes = 11, events = [] } = {}) {
   const findings = [], environment = [];
   const environmentKind = e => ['page-error', 'console-error', 'console-warning'].includes(e.kind) ? classifyPageError(e.message) : null;
+  const notes = new Set(['input-error', 'dialog', 'dialog-error', 'popup', 'popup-error', 'download', 'download-error', 'navigation-away', 'deadline-exceeded', 'budget-exhausted', 'report-write-error']);
+  const noise = new Map();
   for (const e of events) {
-    const kind = environmentKind(e);
+    const kind = notes.has(e.kind) ? e.kind : environmentKind(e);
     if (kind) {
-      const existing = environment.find(entry => entry.kind === kind && entry.message === e.message);
+      const existing = environment.find(entry => entry.kind === kind && entry.message === e.message && entry.url === e.url);
       if (existing) existing.count++;
       else environment.push({ ...e, kind, count: 1 });
-    } else if (['crash', 'page-error', 'console-error', 'failed-request'].includes(e.kind)) findings.push(e);
+    } else if (['crash', 'page-error'].includes(e.kind)) findings.push(e);
+    else if (['console-error', 'console-warning', 'failed-request'].includes(e.kind)) {
+      const key = JSON.stringify([e.kind, e.url, e.message]);
+      const existing = noise.get(key);
+      if (existing) existing.count++;
+      else noise.set(key, { ...e, count: 1 });
+    }
   }
-  const controls = classifyControlsResponse(controlDiffs);
+  for (const e of noise.values()) {
+    const critical = e.kind === 'failed-request'
+      ? ['script', 'document', 'wasm', 'json'].includes(e.resourceType) || /\.(?:js|mjs|wasm|json)(?:[?#]|$)/i.test(e.url ?? '')
+      : e.kind === 'console-error' && /webgl|context|initializ(?:ation|e|ing)/i.test(e.message ?? '');
+    if (e.count >= 2 || critical) findings.push({ ...e, ...(e.count === 1 ? { confidence: 'low' } : {}) });
+  }
+  // Uncontrolled idle animation prevents attributing screenshot changes to inputs.
+  const controls = animationEvidence ? 'inconclusive' : classifyControlsResponse(controlDiffs, expectedControlProbes);
   const frozen = frozenStreak(diffs, inputsSent);
-  const visual = visualObservation({ frames, diffs, inputsSent, responded: controls === 'responsive' });
+  const visual = visualObservation({ frames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity });
   if (!findings.some(e => e.kind === 'crash')) {
     if (visual.kind === 'blank') findings.push({ kind: 'blank', message: 'Two consecutive near black/white screenshot samples.' });
     else if (visual.kind === 'freeze') {
@@ -81,5 +103,8 @@ export function summarize({ frames = [], diffs = [], inputsSent = [], controlDif
     }
     else if (controls === 'unresponsive') findings.push({ kind: 'deadkeys', message: 'No visible response to initial movement probes; possible unsupported controls or blocked focus.' });
   }
-  return { mode: 'blackbox', replayGuaranteed: false, controls, frozenIntervals: frozen, environment, findings };
+  const freezeAssessment = visual.kind === 'freeze' ? 'suspected'
+    : controlDiffs.length < expectedControlProbes || diffs.some((d, i) => d <= STILL && inputsSent[i] > 0 && intervalActivity[i] == null)
+      ? 'inconclusive' : 'not-observed';
+  return { mode: 'blackbox', replayGuaranteed: false, controls, freezeAssessment, frozenIntervals: frozen, environment, findings };
 }

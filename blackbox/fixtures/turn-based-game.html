@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>Arrow Turns — original local fixture</title>
+<style>body { margin:0; background:#142850; color:white; } canvas { display:block; }</style>
+<button>Start puzzle</button><canvas width="640" height="360" tabindex="0" hidden></canvas>
+<script>
+const canvas = document.querySelector('canvas'), ctx = canvas.getContext('2d');
+let x = 300, y = 160;
+function paint() {
+  ctx.fillStyle = '#142850'; ctx.fillRect(0, 0, 640, 360);
+  ctx.fillStyle = '#ffe066'; ctx.fillRect(x, y, 40, 40);
+}
+document.querySelector('button').onclick = event => {
+  event.currentTarget.remove(); canvas.hidden = false; canvas.focus(); paint();
+};
+addEventListener('keydown', event => {
+  if (!event.key.startsWith('Arrow') || canvas.hidden) return;
+  event.preventDefault();
+  x = (x + ({ArrowLeft:-40, ArrowRight:40}[event.key] || 0) + 600) % 600;
+  y = (y + ({ArrowUp:-40, ArrowDown:40}[event.key] || 0) + 320) % 320;
+  paint();
+});
+</script></html>

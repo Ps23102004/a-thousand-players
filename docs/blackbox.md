@@ -1,152 +1,180 @@
 # Black-box browser-game mode
 
-Source mode imports a game's simulation, controls its seed, and verifies bugs by exact replay.
-Black-box mode accepts an HTTP(S) URL and operates the browser like a person: visible buttons,
-keyboard, mouse, screenshots, console/page errors, and request failures. It never imports the
-unknown game's logic or reads its simulation state. Screenshots and a timestamped input trace
-are the evidence; a seeded input generator does **not** make the game deterministic.
+Black-box mode operates an HTTP(S) browser page through visible startup controls, keyboard,
+mouse, screenshots and browser events. It does not import game simulation code or inspect its
+state. The seeded generator chooses inputs; it does not make the game deterministic or guarantee replay.
 
 ## Run
 
-Use the existing global Playwright installation and system Google Chrome, with a visible desktop:
+The CLI uses the installed global Playwright and headed system Google Chrome in a fresh context:
 
 ```bash
-npm run blackbox -- http://localhost:3000/game --seconds 60 --seed 1 --out reports/my-game
-# Equivalent:
-node blackbox/cli.mjs http://localhost:3000/game --seconds 60 --seed 1 --out reports/my-game
+node blackbox/cli.mjs http://127.0.0.1:3193/game --seconds 60 --seed 1 --out reports/my-game
 ```
 
-`PLAYWRIGHT_DIR` can override the default
-`~/.local/lib/node_modules/@playwright/cli/node_modules/playwright`. No new dependency, Next page,
-API route, or hosted function is added. A new browser context is used, without your existing login.
-Use a separate output directory per run; reusing it overwrites the report/trace and may leave old PNGs.
-Only HTTP(S) targets are accepted by the CLI. The default run makes no model call.
+Supply a server serving your authorized test target. The fixture browser spec below starts its
+own server. `PLAYWRIGHT_DIR` can override the default
+`~/.local/lib/node_modules/@playwright/cli/node_modules/playwright`.
+No model calls are made unless optional vision is requested. Use a separate output directory
+per run: reports and trace overwrite existing files, and old screenshots may remain.
 
-The runner clicks up to three visible, enabled buttons/links matching a whole word from
-`start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got it|close`
-(case-insensitive), records the text of each click,
-then clicks a visible canvas to request focus / trigger the game's pointer-lock handler.
-Labels containing restart, quit, exit, reset, delete, new game (including new game+), buy,
-purchase, sign in, log in, download or share are excluded even if they also contain a start word.
-Plain new remains eligible. Intercepted clicks record `click-intercepted` and continue;
-an intercepted canvas click falls back to a mouse click at its centre. If that fails too,
-exploration continues with keyboard input only.
-It probes W/A/S/D individually, then rotates through W/A/S/D, Space, Shift, R, E, 1–4,
-Enter, Escape and all four arrow keys. Seeded randomness varies hold durations and mouse positions;
-mouse moves and left-button down/up events are recorded too. These are actual Playwright inputs,
-not synthetic DOM keyboard events. The exploration budget begins after startup clicks.
+## Startup, recovery and cleanup
+
+Up to three rounds click visible, enabled labels matching a whole word from
+`start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got it`.
+New Game and Continue as guest are eligible; New Game Plus and tested commerce/destructive
+combinations are excluded. Tests include donate, shop, store, order, checkout, subscribe,
+reset, start over, erase, wipe and delete, including combinations with play/start.
+Hyphens and underscores are normalized. **This is a non-exhaustive label heuristic, not a
+safety guarantee.** Labels do not establish what a button actually does.
+
+Cross-origin/non-HTTP links and form actions, download attributes and new/named browsing
+targets are skipped at startup. Same-origin navigation is allowed. Unexpected top-level
+cross-origin departures record `navigation-away`. Before more input/capture, the explorer
+returns to the original URL, repeats startup once and clicks a visible canvas for focus.
+There are at most two restoration attempts per run; another departure or failed restoration
+ends incomplete. Intercepted startup clicks record `click-intercepted`. Canvas clicks fall back
+to the canvas centre, then keyboard-only mode if that fails. Dispatch errors are recorded as
+failed inputs and `input-error` environment notes.
+
+Alert, confirm and prompt dialogs are recorded and dismissed. Beforeunload is accepted while
+an intentional navigation back to the start origin is in progress, otherwise dismissed.
+Popups are recorded and closed; downloads are recorded and cancelled. Cleanup waits up to
+100 ms for in-flight handlers, input releases and decoder closure. Cleanup-only popup/download
+handlers remain until the game page closes or a subsequent exploration replaces them; they
+never refocus the page. A decoder page created after timeout is closed on eventual resolution.
+These actions cannot undo side effects or prevent all network traffic.
+
+Every attempted keyboard/mouse down is tracked before awaiting it. On the start origin,
+cleanup sends releases for all attempted downs, including those still pending; a down that
+settles after cleanup receives another release if the page is still open on that origin.
+Pending browser commands cannot be cancelled reliably. Releases are not sent to foreign pages.
+
+## Budget and artifacts
+
+The requested wall-clock budget includes setup, navigation, startup and probes. Reaching it
+ends exploration; it does not itself mark a healthy capture/input operation incomplete.
+In-flight work has a separate three-second stall bound after the budget. A command still
+unresolved then produces `deadline-exceeded` and incomplete status. Cleanup has its own 100 ms
+bound; report file I/O follows. Blocked Node execution/filesystem and process termination are
+outside these bounds. Late cleanup does not mutate an already returned report.
 
 Each run writes:
 
-- `report.json`: status (`completed`, `crashed`, or `incomplete`), observations, findings,
-  environment refusals with counts, startup clicks, input counts, probe/frame differences and screenshot paths.
-- `inputs.json`: each attempted input with milliseconds since run start, type, key/button/position,
-  and `sent` or `failed` status. Key-down and key-up timestamps describe the hold duration.
-- `frame-*.png`: sampled canvas (or viewport fallback) screenshots initially and about every five seconds, plus initial
-  movement probes and a final frame when the page survives. The report identifies each frame.
+- `report.json`: status (`completed`, `crashed`, `incomplete`), findings/environment observations,
+  startup clicks, probe differences, `expectedControlProbes`, `freezeAssessment`, restoration
+  attempt count and frame paths.
+- `inputs.json`: attempted inputs with elapsed milliseconds, key/button/position and sent/failed status.
+- `frame-*.png`: initial, idle/control probe, periodic and (when time remains) final screenshots.
 
-A page crash, page close, or top-level navigation to `about:blank` stops exploration early.
-An uncaught JavaScript error is recorded as a page error and exploration continues, since many
-such errors leave the game running. Automation/load failures produce `incomplete` with an
-`explorer-error` observation; they are not silently classified as game crashes. Partial evidence
-is written when these failures are caught. A browser-launch failure has no game evidence.
-The CLI exits nonzero on an incomplete run or failed vision request; findings are in the report,
-not encoded as the exit status.
+Periodic samples are scheduled at least five seconds after the preceding periodic sample
+finishes capture/write, rather than catching up to a schedule anchored before capture/probes.
+Frame timestamps describe sample capture completion. Probe/final frames remain evidence but do
+not bound periodic diff intervals. `diffs`, `inputsSent` and `intervalActivity` align with the
+initial/periodic frames. Screenshot pixels are resized to 64×36 RGBA in an isolated decoder page.
+The largest visible canvas rectangle clipped to the viewport is sampled, or the whole viewport.
+
+A browser crash, page close or top-level `about:blank` ends crashed. An uncaught error is recorded
+while exploration continues. Automation errors end incomplete. Trace/report write errors are
+returned in memory as incomplete; unwritable storage may prevent saving the report at all.
+A browser-launch failure has no game evidence. The CLI's exit status reflects incomplete runs
+or vision failure, not whether the report contains findings.
 
 ## Detectors
 
-PNG pixels are decoded in an isolated blank browser page. The detector sample is the largest visible
-canvas's on-screen rectangle, or the viewport when there is no visible canvas. Each sample is
-resized to 64×36 RGBA; the functions in `blackbox/detectors.mjs` are pure. Screenshot files contain
-the sampled region, clipped to the viewport. No PNG decoding library is added.
+All findings are observations or suspicions, not proof of a game defect.
 
-| Finding | Evidence / decision | Caveat |
+| Finding | Tested rule | Limitation |
 | --- | --- | --- |
-| `crash` | Browser page crash, closed game tab, or top-level `about:blank` navigation | Intentional exit/navigation can look like a crash; other navigation is not classified |
-| `console-error` | Browser console error text and timestamp | Logging an error does not necessarily break gameplay |
-| `page-error` | Uncaught page error text and timestamp | The game may recover or keep working |
-| `failed-request` | Network request failure, or HTTP status ≥400, with URL and timestamp | Ads, telemetry and optional resources can fail harmlessly |
-| `blank` | Two consecutive five-second samples have ≥99.5% near-black or near-white pixels (all RGB ≤8 or ≥247) | Loading screens and intended fades can be flagged; colored blank screens may be missed |
-| `freeze` | At least two non-blank still intervals despite inputs, after earlier visual response/motion | Still means normalized mean absolute RGB difference ≤0.0001; static gameplay can be flagged, animated overlays can hide a freeze |
-| `deadkeys` | All four initial movement probes have no visible pixel response | A suspicion, not proof: unsupported bindings, focus, menus, slow loading or a wall can explain it |
-| Optional vision | Super-VL describes three real chronological screenshots | Separate second opinion, never an automatic proven glitch |
+| `crash` | Browser crash, closed page, top-level `about:blank` | Intentional exits can resemble crashes |
+| `page-error` | One uncaught page error, except recognized environment refusals | Gameplay may continue |
+| `console-error` / `console-warning` | Two identical messages of the same kind; one counted finding | Repeated logs may be harmless |
+| Single critical `console-error` | A non-environment error mentioning WebGL, context or initialization; `confidence: low` | Keyword heuristic; not proof of failure |
+| `failed-request` | Repeated identical URL/message, or a single script/document/wasm/json failure (including .js/.mjs/.wasm/.json URL suffixes) | Single critical failures have `confidence: low`; optional assets can still be harmless |
+| `blank` | Adjacent periodic samples both ≥99.5% near-black or near-white, with timestamps at least 5000 ms apart | Missing timestamps/short gaps do not qualify; slow loaders and intentional dark/bright scenes can still trigger it |
+| `freeze` | Earlier pixel change (initial input response, idle animation or earlier periodic change), then two non-blank still intervals with delivered inputs, starting with a complete repeated probe set showing no response | The complete unchanged probe evidence carries through adjacent still intervals; no idle animation is required; inaccessible moves can still look frozen; animation can hide a freeze |
+| `deadkeys` | A complete initial probe set has no visible response and the idle check found no animation | Unsupported controls, wrong click targets, focus or menus can explain it |
 
-Crash suppresses derived blank/freeze/deadkeys findings. Blank takes precedence over freeze and
-unresponsive controls; earlier observed response distinguishes a later freeze from initial deadkeys.
-Sustained blank/freeze observations are retained even if the game later recovers. Independent console/page/request observations are retained. No findings means **no observed signal**,
-not proof the game works. Detection thresholds are calibrated only against the tiny fixture below.
+Near-black means every RGB channel ≤8; near-white means every channel ≥247. Still means
+normalized mean absolute RGB difference ≤0.0001. Blank overrides freeze/deadkeys, and crash
+suppresses derived visual/control findings. Sustained observations remain even after recovery.
+`frozenIntervals` is only a raw trailing still-interval count, not a freeze finding.
 
-Pointer-lock, user-gesture and fullscreen refusals, and WebGL context driver warnings, are
-classified under `report.environment` with a kind, message and count instead of game findings.
-Other script errors remain findings. A freeze is still reported when preceded by an environment
-refusal; if the last event before the freeze observation is such a refusal, its kind is added as
-`likelyCause` (for example, `"pointer-lock-refused"`). This is a suspected cause, not proof.
+Initial probes send W/A/S/D, all four arrows, Space, Enter and a mouse click: 11 in normal mode,
+10 in keyboard-only fallback. The wander loop additionally rotates through Shift, R, E, 1–4
+and Escape, with seeded holds/mouse positions. Still periodic intervals repeat the full available
+probe set. `intervalActivity` is true on visible probe change, false for a complete unchanged
+set and null for missing evidence. A complete unchanged set remains evidence through subsequent
+still intervals even when the last repeat suite runs out of budget. Pixel change, a responding
+probe, a blank endpoint or an interval without delivered inputs resets that evidence. A partial
+set alone cannot start a freeze streak. Arrow/Space/Enter/mouse responses protect static/turn-based
+games from a freeze finding. `freezeAssessment` is `suspected` for a detected freeze,
+`inconclusive` when initial coverage or necessary interval probes are missing, otherwise
+`not-observed`; it does not certify health.
 
-## Run on three real open-source games (2026-10-30)
+`controls` is responsive only from an initial probe difference when the idle checks did not
+change. Periodic differences never establish responsiveness. Idle is checked before controls and again after them when time remains. When idle animation is observed,
+control response is inconclusive, even if input frames differ: animation alone cannot establish
+response. A partial zero-response probe set is also inconclusive. These short idle checks are heuristics;
+intermittent animation and screenshot timing can still confound attribution.
 
-- **animal-strike:** played and responded; automation refused pointer lock. No game defect was shown.
-- **agentofduty:** paused itself on pointer-lock failure, and the explorer was stuck on its Resume button before this fix.
-- **warzone:** aborted on an intercepted canvas click before this fix.
+Specific pointer-lock, user-gesture/autoplay, fullscreen, permission-policy, CORS/offline policy
+refusals and WebGL ReadPixels/software-rendering notices are counted under `environment`.
+Programming errors, generic initialization failures, GPU resets and context loss are not hidden
+as those refusals. A single ordinary warning/optional-resource error remains an observation.
+If the last event before a freeze is an environment refusal, `likelyCause` names it as a
+suspected cause. All browser events are retained. No findings means no observed signal.
 
-These are weaknesses of the explorer found by real use. Re-run results will be added by the lead.
+## Verification and fixtures
 
-## Optional vision
+Only original local fixtures are used for this change. Square Courier's normal/freeze variants
+are static until input; the freeze variant has **no moving marker** and stops painting at 8 s.
+Other flags produce blank pixels at 8 s, one uncaught error at 5 s, dead inputs, or `about:blank`
+at 10 s. `animated-deadkeys` has independently moving pixels with ineffective inputs.
+`delayed-animated-deadkeys` starts independent animation during the probes.
+`single-request` loads one missing script; `single-console` emits one WebGL initialization error.
+`turn-based-game.html` redraws only on arrow presses, with no idle animation.
 
-`--vision` is explicitly opt-in and makes one call to `ai/models.ts` `chat()` using its `VL`
-(Super-VL) model. Export `NEBIUS_API_KEY` in the shell through your normal credential setup;
-this CLI never opens an environment file. It sends the first, middle and last observation screenshot
-(excluding movement probes). Fewer than three real frames yields `insufficient-frames` with no call.
-The text goes under `report.vision`, marked `secondOpinion: true`; failures are reported there.
-Unit tests inject a fake `chat` and make no model/network calls. No live vision call was made while
-implementing this feature.
-
-## Verification and fixture
-
-`blackbox/fixtures/bugged-game.html` is an original canvas game, Square Courier. Click Start and
-move its square with WASD/arrows. `?bug=none|freeze|blank|error|deadkeys|crash` plants one fault:
-freeze/blank at 8 seconds, uncaught error at 5 seconds, ineffective movement, or `about:blank` at
-10 seconds. `none` has no planted bug. Tests use only the explorer's public observations.
+Offline tests execute these actual scripts with a fake clock/rectangle rasterizer. Browser/API
+fakes also test delayed downs, late pages/handlers, startup label/target exclusions, beforeunload
+recovery, restoration/focus and the two-restoration cap, deadline capture completion, both probe
+modes, missing evidence and elapsed sample timing. They do not verify actual Chrome rendering.
+The original fake clock advanced only during sleeps, with zero screenshot/decoding cost; its
+rectangle rasterizer samples pixel centers and omits grid strokes and browser resampling. Real
+Chrome consumes budget capturing/decoding and can produce different periodic pixel differences.
+`chrome-freeze-report.json` preserves the failed Chrome run's exact observations and timings;
+the detector replay and fixture tests with 90 ms capture cost cover its truncated final probe
+suite, alongside healthy, arrow-only, animated-dead-input and other planted-bug controls.
 
 ```bash
 node --test blackbox/*.test.mjs
-npm test
-npx tsc --noEmit -p .
-node scripts/check-recorded-replays.mjs
-npm run engine:test
 
-# Self-contained fixture server on 127.0.0.1:3181; no Next server or baseURL required.
-# Run outside a port/browser-restricted sandbox. --headed keeps the visible-window requirement.
+# Fixture server on 127.0.0.1:3193 only; no Next server or external game.
 NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules \
   node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js \
   test -c e2e/playwright.config.cjs blackbox.spec.cjs --workers=1 --headed
 ```
 
-The browser spec asserts **exactly** the planted finding type for each flag and no finding for
-`none`, plus startup clicks, inputs, and real PNG artifacts. It takes roughly two minutes.
-It has not passed in this sandbox: binding `127.0.0.1:3181` fails with `EPERM`, before game exploration.
-The lead must run it outside the sandbox. Passing offline fake tests does not verify real browser
-behavior or detection accuracy on arbitrary games.
+The browser spec selects only original fixtures and asserts exact planted finding kinds,
+startup/input traces and real PNG artifacts. It also checks inconclusive animated controls,
+low-confidence single failures and no false finding for arrow-only turns. No TypeScript files
+are changed, so the TypeScript check is skipped. Browser/server launch outcomes are recorded
+separately in the task summary; offline passes do not establish a browser pass.
 
-## Limits
+## Optional vision and limits
 
-- **No seed replay.** The seed chooses exploratory inputs only. There is no guaranteed replay,
-  simulation hash, invariant proof, or exact bug reproduction. Results can differ between runs
-  because the game's clock, RNG, network, browser scheduling and input timing are uncontrolled.
-- **Needs a visible window.** The CLI launches headed Chrome. It is a local desktop tool, not
-  a Vercel function, remote game-streaming service, or in-game agent. Keep the game tab focused.
-- **Cannot see inside native games.** It handles browser URLs only. A native game's streamed
-  browser view exposes pixels and browser inputs only, not the native engine or native crash state.
-- **Vision is a second opinion.** It can miss glitches or invent one; it cannot establish a cause,
-  verify a fix, or guarantee a finding. Only an opt-in run sends screenshots to the configured model.
-- **Not competent play.** It has a fixed exploratory key set, no game-specific strategy, gamepad,
-  touch gestures, login, CAPTCHA solving, menu understanding or automatic consent interpretation.
-  It may click an unwanted action matching the startup words; use a disposable test game/session.
-- Sampling misses short glitches and small changes. Screens outside the viewport, hidden canvases,
-  multiple game surfaces, cross-origin overlays, menus and animations can confuse the heuristics.
-  Pointer lock/fullscreen depend on the game's handlers and browser permissions; a canvas click
-  cannot guarantee either. Initial movement probes cannot prove a particular control is broken.
-- A loading delay or intended static screen can trigger a false alarm. A frozen game behind an
-  animated HUD may be missed. A completely hung browser/renderer may block observation or final
-  output; the runner is not an external watchdog. Abrupt process termination may lose the trace.
-- Screenshots, console text and request URLs may contain private session data. Outputs stay local
-  unless `--vision` is requested; review artifacts before sharing them. No automatic redaction.
+`--vision` is opt-in and sends three chronological observation screenshots through `ai/models.ts`
+`chat()` using its VL model. Set credentials in the shell through your normal setup; the CLI
+does not open environment files. Fewer than three real observation frames makes no call.
+The result is marked `secondOpinion: true`, not a proven glitch. Tests inject chat; no live
+vision call is part of this fixture verification.
+
+This is exploratory input, not competent play: there is no game-specific strategy, gamepad,
+touch, login or CAPTCHA handling. Random clicks and R/Enter/Escape can confirm, restart or quit
+regardless of label filtering. Use an authorized disposable test session. Pointer lock/fullscreen
+and actual focus depend on the game and browser. Sampling misses brief/small glitches;
+multiple canvases, hidden surfaces, animated overlays and intended loaders can confuse it.
+No WebGL-only fixture establishes renderer/context diagnosis. Screenshot pixels cannot tell
+intentional darkness from lost WebGL context. Seeds and traces cannot guarantee replay.
+Screenshots, console text and URLs may contain private data; artifacts stay local unless vision
+is requested, and are not automatically redacted.

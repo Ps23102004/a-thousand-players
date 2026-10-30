@@ -32,11 +32,12 @@ function paint() {
   ctx.strokeStyle = '#245080'; ctx.lineWidth = 2;
   for (let n = 40; n < 640; n += 40) { ctx.beginPath(); ctx.moveTo(n, 0); ctx.lineTo(n, 360); ctx.stroke(); }
   for (let n = 40; n < 360; n += 40) { ctx.beginPath(); ctx.moveTo(0, n); ctx.lineTo(640, n); ctx.stroke(); }
+  if (bug === 'animated-deadkeys' || (bug === 'delayed-animated-deadkeys' && last - started >= 300)) { ctx.fillStyle = '#80a0c0'; ctx.fillRect((last / 8) % 580, 20, 40, 20); }
   ctx.fillStyle = '#ffe066'; ctx.fillRect(x - 16, y - 16, 32, 32);
 }
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (bug !== 'deadkeys') {
+  if (!['deadkeys', 'animated-deadkeys', 'delayed-animated-deadkeys'].includes(bug)) {
     x += ((keys.has('d') || keys.has('arrowright')) - (keys.has('a') || keys.has('arrowleft'))) * dt * 180;
     y += ((keys.has('s') || keys.has('arrowdown')) - (keys.has('w') || keys.has('arrowup'))) * dt * 180;
     // Wrap rather than pinning the square at a wall during exploratory input.
@@ -49,6 +50,8 @@ function tick(now) {
 document.querySelector('button').addEventListener('click', event => {
   event.currentTarget.remove(); canvas.hidden = false; canvas.style.display = 'block'; canvas.focus();
   started = last = performance.now(); paint(); requestAnimationFrame(tick);
+  if (bug === 'single-request') { const script = document.createElement('script'); script.src = '/missing-main.js'; document.head.appendChild(script); }
+  if (bug === 'single-console') console.error('WebGL initialization failed');
   if (bug === 'error') setTimeout(() => { throw new Error('Planted Square Courier uncaught error'); }, 5000);
   if (bug === 'crash') setTimeout(() => { location.href = 'about:blank'; }, 10000);
 }, { once: true });
