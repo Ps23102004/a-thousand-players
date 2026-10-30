@@ -17,7 +17,7 @@ Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Braw
 ## Quick start
 
 ```bash
-git clone <this repo> && cd <this repo>
+git clone https://github.com/Ps23102004/a-thousand-players && cd a-thousand-players
 npm ci
 cp .env.example .env        # optional: add NEBIUS_API_KEY and TAVILY_API_KEY for the live model calls
 npm run dev                 # http://localhost:3000   (predev syncs the game into public/)

@@ -1,6 +1,5 @@
 # A Thousand Players — Devpost
 
-> Team note, not for paste: placeholders look like `[YOUTUBE_URL]`. Search for `[` before pasting. Everything between the two horizontal rules below is the Devpost form, in form order.
 
 ---
 
@@ -33,14 +32,6 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 **Team:** Parth Singh (Representative).
 
 ---
-
-> Team note, not for paste. The track is decided: **Best Apps and Agents**. As of 2026-10-29 the repo is private until flipped public; the Code link only works after that.
->
-> Checked while writing this file:
-> - Package list: the Built With names come from `package.json`, `ai/models.ts` and `ai/precedent.ts`. Playwright is left out of Built With: it is not in `package.json`, and the browser suite in `e2e/` runs on a global `@playwright/cli` install (`e2e/README.md`). Add it back if you want to credit the test tool.
-> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit.
-> - Model names: the Token Factory ids in `ai/models.ts` are `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL` and `nvidia/Nemotron-3-Ultra-550b-a55b`.
-> - Triage numbers: "3 of 24" is 2 of 15 plus 1 of 9, the same figures as the last bullet of "What is not done".
 
 
 ## Summary
@@ -94,7 +85,7 @@ Thinking is turned off on every call (`chat_template_kwargs: {"enable_thinking":
 
 On Balance, Super translates patch notes into validated tuning. **Run Patch Prophet** then runs a paired sample live in sequential child processes: the same 200 personas and seeds, one round each, recorded tuning versus the new tuning. The UI labels the sample and offers a cached fallback for the exact example tuning. Prophet adds no model call beyond the existing Super translation. The example gave 66 → 69 wins out of 200 on seed 1 and 55 → 64 on seed 2 (`docs/prophet.md`, `data/prophet/example.json`, `data/prophet/seed-2.json`). One hosted run with different tuning took 36.7 s, before 66/200 and after 62/200 (`docs/evidence/hosted-smoke-2026-10-29.md`).
 
-The game UI and controls crawler reports **92 of 92 controls work**, covering HUD buttons, guide keys and an injected fake gamepad, with stronger preconditions after a reviewer found 7 weak checks (fixed). The `/games` block displays the report. A deliberately broken pause button is caught. No broken control was found, so nothing was fixed (`e2e/game-ui.spec.cjs`, `docs/controls.md`, `docs/controls-report.json`). Physical controller hardware is untested. Glitch Hunter, Patch Prophet, Design Advisor numbers stay as already written.
+The game UI and controls crawler reports **92 of 92 controls work**, covering HUD buttons, guide keys and an injected fake gamepad, with stronger preconditions after a reviewer found 7 weak checks (fixed). The `/games` block displays the report. A deliberately broken pause button is caught. No broken control was found, so nothing was fixed (`e2e/game-ui.spec.cjs`, `docs/controls.md`, `docs/controls-report.json`). Physical controller hardware is untested.
 
 ## Design Advisor
 
@@ -141,7 +132,7 @@ The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We check
 - `world.js`: the arena's physics colliders moved into one function (`createArenaColliders`) so the headless engine builds the same arena;
 - `replay.html`, a new page that replays a round from a seed in the real game.
 
-**Changed in the game after the first commit.** The original committed snapshot was dated 2026-10-28 (last game commit `5c5792c`, 2026-10-28 21:45 -0400): 8 files and 62 lines added, 14 removed since commit `5794356`. The low-block default decision below is a later uncommitted change. Each rule fix sits behind a flag in `game/src/tuning.js`, so rounds recorded before the fix still replay as recorded:
+**Changed in the game after the first commit.** The original committed snapshot was dated 2026-10-28 (last game commit `5c5792c`, 2026-10-28 21:45 -0400): 8 files and 62 lines added, 14 removed since commit `5794356`. Each rule fix sits behind a flag in `game/src/tuning.js`, so rounds recorded before the fix still replay as recorded:
 - `mountReleaseFix` (commit `299bbde`): mount release avoids crates and refreshes the body's floor contact (`ground.js`, `main.js`). Commit `8c5589f` then put the fix behind the rule flag (`tuning.js`, `ground.js`) so recorded rounds still replay as recorded.
 - `throwPropGuard` (`9ad93a5`): `throwProp` skips a crate that broke while carried (`props.js`). This is Ultra's patch.
 - `grabReleaseFix` (`55cd763`): the same floor-contact refresh after a grab (`character.js`).
