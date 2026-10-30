@@ -1,3 +1,4 @@
+import { getData } from "@/lib/data";
 import { runAdvisor } from "@/ai/advisor";
 import { notConfigured, rateLimited, readJson, sampleAnswer } from "@/lib/ai-route";
 import { validateAdvisorBody } from "@/lib/advisor";
@@ -18,7 +19,9 @@ export async function POST(req: Request) {
   if ("error" in v) return Response.json({ error: v.error }, { status: v.status });
   const off = notConfigured("NEBIUS_API_KEY", "The models");
   if (off) return off;
-  // Admission before the heavy recorded-data context (it re-reads the sweep JSONL), so a limited caller cannot make the server do that work.
+  // A cheap map lookup first: an unknown round must not spend the route's daily cap. Then admission, before the heavy recorded-data
+  // context (it re-reads the sweep JSONL), so a limited caller cannot make the server do that work.
+  if (!getData().runs.has(v.key)) return Response.json({ error: "That round is not in the recorded data." }, { status: 404 });
   const limited = rateLimited(req, "advisor");
   if (limited) {
     // A round is a deterministic re-simulation, so the recorded answer describes the same frames the page just captured.

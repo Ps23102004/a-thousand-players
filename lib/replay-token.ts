@@ -18,7 +18,9 @@ const num = (v: unknown) => typeof v === "number" && Number.isFinite(v);
 const str = (v: unknown) => typeof v === "string";
 const okRule = (r: unknown) => isObj(r) && (r.dist === undefined || str(r.dist)) && (r.rival === undefined || str(r.rival))
   && (r.weights === undefined || (isObj(r.weights) && Object.values(r.weights).every(num)));
-const okPersona = (p: unknown) => isObj(p) && str(p.id) && p.id !== "" && str(p.name) && str(p.archetype) && str(p.bio)
+// Length caps: a shared link must not be able to put long arbitrary text on the page (recorded personas: name 11, bio 93 chars).
+const short = (v: unknown, n: number) => str(v) && (v as string).length <= n;
+const okPersona = (p: unknown) => isObj(p) && str(p.id) && p.id !== "" && short(p.name, 40) && short(p.archetype, 40) && short(p.bio, 300)
   && num(p.skill) && num(p.reaction_ticks) && num(p.patience) && num(p.frustration_tolerance) && Array.isArray(p.rules) && p.rules.every(okRule);
 // Tuning keys feed applyTuning(), which writes RULES[name]: only known keys or rules.<identifier> that is not an Object.prototype name.
 const okTuningKey = (k: string) => TUNING_KEYS.has(k) || (/^rules\.[A-Za-z]\w*$/.test(k) && !(k.slice(6) in Object.prototype));

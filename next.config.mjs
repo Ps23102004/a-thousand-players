@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig)} */
 const nextConfig = {
   serverExternalPackages: ["undici"],
+  // Security review: no third-party framing (the replay iframe is same-origin), no MIME sniffing, no full referrer to other sites.
+  async headers() {
+    return [{ source: "/:path*", headers: [
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+    ] }];
+  },
   // The live triage route (app/api/triage) replays rounds in child Node processes that import engine/*.mjs and game/src/*.js
   // straight from disk, plus three and the self-contained Rapier compat build (its WASM is inlined, no .wasm file). The bundler
   // never sees those imports, so the function bundle gets them by hand.

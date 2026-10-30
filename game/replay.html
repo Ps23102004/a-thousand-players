@@ -65,7 +65,7 @@ const params = new URLSearchParams(location.search);
 const isObj = v => typeof v === 'object' && v !== null && !Array.isArray(v);
 const num = v => typeof v === 'number' && Number.isFinite(v), str = v => typeof v === 'string';
 const okRule = r => isObj(r) && (r.dist === undefined || str(r.dist)) && (r.rival === undefined || str(r.rival)) && (r.weights === undefined || (isObj(r.weights) && Object.values(r.weights).every(num)));
-const okPersona = p => isObj(p) && str(p.id) && p.id !== '' && str(p.name) && str(p.archetype) && str(p.bio) && num(p.skill) && num(p.reaction_ticks) && num(p.patience) && num(p.frustration_tolerance) && Array.isArray(p.rules) && p.rules.every(okRule);
+const okPersona = p => isObj(p) && str(p.id) && p.id !== '' && str(p.name) && p.name.length <= 40 && str(p.archetype) && p.archetype.length <= 40 && str(p.bio) && p.bio.length <= 300 && num(p.skill) && num(p.reaction_ticks) && num(p.patience) && num(p.frustration_tolerance) && Array.isArray(p.rules) && p.rules.every(okRule);
 const okTuningKey = k => /^\w+(\.\w+)+$/.test(k) && !k.split('.').some(seg => seg in Object.prototype);
 function decode(s) {
   if (!s || s.length > 8000) return null;

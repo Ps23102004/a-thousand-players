@@ -89,10 +89,10 @@ test("unknown extra fields pass through (the engine stamps an `exp` field)", () 
 });
 
 test("A11: size cap is 8000 characters, below Node's 16 KB header limit, so an oversized link gets the invalid-link page, not a raw 431", () => {
-  // 6000 JSON bytes -> exactly 8000 base64 chars. Pad the bio to hit that.
+  // 6000 JSON bytes -> exactly 8000 base64 chars. Pad a rule string to hit that (persona text fields are length-capped).
   const make = (bytes: number) => {
-    const empty = JSON.stringify({ ...base, persona: { ...persona, bio: "" } }).length;
-    return encodeToken({ ...base, persona: { ...persona, bio: "x".repeat(bytes - empty) } });
+    const empty = JSON.stringify({ ...base, persona: { ...persona, rules: [{ dist: "" }] } }).length;
+    return encodeToken({ ...base, persona: { ...persona, rules: [{ dist: "x".repeat(bytes - empty) }] } });
   };
   const at = make(6000), over = make(6001), under = make(5999);
   assert.equal(at.length, 8000); assert.equal(under.length, 7999); assert.ok(over.length > 8000);
@@ -163,4 +163,17 @@ test("engine/token.mjs output is accepted by decodeToken and re-encodes to the i
   assert.deepEqual(tok.persona, p);
   assert.match(tok.exp.hash, /^[0-9a-f]{17,}$/);
   assert.equal(encodeToken(tok), raw, "encode(decode(x)) === x, so web-created and engine-created links are interchangeable");
+});
+
+test("security review: a replay link cannot put long arbitrary text on the page (persona name <= 40, archetype <= 40, bio <= 300 chars)", async () => {
+  const { decodeToken, encodeToken } = await import("./replay-token");
+  const persona = { id: "x", name: "Ada", archetype: "casual", bio: "plays a little", skill: 0.5, reaction_ticks: 10, patience: 1, frustration_tolerance: 1, rules: [] };
+  const base = { seed: 1, tuning: null, fighter: "kai" as const, maxT: 10 };
+  assert.ok(decodeToken(encodeToken({ ...base, persona } as never)), "a normal persona still decodes");
+  for (const [field, n] of [["name", 41], ["archetype", 41], ["bio", 301]] as const) {
+    assert.equal(decodeToken(encodeToken({ ...base, persona: { ...persona, [field]: "x".repeat(n) } } as never)), null, `${field} of ${n} chars is refused`);
+  }
+  const { readFileSync: rf } = await import("node:fs");
+  const personas = JSON.parse(rf("data/run-main/personas.json", "utf8")) as { name: string; archetype: string; bio: string }[];
+  assert.ok(personas.every((p) => p.name.length <= 40 && p.archetype.length <= 40 && p.bio.length <= 300), "every recorded persona fits");
 });
