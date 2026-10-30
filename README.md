@@ -4,7 +4,7 @@
 
 ![Demo: the crowd, the findings, a replayed bug, live triage](docs/media/demo-preview.gif)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--29-134%20engine%20%2B%20328%20TS%20%2B%2088%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Third-Party Notices](https://img.shields.io/badge/notices-THIRD--PARTY.md-blue)](THIRD-PARTY.md) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--30-176%20engine%20%2B%20385%20TS%20%2B%2088%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
 **Demo video (2:47):** [https://youtu.be/tKOsGMdRnNc](https://youtu.be/tKOsGMdRnNc). **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above.
 
@@ -100,7 +100,7 @@ All numbers below come from files in `data/run-main/`.
   | Cluster | Signature | Rounds | Result |
   |---|---|---|---|
   | bug4 | `stuck:KNOCKDOWN+airborne+softlock` | 1 | **Ultra's patch fixed 1 of 1 seeds but is not shipped** (it removes a height guard entirely). Seed 529060 ran to the 99 s time limit before the patch and ends by KO at 18.73 s with no bug events after it. Regression crowd of 200 personas: bug rounds 4 before, 3 after. A narrower hand fix, `rules.knockdownOnPropFix` (docs/bug-hunt.md H3: FALL also ends once the body is at rest), is shipped, and the bug4 seed replays clean on the shipped game (KO at 18.9 s, 0 bug events; with the rule off it runs to 99 s with 3). |
-  | bug1 | `airborne` | 21 | Ultra's patch fixed 0 of 8 replayed rounds. **The shipped game replays all 21 clean** with the hand fixes `mountReleaseFix`, `grabReleaseFix` and `getupCrateFix`. The last round, p0094:1 (seed 501070, sweep-nerf), sank and was ejected beside a crate during getup. `getupCrateFix` refreshes contacts once when getting up near an intact prop. Checked 2026-10-29 with `node scripts/proof-table.mjs`. |
+  | bug1 | `airborne` | 21 | Ultra's patch fixed 0 of 8 replayed rounds. **The shipped game replays all 21 clean** with all hand fixes together (`mountReleaseFix`, `grabReleaseFix`, and `getupCrateFix`, alongside shipped engine guards). The 21 rounds spanned distinct root causes without a single fix resolving them all: mount releases, grab collisions, and getup ejection beside a crate on p0094:1 (seed 501070, sweep-nerf, where `getupCrateFix` refreshes contacts near intact props). Former crash round p0047:1 also depends on `throwPropGuard`. Checked with `node scripts/proof-table.mjs`. |
   | bug2 | `oob+airborne+softlock` | 4 | **Fixed by hand, replay-verified, 4 of 4.** Ultra's patch failed twice (0 of 4; its "stale aim offset" guess was wrong). Tracing the seed tick by tick found two causes, both in `releaseMount`: (1) the top fighter was placed inside a crate beside the wall and ejected upward at 7.7 m/s; it now lands on the first side that is clear of crates. (2) After the mount a fighter that had been held still sank through the floor for 0.3 s and was then thrown upward against the wall; a `sleep()` then `wakeUp()` at release stops it. Cause (2) is a workaround: the fighter then rests 0.07 m low, and why the contact goes stale is not understood. Regression crowd of 200 personas: bug rounds 4 before, 1 after; win rate 0.314 to 0.300 because trajectories changed. |
   | bug3 | `crash: RuntimeError: unreachable in throwProp (props.js:303)` | 3 | **Fixed and replay-verified, 3 of 3 seeds.** Ultra guarded `throwProp` against a prop whose body was already freed. The first two triage runs failed because Ultra ignored the answer format; adding a concrete format example to the prompt fixed that. The regression crowd (200 personas) did not contain this crash, so it shows no change (4 bug rounds before and after). |
 
@@ -218,7 +218,7 @@ node scripts/check-recorded-replays.mjs   # recorded rounds replay event for eve
 npm run engine:test      # determinism: same seed twice gives identical hashes
 ```
 
-Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Current gates (as of this commit, run on 2026-10-29): **engine 134 pass**; **TypeScript 328 pass (npm test) + app/modes tests 7 pass**; **browser suite 88 passed (7 skipped)**; **recorded replays 45 of 45**; **engine:test mismatches=0**.
+Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Current gates (measured offline on 2026-10-30): **engine: 176 pass, 1 todo** (`npm run test:engine`); **TypeScript: 385 pass, 2 todo** (`node --import tsx --test ai/*.test.ts lib/*.test.ts app/api/*.test.ts app/modes/**/*.test.ts*`, broken down as `npm run test:ts` 378 pass + `app/modes` tests 7 pass); **browser suite: 88 passed (7 skipped) in the last full run on 2026-10-30** plus **black-box spec: 6 planted-bug cases**; **recorded replays: 45 of 45**; **engine:test mismatches=0**.
 
 ## Running it
 
@@ -298,4 +298,4 @@ docs/        design, Devpost text, Token Factory feedback, calibration reports (
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE). Third-party software and asset notices are listed in [THIRD-PARTY.md](THIRD-PARTY.md).

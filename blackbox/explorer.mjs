@@ -1,8 +1,13 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { frameDiff, isBlank, summarize } from './detectors.mjs';
+import { classifyPageError, frameDiff, isBlank, summarize } from './detectors.mjs';
 
 export const INPUT_KEYS = ['w', 'a', 's', 'd', 'Space', 'Shift', 'r', 'e', '1', '2', '3', '4', 'Enter', 'Escape', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
+export function isSafeStartLabel(text) {
+  if (/\b(restart|quit|exit|reset|delete|buy|purchase|download|share|new\s+game|sign\s+in|log\s+in)\b/i.test(text)) return false;
+  return /\b(start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got\s+it|close)\b/i.test(text);
+}
+
 function rng(seed) {
   let s = seed >>> 0;
   return () => { s += 0x6D2B79F5; let t = Math.imul(s ^ s >>> 15, 1 | s); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -49,12 +54,15 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
   if (!Number.isFinite(seconds) || seconds <= 0 || !Number.isInteger(seed)) throw new TypeError('Invalid seconds or seed');
   await mkdir(out, { recursive: true });
   const start = now(), random = rng(seed), inputs = [], events = [], frames = [], diffs = [], inputsSent = [], controlDiffs = [], startupClicks = [];
-  let decoder, crashed = false, status = 'completed', previous, lastInputCount = 0, shotIndex = 0, imageCount = 0;
+  let decoder, crashed = false, keyboardOnly = false, status = 'completed', previous, lastInputCount = 0, shotIndex = 0, imageCount = 0;
   const t = () => Math.round(now() - start);
   const event = (kind, fields) => events.push({ t: t(), kind, ...fields });
   const crash = message => { if (!crashed) event('crash', { message }); crashed = true; };
   const handlers = {
-    console: msg => { if (msg.type() === 'error') event('console-error', { message: msg.text() }); },
+    console: msg => {
+      if (msg.type() === 'error') event('console-error', { message: msg.text() });
+      else if (msg.type() === 'warning' && classifyPageError(msg.text())) event('console-warning', { message: msg.text() });
+    },
     pageerror: err => event('page-error', { message: err.message }),
     requestfailed: req => event('failed-request', { url: req.url(), message: req.failure()?.errorText ?? 'request failed' }),
     response: res => { if (res.status() >= 400) event('failed-request', { url: res.url(), message: `HTTP ${res.status()}` }); },
@@ -96,16 +104,22 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
     // A bounded number of rounds handles a consent dialog followed by a start menu.
     const clicked = new Set();
     for (let round = 0; round < 3 && !crashed; round++) {
-      const buttons = page.locator('button, [role="button"], input[type="button"], input[type="submit"]');
+      const buttons = page.locator('button, a[href], [role="button"], [role="link"], input[type="button"], input[type="submit"]');
       let didClick = false;
       for (let i = 0, n = Math.min(await buttons.count(), 100); i < n && !crashed; i++) {
         const button = buttons.nth(i);
         if (!await button.isVisible() || !await button.isEnabled()) continue;
         const text = (await button.textContent() || await button.getAttribute('value') || await button.getAttribute('aria-label') || '').trim();
-        if (!/\b(start|play|new|continue|ok|accept|begin)\b/i.test(text) || clicked.has(text)) continue;
+        if (!isSafeStartLabel(text) || clicked.has(text)) continue;
         const click = { t: t(), text, status: 'attempted' }; startupClicks.push(click);
-        await send('startup-click', { text }, () => button.click({ timeout: 1500 }));
-        click.status = 'sent'; clicked.add(text); didClick = true;
+        clicked.add(text);
+        try {
+          await send('startup-click', { text }, () => button.click({ timeout: 1500 }));
+          click.status = 'sent'; didClick = true;
+        } catch (error) {
+          click.status = 'failed'; event('click-intercepted', { text, message: error.message });
+          continue;
+        }
         break; // Re-query after menus mutate.
       }
       if (!didClick) break;
@@ -113,7 +127,21 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
     const canvas = page.locator('canvas');
     for (let i = 0, n = await canvas.count(); i < n; i++) {
       if (await canvas.nth(i).isVisible()) {
-        await send('canvas-click', {}, () => canvas.nth(i).click({ timeout: 1500 })); break;
+        const target = canvas.nth(i);
+        try {
+          await send('canvas-click', {}, () => target.click({ timeout: 1500 }));
+        } catch (error) {
+          event('click-intercepted', { message: error.message });
+          try {
+            const box = await target.boundingBox({ timeout: 1500 });
+            if (!box) throw new Error('Canvas has no visible bounding box');
+            const x = box.x + box.width / 2, y = box.y + box.height / 2;
+            await send('canvas-click', { x, y, fallback: true }, () => page.mouse.click(x, y));
+          } catch {
+            keyboardOnly = true;
+          }
+        }
+        break;
       }
     }
     const playStart = now(), deadline = playStart + seconds * 1000;
@@ -132,6 +160,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       const key = INPUT_KEYS[step++ % INPUT_KEYS.length];
       await hold(key, Math.min(180 + Math.floor(random() * 140), Math.max(0, deadline - now())));
       if (crashed) break;
+      if (keyboardOnly) continue;
       const viewport = page.viewportSize() ?? { width: 1280, height: 720 };
       const x = Math.floor(random() * viewport.width), y = Math.floor(random() * viewport.height);
       await send('mousemove', { x, y }, () => page.mouse.move(x, y));

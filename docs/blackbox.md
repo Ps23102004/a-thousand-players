@@ -22,9 +22,15 @@ API route, or hosted function is added. A new browser context is used, without y
 Use a separate output directory per run; reusing it overwrites the report/trace and may leave old PNGs.
 Only HTTP(S) targets are accepted by the CLI. The default run makes no model call.
 
-The runner clicks up to three visible, enabled buttons matching a whole word from
-`start|play|new|continue|ok|accept|begin` (case-insensitive), records the text of each click,
+The runner clicks up to three visible, enabled buttons/links matching a whole word from
+`start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got it|close`
+(case-insensitive), records the text of each click,
 then clicks a visible canvas to request focus / trigger the game's pointer-lock handler.
+Labels containing restart, quit, exit, reset, delete, new game (including new game+), buy,
+purchase, sign in, log in, download or share are excluded even if they also contain a start word.
+Plain new remains eligible. Intercepted clicks record `click-intercepted` and continue;
+an intercepted canvas click falls back to a mouse click at its centre. If that fails too,
+exploration continues with keyboard input only.
 It probes W/A/S/D individually, then rotates through W/A/S/D, Space, Shift, R, E, 1–4,
 Enter, Escape and all four arrow keys. Seeded randomness varies hold durations and mouse positions;
 mouse moves and left-button down/up events are recorded too. These are actual Playwright inputs,
@@ -33,7 +39,7 @@ not synthetic DOM keyboard events. The exploration budget begins after startup c
 Each run writes:
 
 - `report.json`: status (`completed`, `crashed`, or `incomplete`), observations, findings,
-  startup clicks, input counts, probe/frame differences and screenshot paths.
+  environment refusals with counts, startup clicks, input counts, probe/frame differences and screenshot paths.
 - `inputs.json`: each attempted input with milliseconds since run start, type, key/button/position,
   and `sent` or `failed` status. Key-down and key-up timestamps describe the hold duration.
 - `frame-*.png`: sampled canvas (or viewport fallback) screenshots initially and about every five seconds, plus initial
@@ -69,6 +75,20 @@ Crash suppresses derived blank/freeze/deadkeys findings. Blank takes precedence 
 unresponsive controls; earlier observed response distinguishes a later freeze from initial deadkeys.
 Sustained blank/freeze observations are retained even if the game later recovers. Independent console/page/request observations are retained. No findings means **no observed signal**,
 not proof the game works. Detection thresholds are calibrated only against the tiny fixture below.
+
+Pointer-lock, user-gesture and fullscreen refusals, and WebGL context driver warnings, are
+classified under `report.environment` with a kind, message and count instead of game findings.
+Other script errors remain findings. A freeze is still reported when preceded by an environment
+refusal; if the last event before the freeze observation is such a refusal, its kind is added as
+`likelyCause` (for example, `"pointer-lock-refused"`). This is a suspected cause, not proof.
+
+## Run on three real open-source games (2026-10-30)
+
+- **animal-strike:** played and responded; automation refused pointer lock. No game defect was shown.
+- **agentofduty:** paused itself on pointer-lock failure, and the explorer was stuck on its Resume button before this fix.
+- **warzone:** aborted on an intercepted canvas click before this fix.
+
+These are weaknesses of the explorer found by real use. Re-run results will be added by the lead.
 
 ## Optional vision
 

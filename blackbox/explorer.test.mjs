@@ -43,7 +43,18 @@ test('canvas clip falls back to the page for absent, hidden, off-screen or inval
   ], viewport), null);
 });
 
-async function fakeRun(seed, crash = false) {
+test('safe start labels use whole words and reject destructive or external actions first', () => {
+  const safe = ['start', 'play', 'new', 'continue', 'ok', 'accept', 'begin', 'resume', 'deploy', 'retry', 'launch', 'enter', 'go', 'got it', 'close', 'RESUME ->', 'Play', 'PLAY NOW', 'Start delivery'];
+  const unsafe = ['restart', 'quit', 'exit', 'reset', 'delete', 'new game+', 'new game', 'buy', 'purchase', 'sign in', 'log in', 'download', 'share', 'Restart mission', 'Play and restart', 'Continue to purchase', 'Enter to sign in', 'New Game Plus', 'display', 'ongoing', 'closed', 'got item', '', 'Controls & settings'];
+  for (const label of safe) assert.equal(explorer.isSafeStartLabel(label.toUpperCase()), true, label);
+  for (const label of unsafe) {
+    assert.equal(explorer.isSafeStartLabel(label), false, label);
+    assert.equal(explorer.isSafeStartLabel(label.toUpperCase()), false, label);
+  }
+  for (const label of unsafe.slice(0, 13)) assert.equal(explorer.isSafeStartLabel(`Play / ${label}`), false, label);
+});
+
+async function fakeRun(seed, crash = false, configure = () => {}) {
   const out = await mkdtemp(join(tmpdir(), 'blackbox-test-'));
   let time = 0, closed = false;
   const page = new EventEmitter();
@@ -56,6 +67,7 @@ async function fakeRun(seed, crash = false) {
     isClosed: () => closed, url: () => closed ? 'about:blank' : 'http://fake/game',
     mainFrame: () => page,
   });
+  configure(page);
   try {
     const report = await explore({ page, url: 'http://fake/game', seconds: 12, seed, out,
       now: () => time, sleep: async ms => { time += ms; if (crash && time > 6000 && !closed) { closed = true; page.emit('close'); } },
@@ -85,6 +97,65 @@ test('page close stops early and preserves prior evidence and input trace', asyn
   assert.ok(report.durationMs < 12000);
   assert.ok(report.findings.some(f => f.kind === 'crash'));
   assert.ok(trace.length > 0);
+});
+
+for (const fallbackFails of [false, true]) {
+  test(`intercepted canvas click reaches budget with ${fallbackFails ? 'keyboard-only recovery' : 'centre mouse fallback'}`, async () => {
+    const clicks = [];
+    const { report, trace } = await fakeRun(1, false, page => {
+      page.locator = selector => ({
+        count: async () => selector === 'canvas' ? 1 : 0,
+        nth: () => ({
+          isVisible: async () => true,
+          click: async () => { throw new Error('locator.click: Timeout 1500ms exceeded; overlay intercepts pointer events'); },
+          boundingBox: async () => ({ x: 100, y: 50, width: 640, height: 360 }),
+        }),
+      });
+      page.mouse.click = async (x, y) => { clicks.push([x, y]); if (fallbackFails) throw new Error('mouse unavailable'); };
+      if (fallbackFails) page.mouse.move = async () => { throw new Error('must stay keyboard only'); };
+    });
+    assert.equal(report.status, 'completed');
+    assert.ok(report.durationMs >= 12000);
+    assert.ok(report.events.some(e => e.kind === 'click-intercepted'));
+    assert.ok(!report.events.some(e => e.kind === 'explorer-error'));
+    assert.deepEqual(clicks, [[420, 230]]);
+    assert.ok(trace.some(i => i.type === 'canvas-click' && i.status === 'failed'));
+    assert.ok(trace.some(i => i.type === 'keydown' && i.t >= 10000 && i.status === 'sent'));
+    assert.equal(trace.some(i => i.type === 'mousemove'), !fallbackFails);
+  });
+}
+
+test('Resume is clicked but Restart mission is never clicked, even when Play times out', async () => {
+  const clicked = [];
+  const { report } = await fakeRun(1, false, page => {
+    page.locator = selector => ({
+      count: async () => selector === 'canvas' ? 0 : 3,
+      nth: i => ({
+        isVisible: async () => true, isEnabled: async () => true,
+        textContent: async () => ['Restart mission', 'Play', 'RESUME ->'][i],
+        click: async () => { clicked.push(i); if (i === 1) throw new Error('Timeout 1500ms exceeded'); },
+      }),
+    });
+  });
+  assert.equal(report.status, 'completed');
+  assert.ok(report.durationMs >= 12000);
+  assert.ok(clicked.includes(2));
+  assert.ok(!clicked.includes(0));
+  assert.ok(report.events.some(e => e.kind === 'click-intercepted'));
+});
+
+test('console warnings and page errors report environment refusals separately with counts', async () => {
+  const message = 'The root document of this element is not valid for pointer lock.';
+  const { report } = await fakeRun(1, false, page => {
+    page.goto = async () => {
+      page.emit('pageerror', new Error(message));
+      page.emit('console', { type: () => 'error', text: () => message });
+      page.emit('console', { type: () => 'warning', text: () => 'WebGL context warning: GPU driver reset' });
+      page.emit('pageerror', new Error('TypeError: undefined is not a function'));
+    };
+  });
+  assert.deepEqual(report.environment.map(e => [e.kind, e.count]), [['pointer-lock-refused', 2], ['webgl-context-warning', 1]]);
+  assert.deepEqual(report.findings.map(e => e.message), ['TypeError: undefined is not a function']);
 });
 
 test('default capture screenshots the selected canvas clip, or the page without a visible canvas', async () => {

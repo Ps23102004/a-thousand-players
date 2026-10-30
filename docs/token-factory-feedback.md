@@ -46,7 +46,7 @@ Every model call in the project: persona generation, the crowd report, bug triag
 
 **What we learned (order not recorded; only the git timestamps in item 5 are clock times):**
 
-1. **Credits.** Two sources, both Token Factory credit only (the hackathon FAQ says there is no separate AI Cloud grant). As of 2026-10-29, the hackathon promo code form (`nebius.com/promo-code`) had been submitted as Student / Independent with the code to arrive by email, and the Builder Program form had been filled.
+1. **Credits.** Two sources, both Token Factory credit only (the hackathon FAQ says there is no separate AI Cloud grant).
 2. **A working call is a plain `fetch`.** One environment variable (`NEBIUS_API_KEY`), one URL (`https://api.tokenfactory.nebius.com/v1/chat/completions`), one OpenAI-style JSON body. The smallest result the README records is a one-line JSON answer in 11 completion tokens and under 0.8 s on Super, Ultra and Super-VL with thinking off (`ai/README.md`).
 3. **The thinking switch.** `chat_template_kwargs: {"enable_thinking": false}` was the one control that worked on all four models; `reasoning_budget`, `reasoning_effort` and `/no_think` did not work on Nano. Without it, Super spent completion tokens on hidden reasoning and short answers came back empty, and Ultra wrote its reasoning into `content`, so at `max_tokens` 60 there was no answer (`ai/README.md`).
 4. **The limits.** Node's default `fetch` gives up at 5 minutes, and `ai/models.ts` records that Ultra can take longer than that on a 300K-token prompt, so we installed an undici Agent with 15-minute header and body timeouts. A 900K-token probe came back HTTP 429 (per-minute token quota), which is why we claim no 1M context. The client now waits as long as a 429 body says and retries. Token counts: our number-dense corpus ran at about 1.6 characters per token, so the usual chars/3.3 rule undercounts by 2x (`ai/README.md`).
@@ -161,7 +161,7 @@ Yes, we would build with it again, as a description aid next to a deterministic 
 
 - **The long-context read is why the project works.** One call over the whole crowd summary, with no chunking. On the planted 1000-player fixture (2,556 rounds, 224.4K prompt tokens, 16.7 s) it found all four hidden stories, including the single sweep-spamming player out of 1000 (`ai/README.md`). On a 150-player fixture: 35.2K prompt tokens, 9.8 s (`ai/README.md`).
 - **Structured claims were right.** Main run: 31 of 31 claims matched the values code recomputed. Caveat: all 31 are cells of a table code also put in the prompt, so this shows Ultra read correctly, not that it discovered anything (`docs/calibration.md` section 2). On the planted fixture 23 of 24 verified, and the one failure was a real error the verifier caught (the cheeser round-1 average stated as 16.9 s, one player's time; the archetype average is 43.5 s).
-- **Two of four bug clusters got a replay-verified Ultra patch:** bug3 (3 of 3 seeds clean) and bug4 (1 of 1; not shipped because the patch removes a height guard) (`README.md`, `data/run-main/triage.json`).
+- **Bug patches across clusters:** Ultra's patch fixed bug3 (3 of 3 replays, shipped) and passed on the one bug4 seed but was NOT shipped (it removes a height guard); bug1 and bug2 patches fixed 0 (`README.md`, `data/run-main/triage.json`).
 
 ### 3. What needs work
 

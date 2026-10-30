@@ -11,6 +11,8 @@ mkdirSync(r('public/game/vendor/three'), { recursive: true }); mkdirSync(r('publ
 for (const f of ['three.module.js', 'three.core.js']) cpSync(r('node_modules/three/build/' + f), r('public/game/vendor/three/' + f));
 cpSync(r('node_modules/@dimforge/rapier3d-compat/dist/rapier.mjs'), r('public/game/vendor/rapier/rapier.mjs'));
 cpSync(r('node_modules/@dimforge/rapier3d-compat/dist/rapier.mjs'), r('public/game/vendor/rapier/rapier.es.js')); // name index.html's importmap expects
+cpSync(r('game/vendor/three/LICENSE'), r('public/game/vendor/three/LICENSE'));
+cpSync(r('game/vendor/rapier/LICENSE'), r('public/game/vendor/rapier/LICENSE'));
 mkdirSync(r('public/engine'), { recursive: true });
 for (const f of ['sim.mjs', 'policy.mjs', 'crowd-worker-lib.mjs']) cpSync(r('engine/' + f), r('public/engine/' + f));
 console.log('synced game + engine into public/');

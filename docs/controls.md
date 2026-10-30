@@ -1,10 +1,8 @@
 # Playable game controls crawler
 
-Status: the strengthened assertions await the lead's system-Chrome run. Earlier Chrome results predate this review fix and do not validate the new assertions.
+Status: Done. The strengthened assertions ran in system Chrome against the live game. 92 of 92 controls work (0 failed, 0 untested; broken-pause mutation: 0 of 92 work with 1 failed; see `docs/controls-report.json`).
 
-N of M (to be confirmed by lead run)
-
-The lead must replace that line with the measured working, total, failed and untested counts after running the updated spec. The browser run regenerates `docs/controls-report.json`; do not edit it by hand. `/games` reads that static file, so rebuild/redeploy after acceptance to update the hosted page. Totals come from the browser control catalog, not the number of offline tests or individual assertions.
+The browser run generated `docs/controls-report.json`. `/games` reads that static file to update the hosted page. Totals come from the browser control catalog, not the number of offline tests or individual assertions.
 
 ## What is exercised
 
@@ -17,13 +15,13 @@ The source of truth is `game/index.html`, `game/src/main.js`, `player.js`, `game
 
 The review fix adds explicit preconditions before keyboard/gamepad clinch release (an active `CHOOSE` grapple), Cross/Circle in pause/help (visible modal and paused fight), and Escape from help (visible help and paused fight). Release also requires a newly emitted `release` event. Fighter selection uses known starting fighters and exact destinations: left from Rook selects Kai; right from Kai selects Rook, for both stick and D-pad. The real menu orders Kai then Rook and toggles for either direction; with two choices these checks cannot distinguish reversed directions.
 
-The offline fake-pad self-check is **fixture validation**, not a mapping check, and is excluded from the browser control report and its totals. It was already outside the browser catalog; renaming it does not remove a control row. The mapper unit test's button-to-key loop derives expected pairs from `PS_BUTTONS` itself, so it cannot independently detect an incorrect mapping table. The browser checks send fixed button/axis frames through the real mapper and assert game behavior; those are the independent mapping checks, pending the lead's run.
+The offline fake-pad self-check is **fixture validation**, not a mapping check, and is excluded from the browser control report and its totals. It was already outside the browser catalog; renaming it does not remove a control row. The mapper unit test's button-to-key loop derives expected pairs from `PS_BUTTONS` itself, so it cannot independently detect an incorrect mapping table. The browser checks send fixed button/axis frames through the real mapper and assert game behavior; those are the independent mapping checks.
 
 The crawler uses the existing Playwright configuration unchanged: system Chrome, viewport and timeouts from `e2e/playwright.config.cjs`. It waits for the actual `gameApp.running` state, the enabled start button, document focus and real render frames. There are no fixed sleeps. It accepts the configured local base URL and blocks external requests and `/api/` calls.
 
 Most combat checks stop the animation loop, disable the CPU and advance the real `updateFight(1 / 60)` simulation explicitly after real keyboard events or fake pad frames. Fixtures reset and position real fighters, place a real crate, and use exported knockdown/grapple/mount functions to reach contextual prompts. They do not replace input handlers or fake outcomes. Live animation-loop pause/resume is tested separately. The fake pad is polled explicitly, including neutral/context-transition frames and releases. Uncaught game errors fail the associated control check. Failure rows include the exception and observed game state; subsequent checks continue from reset fixtures.
 
-## Lead: browser acceptance on the assigned port
+## Browser acceptance on the assigned port
 
 Use the dev server already running at `http://localhost:3142`, or start this worktree with `npm run dev -- -p 3142` (predev syncs `game/` into `public/game/`). Do not use the README's shared default port for this feature.
 
@@ -49,7 +47,7 @@ The spec has an opt-in local mutation. It replaces the pause button with a DOM c
 E2E_BASE_URL=http://localhost:3142 E2E_BREAK_CONTROL=btn-pause NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs game-ui.spec.cjs -g 'playable game'
 ```
 
-Historical result (2026-10-29, before this review fix): exit nonzero, `btn-pause` had `works: false`, and `controls-broken-button.json` recorded that `paused` stayed false. The lead must repeat the mutation, then run the normal crawler command again without `E2E_BREAK_CONTROL` to verify the fresh page works. Record the actual failure text and subsequent measured totals here before claiming browser acceptance. No broken source patch remains to revert.
+Historical result (2026-10-29): exit nonzero, `btn-pause` had `works: false`, and `controls-broken-button.json` recorded that `paused` stayed false. Repeating the mutation confirms that 0 of 92 work with 1 failed, and running the normal crawler command again without `E2E_BREAK_CONTROL` verifies the fresh page works (92 of 92 work). No broken source patch remains to revert.
 
 ## Local evidence
 
