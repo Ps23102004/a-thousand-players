@@ -72,3 +72,13 @@ npx tsx ai/cli/reprobot.ts --results-from /path/to/results.json --out data/repro
 ## Result: common report
 
 *(To be filled by the lead after running the live local experiment with `--report common`)*
+
+
+## Result: rare report and common report (2026-10-29, local player gemma4:e4b-mlx, 20 fresh seeds per arm)
+
+| Report | Recorded build | Shipped build | No-model baseline |
+|---|---|---|---|
+| Rare: floats upward while blocking, then out of bounds (4 of 2,831 recorded rounds) | 0 of 20 (383 calls, 89 fallbacks) | 0 of 20 (159 calls, 53 fallbacks) | 0 of 20 |
+| Common: knocked down in the first 30 s | 19 of 20 (162 calls, 42 fallbacks) | 19 of 20 (116 calls, 31 fallbacks) | 20 of 20 |
+
+Reading it: for the rare report 0 of 20 shows nothing (about a 2.8% chance of one hit by luck). For the common report the pipeline works end to end, and the recorded and shipped builds behave alike, as they should for a non-bug event. The model-driven player was not better than the scripted baseline, so this is a working mechanism and not a better bug finder. Fallbacks mean the local model did not return a usable move (the player waits); 23% to 33% on the rare arms is high.

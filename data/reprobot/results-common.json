@@ -1,1 +1,856 @@
-{"placeholder": true}
+{
+  "placeholder": false,
+  "report": "common",
+  "oracle": "The player is knocked down at least once in the first 30 seconds.",
+  "oracleDescription": "The player is knocked down at least once in the first 30 seconds.",
+  "chooser": "local",
+  "model": "gemma4:e4b-mlx",
+  "requestedRounds": 20,
+  "build": "both",
+  "arms": [
+    {
+      "build": "recorded",
+      "rounds": [
+        {
+          "seed": 2000000,
+          "matched": true,
+          "tFirstMatch": 4.55,
+          "calls": 22,
+          "nanoCalls": 22,
+          "cacheHits": 1,
+          "fallbacks": 5,
+          "completed": true
+        },
+        {
+          "seed": 2000001,
+          "matched": true,
+          "tFirstMatch": 2,
+          "calls": 7,
+          "nanoCalls": 7,
+          "cacheHits": 3,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000002,
+          "matched": true,
+          "tFirstMatch": 1.3,
+          "calls": 5,
+          "nanoCalls": 5,
+          "cacheHits": 2,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000003,
+          "matched": true,
+          "tFirstMatch": 4.47,
+          "calls": 17,
+          "nanoCalls": 17,
+          "cacheHits": 6,
+          "fallbacks": 4,
+          "completed": true
+        },
+        {
+          "seed": 2000004,
+          "matched": true,
+          "tFirstMatch": 2.23,
+          "calls": 7,
+          "nanoCalls": 7,
+          "cacheHits": 5,
+          "fallbacks": 2,
+          "completed": true
+        },
+        {
+          "seed": 2000005,
+          "matched": true,
+          "tFirstMatch": 0.55,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 3,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000006,
+          "matched": false,
+          "tFirstMatch": null,
+          "calls": 39,
+          "nanoCalls": 39,
+          "cacheHits": 13,
+          "fallbacks": 13,
+          "completed": true
+        },
+        {
+          "seed": 2000007,
+          "matched": true,
+          "tFirstMatch": 4.22,
+          "calls": 17,
+          "nanoCalls": 17,
+          "cacheHits": 5,
+          "fallbacks": 4,
+          "completed": true
+        },
+        {
+          "seed": 2000008,
+          "matched": true,
+          "tFirstMatch": 4.77,
+          "calls": 15,
+          "nanoCalls": 15,
+          "cacheHits": 9,
+          "fallbacks": 2,
+          "completed": true
+        },
+        {
+          "seed": 2000009,
+          "matched": true,
+          "tFirstMatch": 4.28,
+          "calls": 11,
+          "nanoCalls": 11,
+          "cacheHits": 11,
+          "fallbacks": 3,
+          "completed": true
+        },
+        {
+          "seed": 2000010,
+          "matched": true,
+          "tFirstMatch": 0.4,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 2,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000011,
+          "matched": true,
+          "tFirstMatch": 0.37,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 2,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000012,
+          "matched": true,
+          "tFirstMatch": 1.95,
+          "calls": 4,
+          "nanoCalls": 4,
+          "cacheHits": 6,
+          "fallbacks": 2,
+          "completed": true
+        },
+        {
+          "seed": 2000013,
+          "matched": true,
+          "tFirstMatch": 0.42,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 3,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000014,
+          "matched": true,
+          "tFirstMatch": 2.78,
+          "calls": 3,
+          "nanoCalls": 3,
+          "cacheHits": 11,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000015,
+          "matched": true,
+          "tFirstMatch": 2.37,
+          "calls": 4,
+          "nanoCalls": 4,
+          "cacheHits": 8,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000016,
+          "matched": true,
+          "tFirstMatch": 2.28,
+          "calls": 5,
+          "nanoCalls": 5,
+          "cacheHits": 7,
+          "fallbacks": 2,
+          "completed": true
+        },
+        {
+          "seed": 2000017,
+          "matched": true,
+          "tFirstMatch": 2.62,
+          "calls": 2,
+          "nanoCalls": 2,
+          "cacheHits": 12,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000018,
+          "matched": true,
+          "tFirstMatch": 1.28,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 7,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000019,
+          "matched": true,
+          "tFirstMatch": 1.73,
+          "calls": 4,
+          "nanoCalls": 4,
+          "cacheHits": 5,
+          "fallbacks": 1,
+          "completed": true
+        }
+      ],
+      "reproduced": 19,
+      "completed": 20,
+      "calls": 162,
+      "cacheHits": 121,
+      "fallbacks": 42
+    },
+    {
+      "build": "shipped",
+      "rounds": [
+        {
+          "seed": 2000000,
+          "matched": true,
+          "tFirstMatch": 9.95,
+          "calls": 24,
+          "nanoCalls": 24,
+          "cacheHits": 26,
+          "fallbacks": 7,
+          "completed": true
+        },
+        {
+          "seed": 2000001,
+          "matched": true,
+          "tFirstMatch": 2.27,
+          "calls": 2,
+          "nanoCalls": 2,
+          "cacheHits": 10,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000002,
+          "matched": true,
+          "tFirstMatch": 1.3,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 7,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000003,
+          "matched": true,
+          "tFirstMatch": 4.93,
+          "calls": 10,
+          "nanoCalls": 10,
+          "cacheHits": 15,
+          "fallbacks": 4,
+          "completed": true
+        },
+        {
+          "seed": 2000004,
+          "matched": true,
+          "tFirstMatch": 2.18,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 11,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000005,
+          "matched": true,
+          "tFirstMatch": 0.55,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 3,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000006,
+          "matched": true,
+          "tFirstMatch": 2.92,
+          "calls": 3,
+          "nanoCalls": 3,
+          "cacheHits": 12,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000007,
+          "matched": false,
+          "tFirstMatch": null,
+          "calls": 41,
+          "nanoCalls": 41,
+          "cacheHits": 24,
+          "fallbacks": 10,
+          "completed": true
+        },
+        {
+          "seed": 2000008,
+          "matched": true,
+          "tFirstMatch": 3.37,
+          "calls": 5,
+          "nanoCalls": 5,
+          "cacheHits": 12,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000009,
+          "matched": true,
+          "tFirstMatch": 7.7,
+          "calls": 21,
+          "nanoCalls": 21,
+          "cacheHits": 18,
+          "fallbacks": 4,
+          "completed": true
+        },
+        {
+          "seed": 2000010,
+          "matched": true,
+          "tFirstMatch": 0.4,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 2,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000011,
+          "matched": true,
+          "tFirstMatch": 0.37,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 2,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000012,
+          "matched": true,
+          "tFirstMatch": 1.95,
+          "calls": 1,
+          "nanoCalls": 1,
+          "cacheHits": 9,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000013,
+          "matched": true,
+          "tFirstMatch": 0.42,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 3,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000014,
+          "matched": true,
+          "tFirstMatch": 2.8,
+          "calls": 1,
+          "nanoCalls": 1,
+          "cacheHits": 13,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000015,
+          "matched": true,
+          "tFirstMatch": 2.37,
+          "calls": 1,
+          "nanoCalls": 1,
+          "cacheHits": 11,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000016,
+          "matched": true,
+          "tFirstMatch": 2.02,
+          "calls": 3,
+          "nanoCalls": 3,
+          "cacheHits": 8,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000017,
+          "matched": true,
+          "tFirstMatch": 3.28,
+          "calls": 3,
+          "nanoCalls": 3,
+          "cacheHits": 14,
+          "fallbacks": 1,
+          "completed": true
+        },
+        {
+          "seed": 2000018,
+          "matched": true,
+          "tFirstMatch": 1.28,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 7,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000019,
+          "matched": true,
+          "tFirstMatch": 1.73,
+          "calls": 1,
+          "nanoCalls": 1,
+          "cacheHits": 8,
+          "fallbacks": 0,
+          "completed": true
+        }
+      ],
+      "reproduced": 19,
+      "completed": 20,
+      "calls": 116,
+      "cacheHits": 215,
+      "fallbacks": 31
+    },
+    {
+      "build": "scripted",
+      "rounds": [
+        {
+          "seed": 2000000,
+          "matched": true,
+          "tFirstMatch": 0.35,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000001,
+          "matched": true,
+          "tFirstMatch": 0.35,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000002,
+          "matched": true,
+          "tFirstMatch": 3.17,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000003,
+          "matched": true,
+          "tFirstMatch": 9.52,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000004,
+          "matched": true,
+          "tFirstMatch": 1.22,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000005,
+          "matched": true,
+          "tFirstMatch": 0.55,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000006,
+          "matched": true,
+          "tFirstMatch": 6.18,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000007,
+          "matched": true,
+          "tFirstMatch": 0.57,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000008,
+          "matched": true,
+          "tFirstMatch": 2.55,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000009,
+          "matched": true,
+          "tFirstMatch": 7.98,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000010,
+          "matched": true,
+          "tFirstMatch": 0.4,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000011,
+          "matched": true,
+          "tFirstMatch": 1.42,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000012,
+          "matched": true,
+          "tFirstMatch": 0.38,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000013,
+          "matched": true,
+          "tFirstMatch": 4.22,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000014,
+          "matched": true,
+          "tFirstMatch": 0.9,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000015,
+          "matched": true,
+          "tFirstMatch": 2.35,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000016,
+          "matched": true,
+          "tFirstMatch": 1.62,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000017,
+          "matched": true,
+          "tFirstMatch": 2.22,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000018,
+          "matched": true,
+          "tFirstMatch": 1.92,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        },
+        {
+          "seed": 2000019,
+          "matched": true,
+          "tFirstMatch": 6.4,
+          "calls": 0,
+          "nanoCalls": 0,
+          "cacheHits": 0,
+          "fallbacks": 0,
+          "completed": true
+        }
+      ],
+      "reproduced": 20,
+      "completed": 20,
+      "calls": 0,
+      "cacheHits": 0,
+      "fallbacks": 0
+    }
+  ],
+  "rounds": [
+    {
+      "seed": 2000000,
+      "matched": true,
+      "tFirstMatch": 4.55,
+      "calls": 22,
+      "nanoCalls": 22,
+      "cacheHits": 1,
+      "fallbacks": 5,
+      "completed": true
+    },
+    {
+      "seed": 2000001,
+      "matched": true,
+      "tFirstMatch": 2,
+      "calls": 7,
+      "nanoCalls": 7,
+      "cacheHits": 3,
+      "fallbacks": 1,
+      "completed": true
+    },
+    {
+      "seed": 2000002,
+      "matched": true,
+      "tFirstMatch": 1.3,
+      "calls": 5,
+      "nanoCalls": 5,
+      "cacheHits": 2,
+      "fallbacks": 0,
+      "completed": true
+    },
+    {
+      "seed": 2000003,
+      "matched": true,
+      "tFirstMatch": 4.47,
+      "calls": 17,
+      "nanoCalls": 17,
+      "cacheHits": 6,
+      "fallbacks": 4,
+      "completed": true
+    },
+    {
+      "seed": 2000004,
+      "matched": true,
+      "tFirstMatch": 2.23,
+      "calls": 7,
+      "nanoCalls": 7,
+      "cacheHits": 5,
+      "fallbacks": 2,
+      "completed": true
+    },
+    {
+      "seed": 2000005,
+      "matched": true,
+      "tFirstMatch": 0.55,
+      "calls": 0,
+      "nanoCalls": 0,
+      "cacheHits": 3,
+      "fallbacks": 0,
+      "completed": true
+    },
+    {
+      "seed": 2000006,
+      "matched": false,
+      "tFirstMatch": null,
+      "calls": 39,
+      "nanoCalls": 39,
+      "cacheHits": 13,
+      "fallbacks": 13,
+      "completed": true
+    },
+    {
+      "seed": 2000007,
+      "matched": true,
+      "tFirstMatch": 4.22,
+      "calls": 17,
+      "nanoCalls": 17,
+      "cacheHits": 5,
+      "fallbacks": 4,
+      "completed": true
+    },
+    {
+      "seed": 2000008,
+      "matched": true,
+      "tFirstMatch": 4.77,
+      "calls": 15,
+      "nanoCalls": 15,
+      "cacheHits": 9,
+      "fallbacks": 2,
+      "completed": true
+    },
+    {
+      "seed": 2000009,
+      "matched": true,
+      "tFirstMatch": 4.28,
+      "calls": 11,
+      "nanoCalls": 11,
+      "cacheHits": 11,
+      "fallbacks": 3,
+      "completed": true
+    },
+    {
+      "seed": 2000010,
+      "matched": true,
+      "tFirstMatch": 0.4,
+      "calls": 0,
+      "nanoCalls": 0,
+      "cacheHits": 2,
+      "fallbacks": 0,
+      "completed": true
+    },
+    {
+      "seed": 2000011,
+      "matched": true,
+      "tFirstMatch": 0.37,
+      "calls": 0,
+      "nanoCalls": 0,
+      "cacheHits": 2,
+      "fallbacks": 0,
+      "completed": true
+    },
+    {
+      "seed": 2000012,
+      "matched": true,
+      "tFirstMatch": 1.95,
+      "calls": 4,
+      "nanoCalls": 4,
+      "cacheHits": 6,
+      "fallbacks": 2,
+      "completed": true
+    },
+    {
+      "seed": 2000013,
+      "matched": true,
+      "tFirstMatch": 0.42,
+      "calls": 0,
+      "nanoCalls": 0,
+      "cacheHits": 3,
+      "fallbacks": 0,
+      "completed": true
+    },
+    {
+      "seed": 2000014,
+      "matched": true,
+      "tFirstMatch": 2.78,
+      "calls": 3,
+      "nanoCalls": 3,
+      "cacheHits": 11,
+      "fallbacks": 1,
+      "completed": true
+    },
+    {
+      "seed": 2000015,
+      "matched": true,
+      "tFirstMatch": 2.37,
+      "calls": 4,
+      "nanoCalls": 4,
+      "cacheHits": 8,
+      "fallbacks": 1,
+      "completed": true
+    },
+    {
+      "seed": 2000016,
+      "matched": true,
+      "tFirstMatch": 2.28,
+      "calls": 5,
+      "nanoCalls": 5,
+      "cacheHits": 7,
+      "fallbacks": 2,
+      "completed": true
+    },
+    {
+      "seed": 2000017,
+      "matched": true,
+      "tFirstMatch": 2.62,
+      "calls": 2,
+      "nanoCalls": 2,
+      "cacheHits": 12,
+      "fallbacks": 1,
+      "completed": true
+    },
+    {
+      "seed": 2000018,
+      "matched": true,
+      "tFirstMatch": 1.28,
+      "calls": 0,
+      "nanoCalls": 0,
+      "cacheHits": 7,
+      "fallbacks": 0,
+      "completed": true
+    },
+    {
+      "seed": 2000019,
+      "matched": true,
+      "tFirstMatch": 1.73,
+      "calls": 4,
+      "nanoCalls": 4,
+      "cacheHits": 5,
+      "fallbacks": 1,
+      "completed": true
+    }
+  ],
+  "reproduced": 19,
+  "totals": {
+    "calls": 278,
+    "nanoCalls": 278,
+    "cacheHits": 336,
+    "fallbacks": 73
+  },
+  "aborted": false,
+  "abortReason": null,
+  "budgetHit": false,
+  "durationSeconds": 130,
+  "maxSeconds": 2400
+}
