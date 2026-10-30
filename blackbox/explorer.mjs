@@ -7,12 +7,23 @@ const lateGuards = new WeakMap();
 
 export const CONTROL_KEYS = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'Space', 'Enter'];
 export const INPUT_KEYS = ['w', 'a', 's', 'd', 'Space', 'Shift', 'r', 'e', '1', '2', '3', '4', 'Enter', 'Escape', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
+function blockedStartLabel(text) {
+  text = text.replace(/[-_]+/g, ' ');
+  return /\b(?:trial|premium|deposit|real\s+money|bet|wager|forfeit|abandon|unlock|google|facebook|apple)\b/i.test(text)
+    || /\b(?:donat\w*|shop\w*|order\w*|start\s+over|close|restart\w*|quit\w*|exit\w*|reset\w*|delet\w*|eras\w*|remov\w*|wip\w*|clear\w*|overwrit\w*|buy\w*|purchas\w*|download\w*|shar\w*|sign\s*in|log\s*in|pay\w*|checkout|subscrib\w*|store|cart|upgrad\w*|install\w*|updat\w*|uninstall\w*)\b/i.test(text)
+    || /\bnew\s+game\s*(?:\+|plus\b)/i.test(text);
+}
 export function isSafeStartLabel(text) {
   text = text.replace(/[-_]+/g, ' ');
-  if (/\b(?:trial|premium|deposit|real\s+money|bet|wager|forfeit|abandon|unlock|google|facebook|apple)\b/i.test(text)) return false;
-  if (/\b(?:donat\w*|shop\w*|order\w*|start\s+over|close|restart\w*|quit\w*|exit\w*|reset\w*|delet\w*|eras\w*|remov\w*|wip\w*|clear\w*|overwrit\w*|buy\w*|purchas\w*|download\w*|shar\w*|sign\s*in|log\s*in|pay\w*|checkout|subscrib\w*|store|cart|upgrad\w*|install\w*|updat\w*|uninstall\w*)\b/i.test(text)) return false;
-  if (/\bnew\s+game\s*(?:\+|plus\b)/i.test(text)) return false;
+  if (blockedStartLabel(text)) return false;
   return /\b(start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got\s+it)\b/i.test(text);
+}
+
+const labelKey = text => text.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+export function isMenuWalkLabel(text) {
+  text = labelKey(text);
+  if (!text || text.length > 24 || !/[\p{L}\p{N}]/u.test(text) || blockedStartLabel(text)) return false;
+  return !/\b(?:back|settings?|options?|shop|garage|store|leaderboards?|scores?|achievements?|credits?|about|help|how\s+to\s+play|quit|exit|sound|music|language|source|github|twitter|share|log\s*in|register)\b/i.test(text);
 }
 
 // Inspect destinations before clicking; script-triggered departures are guarded at input time too.
@@ -73,6 +84,10 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
   const handlerWork = new Set();
   const start = now(), random = rng(seed), inputs = [], events = [], frames = [], diffs = [], inputsSent = [], controlDiffs = [], intervalActivity = [], resumedIntervals = [], startupClicks = [];
   let animationEvidence = false;
+  let startupRounds = 0;
+  const startupLabels = new Set();
+  const hasGameplayEvidence = () => animationEvidence || controlDiffs.some(d => d > 0.0001)
+    || diffs.some(d => d > 0.0001) || intervalActivity.some(value => value === true);
   let decoder, crashed = false, keyboardOnly = false, status = 'completed', previous, lastInputCount = 0, lastPeriodicAt = start, imageCount = 0;
   const deadline = start + seconds * 1000;
   let stopped = false, finalized = false, timer, captureGraceTimer, budgetExpired = false;
@@ -118,7 +133,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       finally { restoringNavigation = false; }
       if (new URL(page.url()).origin !== startOrigin) return ensureStartPage();
       leftPage = false;
-      await startSequence();
+      await startSequence({ recovery: true });
     }
   }
   const handlers = {
@@ -242,37 +257,50 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
     }
     return { responses, after: before };
   }
-  async function startSequence({ canvasClick = true } = {}) {
-    // A bounded number of rounds handles a consent dialog followed by a start menu.
-    const clicked = new Set();
+  async function startSequence({ canvasClick = true, menuWalk = false, recovery = false, maxRounds = 8 } = {}) {
+    // Progression shares one budget/label history across initial and delayed menus.
+    // Existing strict resume/restoration is separate: it may need the same Resume again.
+    const clicked = recovery ? new Set() : startupLabels;
     let sentClicks = 0;
-    for (let round = 0; round < 3 && !crashed; round++) {
-      const buttons = page.locator('button, a[href], [role="button"], [role="link"], input[type="button"], input[type="submit"]');
-      let didClick = false;
+    for (let round = 0; round < maxRounds && (recovery || startupRounds < 8) && !crashed && !budgetExpired && now() < deadline - 5; round++) {
+      if (menuWalk && hasGameplayEvidence()) break;
+      const buttons = page.locator(menuWalk
+        ? 'button, a, [role="button"], [role="link"], input[type="button"], input[type="submit"], [onclick], li, div'
+        : 'button, a[href], [role="button"], [role="link"], input[type="button"], input[type="submit"]');
+      const candidates = [];
       for (let i = 0, n = Math.min(await bounded(() => buttons.count()), 100); i < n && !crashed; i++) {
         const button = buttons.nth(i);
         if (!await bounded(() => button.isVisible()) || !await bounded(() => button.isEnabled())) continue;
         const text = (await bounded(() => button.textContent()) || await bounded(() => button.getAttribute('value')) || await bounded(() => button.getAttribute('aria-label')) || '').trim();
-        if (!isSafeStartLabel(text) || clicked.has(text)) continue;
-        if (button.evaluate && !isSafeStartTarget(await bounded(() => button.evaluate(node => ({
-          href: node.href ?? node.getAttribute('href'), target: node.getAttribute('target'), download: node.getAttribute('download'),
+        if (!(menuWalk ? isMenuWalkLabel(text) : isSafeStartLabel(text)) || clicked.has(labelKey(text))) continue;
+        const destination = button.evaluate ? await bounded(() => button.evaluate(node => ({
+          href: node.href ?? node.closest('a[href]')?.href ?? node.getAttribute('href'),
+          target: node.closest('[target]')?.getAttribute('target'), download: node.closest('[download]')?.getAttribute('download'),
           formAction: node.form ? (node.getAttribute('formaction') != null ? node.formAction : node.form.action) : null,
-          formTarget: node.getAttribute('formtarget') ?? node.form?.target,
-        }))), startURL)) continue;
-        const click = { t: t(), text, status: 'attempted' }; startupClicks.push(click);
-        clicked.add(text);
-        try {
-          await send('startup-click', { text }, () => button.click({ timeout: 1500 }));
-          click.status = 'sent'; didClick = true; sentClicks++;
-          await ensureStartPage();
-        } catch (error) {
-          if (error === deadlineError || error === restorationError) throw error;
-          click.status = 'failed'; event('click-intercepted', { text, message: error.message });
-          continue;
-        }
-        break; // Re-query after menus mutate.
+          formTarget: node.getAttribute('formtarget') ?? node.form?.getAttribute('target'),
+          clickable: node.matches('button, a, [role="button"], [role="link"], input[type="button"], input[type="submit"], [onclick]')
+            || (node.matches('li, div') && getComputedStyle(node).cursor === 'pointer'),
+        }))) : {};
+        if (!isSafeStartTarget(destination, startURL)) continue;
+        if (menuWalk && (destination.clickable === false || destination.target != null || destination.formTarget != null)) continue;
+        const priority = isSafeStartLabel(text) ? 0 : /\b(?:endless|campaign|story|easy|normal|hard|level|difficulty|mode)\b/i.test(text) ? 1 : 2;
+        candidates.push({ button, text, priority });
       }
-      if (!didClick) break;
+      if (!candidates.length) break;
+      if (menuWalk) candidates.sort((a, b) => a.priority - b.priority);
+      const { button, text } = candidates[0];
+      if (!recovery) startupRounds++;
+      const click = { t: t(), text, status: 'attempted' }; startupClicks.push(click);
+      clicked.add(labelKey(text));
+      try {
+        await send('startup-click', { text }, () => button.click({ timeout: 1500 }));
+        click.status = 'sent'; sentClicks++;
+        await ensureStartPage();
+      } catch (error) {
+        if (error === deadlineError || error === restorationError) throw error;
+        click.status = 'failed'; event('click-intercepted', { text, message: error.message });
+      }
+      // At most one attempted label per round, then query the current DOM again.
     }
     if (!canvasClick) return sentClicks;
     const canvas = page.locator('canvas');
@@ -297,6 +325,35 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
         break;
       }
     }
+    return sentClicks;
+  }
+  async function assessControls() {
+    const initial = await shot('initial', true);
+    if (budgetExpired || now() >= deadline - 5) return;
+    await pause(Math.min(180, Math.max(0, deadline - now())));
+    if (budgetExpired || now() >= deadline - 5) return;
+    const idle = await shot('idle-probe');
+    animationEvidence = frameDiff(initial, idle) > 0.0001;
+    const probes = await probeControls(idle);
+    controlDiffs.push(...probes.responses);
+    if (!budgetExpired && now() < deadline - 185) {
+      await pause(180);
+      const afterIdle = await shot('post-control-idle');
+      animationEvidence ||= frameDiff(probes.after, afterIdle) > 0.0001;
+    }
+  }
+  async function walkMenus() {
+    while (!hasGameplayEvidence() && startupRounds < 8 && !crashed && !budgetExpired && now() < deadline - 5) {
+      const before = startupRounds;
+      const pressed = await startSequence({ menuWalk: true, maxRounds: 1 });
+      if (startupRounds === before) break;
+      if (!pressed) continue;
+      // Keep menu screenshots as artifacts, but classify fresh game probes only.
+      for (const frame of frames) if (!frame.label.startsWith('startup:')) frame.label = `startup:${frame.label}`;
+      previous = undefined;
+      diffs.length = inputsSent.length = intervalActivity.length = resumedIntervals.length = controlDiffs.length = 0;
+      await assessControls();
+    }
   }
   async function run() {
     await bounded(() => mkdir(out, { recursive: true }));
@@ -314,20 +371,8 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
     startURL = page.url?.() ?? url; startOrigin = new URL(startURL).origin; initialNavigation = false;
     await ensureStartPage();
     await startSequence();
-    const initial = await shot('initial', true);
-    if (budgetExpired || now() >= deadline - 5) return;
-    await pause(Math.min(180, Math.max(0, deadline - now())));
-    if (budgetExpired || now() >= deadline - 5) return;
-    const idle = await shot('idle-probe');
-    animationEvidence = frameDiff(initial, idle) > 0.0001;
-    const initialProbes = await probeControls(idle);
-    controlDiffs.push(...initialProbes.responses);
-    // Recheck idle pixels after input: animation may have started during probes.
-    if (!budgetExpired && now() < deadline - 185) {
-      await pause(180);
-      const afterIdle = await shot('post-control-idle');
-      animationEvidence ||= frameDiff(initialProbes.after, afterIdle) > 0.0001;
-    }
+    await assessControls();
+    await walkMenus();
     let step = 0;
     while (!budgetExpired && now() < deadline - 5 && !crashed) {
       if (page.isClosed()) { crash('Game page closed'); break; }
@@ -339,10 +384,11 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
         if (diffs.at(-1) <= 0.0001) {
           // A game can pause itself mid-run (e.g. when automated Chrome refuses pointer lock). Press its safe start/resume
           // control again; that interval is then a self-pause, not a freeze.
-          const pressed = await startSequence({ canvasClick: false });
+          const pressed = await startSequence({ canvasClick: false, recovery: hasGameplayEvidence() });
           if (pressed) { resumedIntervals[diffs.length - 1] = true; event('resume-click', { message: startupClicks.at(-1)?.text ?? '' }); }
           const { responses } = await probeControls(pixels);
           intervalActivity[intervalActivity.length - 1] = responses.some(d => d > 0.0001) ? true : responses.length === CONTROL_KEYS.length + (keyboardOnly ? 0 : 1) ? false : null;
+          if (!responses.some(d => d > 0.0001)) await walkMenus();
         }
       }
       if (crashed || budgetExpired || now() >= deadline - 5) break;

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>Level Trail — original local fixture</title>
+<style>body { margin:0; background:#142850; color:white; } canvas { display:block; } [hidden] { display:none; } a { cursor:pointer; }</style>
+<main id="menu"><p>Pick a level</p><a>Loopy</a> <a>Backtrack</a> <a>Dash</a> <a>About</a></main>
+<canvas width="640" height="360" tabindex="0" hidden></canvas>
+<script>
+const menu = document.querySelector('#menu'), canvas = document.querySelector('canvas'), ctx = canvas.getContext('2d');
+let x = 280;
+function paint() {
+  ctx.fillStyle = '#142850'; ctx.fillRect(0, 0, 640, 360);
+  ctx.fillStyle = '#ffe066'; ctx.fillRect(x, 140, 60, 60);
+}
+for (const link of menu.querySelectorAll('a')) link.addEventListener('click', () => {
+  menu.remove(); canvas.hidden = false; canvas.focus(); paint();
+});
+addEventListener('keydown', event => {
+  if (canvas.hidden) return;
+  event.preventDefault(); x = (x + 60) % 580; paint();
+});
+</script></html>

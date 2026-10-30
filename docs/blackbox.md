@@ -23,7 +23,7 @@ per run: reports and trace overwrite existing files, and old screenshots may rem
 
 ## Startup, recovery and cleanup
 
-Up to three rounds click visible, enabled labels matching a whole word from
+Up to eight startup rounds click visible, enabled labels matching a whole word from
 `start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got it`.
 New Game and Continue as guest are eligible; New Game Plus and tested commerce/destructive
 combinations are excluded. Tests include donate, shop, store, order, checkout, subscribe,
@@ -33,8 +33,37 @@ are also excluded. Start, Play, New Game, Continue and Play again remain eligibl
 Hyphens and underscores are normalized. **This is a non-exhaustive label heuristic, not a
 safety guarantee.** Labels do not establish what a button actually does.
 
+The primary label rule (`isSafeStartLabel`) stays strict. After the normal sequence,
+if idle checks show no animation and input probes show no pixel response, a separate
+`isMenuWalkLabel` fallback can use the remaining rounds. It also considers anchors without
+`href`, `[onclick]`, `[role=link]`, and `li`/`div` elements with computed `cursor:pointer`.
+Fallback labels must be nonempty, contain a letter or number, and be at most 24 characters
+after whitespace/hyphen/underscore normalization. They must pass the existing commerce and
+destructive exclusions and exclude navigation/meta words: back, settings, options, shop,
+garage, store, leaderboard, scores, achievements, credits, about, help, how to play, quit,
+exit, sound, music, language, source, github, twitter, share, login/log in and register.
+Start-like labels rank first, then mode/difficulty/level labels such as Endless, Campaign,
+Story, Easy, Normal, Hard and Level 2; other short level names such as Loopy remain eligible
+in DOM order. Each round re-queries at most 100 candidates and attempts at most one new
+label. Case, whitespace, hyphen and underscore variants count as the same label, even after
+a failed click. Initial and delayed menu progression share the eight-round budget and label
+history. No eligible target ends the current sequence; later periodic checks may retry within
+that same budget. The wall-clock budget can end progression sooner.
+
+Fallback stops as soon as idle animation or input/periodic pixel changes have been observed.
+Each successful fallback click refocuses the canvas and samples fresh idle/control probes
+before another round. Earlier menu frames remain saved with `startup:` label prefixes;
+control and periodic assessments restart from the new screen so menu probes do not mask
+game responsiveness. `startupClicks` and `inputs.json` retain the attempted menu path and
+sent/failed status. The existing strict resume and origin-restoration paths remain separate:
+they can reuse a start/resume label when a running game pauses or the page is restored;
+they never enable the broad menu-walk rule.
+
 Cross-origin/non-HTTP links and form actions, download attributes and new/named browsing
-targets are skipped at startup. The URL landed on after the first navigation establishes the
+targets are skipped at startup. Menu walk reuses `isSafeStartTarget` and additionally skips
+any target/formtarget attribute, including empty or `_self` values. Inherited anchor
+destinations, target and download attributes are checked for nested clickable elements.
+The URL landed on after the first navigation establishes the
 start origin and restoration URL, including HTTP-to-HTTPS and apex-to-www redirects.
 Same-origin links on that landed host are allowed. Unexpected top-level
 cross-origin departures record `navigation-away`. Before more input/capture, the explorer
@@ -146,14 +175,24 @@ at 10 s. `animated-deadkeys` has independently moving pixels with ineffective in
 `delayed-animated-deadkeys` starts independent animation during the probes.
 `single-request` loads one missing script; `single-console` emits one WebGL initialization error.
 `turn-based-game.html` redraws only on arrow presses, with no idle animation.
+`multi-menu-game.html` requires Play → Endless → Easy, using a role link and a
+pointer-styled list item, before showing an animated canvas. `level-list-game.html` presents
+Loopy/Backtrack/Dash as anchors without `href`, then shows a canvas that redraws on keys.
+Both are original fixtures; the browser cases assert the full startup path, visible game,
+game-region PNGs, fresh control probes and absence of `not-started`.
 
-Offline tests execute these actual scripts with a fake clock/rectangle rasterizer. Browser/API
+Offline tests execute the Square Courier and arrow-only scripts with a fake clock/rectangle rasterizer. Browser/API
 fakes also test delayed downs, late pages/handlers, startup label/target exclusions, beforeunload
 recovery, restoration/focus and the two-restoration cap, deadline capture completion, both probe
 modes, missing evidence and elapsed sample timing. They do not verify actual Chrome rendering.
 Regression fakes cover redirected startup origins and landed-host links/restoration, foreign
 console/network events, restore aborts versus game failures, the additional label exclusions,
 and CLI budget bounds.
+Menu-walk tests cover allowed/blocked labels, fresh DOM queries, preference order, no
+repeated normalized label, the shared eight-round cap, hidden/disabled choices, target and
+download attributes, inherited foreign destinations, pointer/onclick eligibility and
+stopping on animation or input response. These offline DOM/clock fakes do not replace the
+real-Chrome fixture cases.
 The original fake clock advanced only during sleeps, with zero screenshot/decoding cost; its
 rectangle rasterizer samples pixel centers and omits grid strokes and browser resampling. Real
 Chrome consumes budget capturing/decoding and can produce different periodic pixel differences.
@@ -189,6 +228,13 @@ touch, login or CAPTCHA handling. Random clicks and R/Enter/Escape can confirm, 
 regardless of label filtering. Use an authorized disposable test session. Pointer lock/fullscreen
 and actual focus depend on the game and browser. Sampling misses brief/small glitches;
 multiple canvases, hidden surfaces, animated overlays and intended loaders can confuse it.
+Canvas-drawn menus with no DOM clickable element are still not operable by menu walk;
+there is no OCR, coordinate-based menu recognition or game-specific key sequence. Animated
+menus can look like gameplay and disable fallback. Menus requiring the same label twice,
+labels longer than 24 characters, more than eight choices, or a late choice beyond the first
+100 candidates can remain unfinished. A click in `startupClicks` records an action, not proof
+of gameplay. Script handlers can navigate or perform hidden side effects despite safe-looking
+labels and destinations; these heuristics cannot establish what arbitrary handlers do.
 No WebGL-only fixture establishes renderer/context diagnosis. Screenshot pixels cannot tell
 intentional darkness from lost WebGL context. Seeds and traces cannot guarantee replay.
 Screenshots, console text and URLs may contain private data; artifacts stay local unless vision
@@ -204,8 +250,26 @@ Five open-source browser games, 60 seconds each, seed 1. Results were checked ag
 | animal-strike | Pressed PLAY and played. | No findings. Pointer-lock refusals are filed as browser limits, not game bugs. |
 | hexapipes | Pressed Play but stayed on the puzzle-picker page; no puzzle solved. | No findings. Partly tested only. |
 | warzone | Pressed PLAY, ENDLESS and CONTINUE: menus only, no combat. | No findings. Not really played. |
-| canvas-td | Stayed on its level-select screen (drawn on a canvas, not a DOM button). | "Not started": not tested. |
+| canvas-td | Stayed on its level-select screen. Read-only source inspection later confirmed DOM anchors without `href` for Loopy, Backtrack and Dash (`index.html:30–32`, click binding in `scripts/ui.js:358`). | "Not started": not tested in that run. |
 
-Summary: the explorer found no game defect in these five, and it did not play four of them through. This is a weak result and must not be presented as a clean bill of health for those games. Playing canvas-td and warzone properly needs a control for canvas-drawn menus, which is not built.
+The explorer found no game defect in these five, and it did not play four of them through.
+This is a weak result and must not be presented as a clean bill of health for those games.
+
+Read-only follow-up on the saved Warzone inputs, report, PNGs and source: PLAY, the long
+ENDLESS description and CONTINUE were sent at roughly 13 seconds. `src/screens.js:574`
+wires CONTINUE to character selection; the next control is `#deployBtn` (DEPLOY ▶).
+`src/main.js:3264` advances it to loadout, where `#loadout-deploy` (also DEPLOY ▶) starts
+the run through `src/screens.js:571`. The old three-round sequence exhausted its rounds
+before the first DEPLOY. Later screenshots show SHOP and the main menu, not combat;
+the input trace also sends Escape at 16.338 s after CONTINUE, and the game's menu Escape
+handler walks back up the stack (`src/main.js:3171–3176`).
+`animationEvidence: true` is consistent with animated menus, not proof of a run. Eight
+primary rounds can reach the first DEPLOY, but the no-repeat label rule still prevents
+the second identically labelled DEPLOY. Animated menus can also suppress broad fallback.
+This change does not claim Warzone combat was reached.
+
+Canvas TD's choices are covered by the new DOM menu-walk fixture. Neither real game was
+executed for this change; the historical results above remain unchanged. The lead runs the
+real-Chrome fixture spec separately from offline verification.
 
 The first run's false positives (agentofduty freeze, canvas-td deadkeys) are fixed and covered by tests on local fixtures.

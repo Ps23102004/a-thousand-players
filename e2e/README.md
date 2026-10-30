@@ -53,7 +53,7 @@ NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules \
 ```
 
 It covers the six original Square Courier scenarios, independently animated dead inputs (including animation starting during probes),
-a single missing script, one WebGL initialization console error, and the arrow-only turn-based fixture.
+a single missing script, one WebGL initialization console error, the arrow-only turn-based fixture, and multi-step / href-less level-list menu progression.
 The freeze fixture is static until input and has no moving marker. Animated dead inputs must
 report controls as inconclusive; single critical failures must have low confidence.
 Only this spec should be selected for fixture-only verification; the app/real-game specs above
