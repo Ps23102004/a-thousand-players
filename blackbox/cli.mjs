@@ -32,7 +32,9 @@ async function main() {
   const { explore } = await import('./explorer.mjs');
   const browser = await chromium.launch({ headless: false, channel: 'chrome' });
   try {
-    const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+    // An explicit context: the explorer opens a second page in page.context() to decode screenshots, which Playwright refuses for a browser.newPage() page.
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
     const report = await explore({ ...opts, page });
     if (opts.vision) {
       try {
