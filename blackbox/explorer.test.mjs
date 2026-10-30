@@ -748,3 +748,15 @@ test('healthy captures finishing just before the budget stay completed', async (
   assert.ok(!report.events.some(e => e.kind === 'deadline-exceeded'));
 });
 
+
+test('real games 2026-10-30 (warzone): a start button that appears after load is pressed at a later sample', async () => {
+  let clock = 0, started = false;
+  const play = { isVisible: async () => clock > 3000 && !started, isEnabled: async () => true, textContent: async () => 'PLAY', getAttribute: async () => null, click: async () => { started = true; } };
+  const { report } = await fakeRun(1, false, page => {
+    page.goto = async () => {};
+    page.locator = selector => selector === 'canvas' ? { count: async () => 0 } : { count: async () => 1, nth: () => play };
+  }, { seconds: 23, now: () => clock, sleep: async ms => { clock += ms; },
+    capture: async () => ({ png: Buffer.from('menu'), pixels: Uint8Array.from({ length: 9216 }, (_, i) => [20 + (clock % 97), 40, 80, 255][i % 4]) }) });
+  assert.ok(started, 'PLAY was pressed once it appeared');
+  assert.ok(report.startupClicks.some(c => c.text === 'PLAY' && c.status === 'sent' && c.t > 3000));
+});

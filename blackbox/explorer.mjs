@@ -333,6 +333,9 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       if (page.isClosed()) { crash('Game page closed'); break; }
       if (now() - lastPeriodicAt >= 5000) {
         const pixels = await shot('periodic', true);
+        const neverStarted = !startupClicks.some(c => c.status === 'sent');
+        // A start menu can appear only after load (warzone): until a start click has worked, look for one at every sample.
+        if (neverStarted && diffs.at(-1) > 0.0001) await startSequence({ canvasClick: false });
         if (diffs.at(-1) <= 0.0001) {
           // A game can pause itself mid-run (e.g. when automated Chrome refuses pointer lock). Press its safe start/resume
           // control again; that interval is then a self-pause, not a freeze.
