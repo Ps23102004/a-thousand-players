@@ -6,13 +6,13 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--29-134%20engine%20%2B%20328%20TS%20%2B%2088%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
-**Demo video (3 min):** link added at submission. **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above; `docs/video-voiceover.md` is the narration for the full video.
+**Demo video (3 min):** link added at submission. **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above.
 
 Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, Parth's own CSCI 310 course-project 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, five bug fixes that can each be switched off so recorded rounds still replay as recorded, and a CPU low-block balance rule (default on). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/` (Clean Getaway is a private repository, so its adapter runs only with a local checkout of it). All models run on Nebius Token Factory; Tavily does the web search.
 
 ## Contents
 
-[Team docs](docs/team/README.md) · [Start here](#start-here-two-minutes) · [Quick start](#quick-start) · [How it works](#how-it-works) · [What it does](#what-it-does) · [Screenshots](#screenshots) · [Results](#results-from-the-main-run) · [Honest limits](#honest-limits) · [Model roles](#model-roles) · [Design Advisor](#design-advisor-modesadvisor) · [Testing](#testing) · [Running it](#running-it) · [Layout](#layout) · [License](#license)
+[Start here](#start-here-two-minutes) · [Quick start](#quick-start) · [How it works](#how-it-works) · [What it does](#what-it-does) · [Screenshots](#screenshots) · [Results](#results-from-the-main-run) · [Honest limits](#honest-limits) · [Model roles](#model-roles) · [Design Advisor](#design-advisor-modesadvisor) · [Testing](#testing) · [Running it](#running-it) · [Layout](#layout) · [License](#license)
 
 ## Quick start
 
@@ -289,8 +289,7 @@ data/        run outputs (run-main is the main 1000-player run)
 adapters/    the crowd harness on two other games (Homeground, Clean Getaway) and how to add one
 e2e/         Playwright browser suite
 scripts/     game sync, recorded-replay check
-docs/team/   team guide for Aman (research, legal) and Aashna (engineering, testing): requirements checked against the official rules, license fact sheet, final-day runbook
-docs/        design, Devpost text, Token Factory feedback, judge and calibration reports, video narration (media/ holds the README images)
+docs/        design, Devpost text, Token Factory feedback, calibration reports (media/ holds the README images)
 ```
 
 ## License

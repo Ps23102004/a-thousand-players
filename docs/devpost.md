@@ -1,6 +1,6 @@
 # A Thousand Players — Devpost
 
-> Team note, not for paste: placeholders look like `[PARTH: ...]`, `[YOUTUBE_URL]`. Search for `[` before pasting. Everything between the two horizontal rules below is the Devpost form, in form order.
+> Team note, not for paste: placeholders look like `[YOUTUBE_URL]`. Search for `[` before pasting. Everything between the two horizontal rules below is the Devpost form, in form order.
 
 ---
 
@@ -30,15 +30,15 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 
 **Nebius products used:** only Nebius Token Factory was used. Nebius AI Cloud was not used.
 
-**Teammates:** Parth Singh (owner and builder), Aman (research, rules and legal checks), Aashna (engineering and testing). Parth Singh is the Representative. Each teammate needs a Devpost account and must accept the team invitation.
+**Team:** Parth Singh (Representative).
 
 ---
 
-> Team note, not for paste. The track is decided (Parth, 2026-10-29): **Best Apps and Agents**. As of 2026-10-29 the repo is private until Parth flips it public; the Code link only works after that.
+> Team note, not for paste. The track is decided: **Best Apps and Agents**. As of 2026-10-29 the repo is private until flipped public; the Code link only works after that.
 >
 > Checked while writing this file:
 > - Package list: the Built With names come from `package.json`, `ai/models.ts` and `ai/precedent.ts`. Playwright is left out of Built With: it is not in `package.json`, and the browser suite in `e2e/` runs on a global `@playwright/cli` install (`e2e/README.md`). Add it back if you want to credit the test tool.
-> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit. The `` markers stay in the text until someone has clicked every live button on the hosted URL.
+> - Hosting: the app is live at https://a-thousand-players.vercel.app, deployed from the Vercel CLI on the Hobby plan. There is no git integration, so a push does not redeploy; run the deploy again after any change. Commit `35f0a5f` made the pages static to fit Hobby's 12-function limit.
 > - Model names: the Token Factory ids in `ai/models.ts` are `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL` and `nvidia/Nemotron-3-Ultra-550b-a55b`.
 > - Triage numbers: "3 of 24" is 2 of 15 plus 1 of 9, the same figures as the last bullet of "What is not done".
 
@@ -150,7 +150,7 @@ The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We check
 - `cpuLowBlock` (`5c5792c`), now default on: a balance change that crouch-blocks low attacks and answers crouching recovery with a sweep (`ai.js`). The 100-seed decision sweep cuts crouch-jab wins 100/100 → 0/100 and all-keys wins 100/100 → 40/100; crowd win rate drops 31.0% → 23.5%, casual stays 5/39. Recorded rounds and comparison baselines pin 0 ([decision](cpu-lowblock.md#decision)).
 - `replay.html`: replay-link validation and clearer errors.
 
-The game README also changed, and the 162 old model and texture files were removed from the tree and the history on 2026-10-28 because their license was not established (`docs/team/LEGAL-AND-LICENSES.md`).
+The game README also changed, and the 162 old model and texture files were removed from the tree and the history on 2026-10-28 because their license was not established.
 
 **Two other games the adapters run on. Both are Parth's own.** `adapters/` runs the same crowd harness on two games (`docs/generality.md`):
 - **Homeground**, a procedural longboard game. Repository `github.com/Ps23102004/homeground`: public, MIT, not a fork, created 2026-08-22 (first commit that day), 7 commits, last push 2026-09-11 (checked with `gh api`). **It was created before the hackathon opened on 2026-08-26.** Only its board physics is vendored here (`adapters/homeground/vendor`, upstream commit in `UPSTREAM_COMMIT`, license file "Copyright (c) 2026 Parth Singh"); the adapter that runs it is new in this repo.

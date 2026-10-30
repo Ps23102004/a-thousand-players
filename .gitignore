@@ -16,7 +16,7 @@ public/engine/
 .serena/
 e2e/test-results/
 
-# screen footage for the video (e2e/footage.cjs)
+# screen footage for the video
 footage/
 
 # e2e screenshots are regenerated on every run

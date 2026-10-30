@@ -1,12 +1,12 @@
 # Feedback: Nebius Token Factory and NVIDIA Nemotron
 
-Written by the A Thousand Players team (Parth, Aman, Aashna) after building on Token Factory for the Nebius x NVIDIA hackathon. The organizers asked for five points per tool: what we used it for, what worked, what needs work, onboarding ("zero to hello world"), and whether we would build with it again. Each tool below has its own section with those five points.
+Written after building on Token Factory for the Nebius x NVIDIA hackathon. The organizers asked for five points per tool: what we used it for, what worked, what needs work, onboarding ("zero to hello world"), and whether we would build with it again. Each tool below has its own section with those five points.
 
 **Nebius AI Cloud was not used.** We used no other Nebius product (no Serverless Jobs, Endpoints or DevPods). Every model call goes to the Token Factory API. The web app is hosted outside Nebius, on Vercel.
 
 Tools covered: (a) Nebius Token Factory, (b) Nemotron Nano, (c) Nemotron Super, (d) Nemotron Super-VL, (e) Nemotron Ultra. A short Tavily note is at the end (Tavily is not a Nebius or NVIDIA tool, but the app calls it at runtime).
 
-**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md`, `docs/team/CREDITS-AND-PROGRAM.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing. `` marks claims about the hosted app that need a live click-through first.
+**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing.
 
 Model ids as sent to Token Factory (`ai/models.ts`): `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL`, `nvidia/Nemotron-3-Ultra-550b-a55b`.
 
@@ -46,7 +46,7 @@ Every model call in the project: persona generation, the crowd report, bug triag
 
 **What we learned (order not recorded; only the git timestamps in item 5 are clock times):**
 
-1. **Credits.** Two sources, both Token Factory credit only (the hackathon FAQ says there is no separate AI Cloud grant). As of the 2026-10-29 claim kit (`docs/team/CREDITS-AND-PROGRAM.md`), the hackathon promo code form (`nebius.com/promo-code`) had been submitted as Student / Independent with the code to arrive by email, and the Builder Program form had been filled.
+1. **Credits.** Two sources, both Token Factory credit only (the hackathon FAQ says there is no separate AI Cloud grant). As of 2026-10-29, the hackathon promo code form (`nebius.com/promo-code`) had been submitted as Student / Independent with the code to arrive by email, and the Builder Program form had been filled.
 2. **A working call is a plain `fetch`.** One environment variable (`NEBIUS_API_KEY`), one URL (`https://api.tokenfactory.nebius.com/v1/chat/completions`), one OpenAI-style JSON body. The smallest result the README records is a one-line JSON answer in 11 completion tokens and under 0.8 s on Super, Ultra and Super-VL with thinking off (`ai/README.md`).
 3. **The thinking switch.** `chat_template_kwargs: {"enable_thinking": false}` was the one control that worked on all four models; `reasoning_budget`, `reasoning_effort` and `/no_think` did not work on Nano. Without it, Super spent completion tokens on hidden reasoning and short answers came back empty, and Ultra wrote its reasoning into `content`, so at `max_tokens` 60 there was no answer (`ai/README.md`).
 4. **The limits.** Node's default `fetch` gives up at 5 minutes, and `ai/models.ts` records that Ultra can take longer than that on a 300K-token prompt, so we installed an undici Agent with 15-minute header and body timeouts. A 900K-token probe came back HTTP 429 (per-minute token quota), which is why we claim no 1M context. The client now waits as long as a 429 body says and retries. Token counts: our number-dense corpus ran at about 1.6 characters per token, so the usual chars/3.3 rule undercounts by 2x (`ai/README.md`).
@@ -188,8 +188,8 @@ Yes, we would build with it again, for reading a large structured corpus in one 
 
 - **Used for:** (live in the hosted app:) the **Find precedent** button on a Repro match (one search, developer sites only, top 3 writeups) and the Design Advisor (3 searches per run). The server words every query; nothing comes from the client (`ai/precedent.ts`, `README.md`).
 - **Measured:** 7 searches took about 4.5 s in total with 4 in flight, at basic depth, 4 results, keep 3 (`ai/README.md`).
-- **Needs work:** results are sometimes off-topic (`docs/team/aashna/README.md`), and the topic phrase at the start of the query steers the results far more than the suffix does (`ai/precedent.ts` comment, tuned live on 2026-10-28).
-- **Onboarding:** one API key, one search call from `ai/precedent.ts`. The credit source is the $25 Builder Program Tavily credit (`docs/team/CREDITS-AND-PROGRAM.md`, 2026-10-29). On 2026-10-28 Tavily ran only offline from the command line, and the first precedent links were off-topic (build log). The query was then reworded and tuned live the same day (commit `25e72c8`, 14:41 -0400) and the page now labels the results "unreviewed search results".
+- **Needs work:** results are sometimes off-topic, and the topic phrase at the start of the query steers the results far more than the suffix does (`ai/precedent.ts` comment, tuned live on 2026-10-28).
+- **Onboarding:** one API key, one search call from `ai/precedent.ts`. The credit source is the $25 Builder Program Tavily credit (2026-10-29). On 2026-10-28 Tavily ran only offline from the command line, and the first precedent links were off-topic (build log). The query was then reworded and tuned live the same day (commit `25e72c8`, 14:41 -0400) and the page now labels the results "unreviewed search results".
 - **Build again:** yes, as a retrieval source whose results the page labels unreviewed, as the app does now.
 
 ---
