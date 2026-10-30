@@ -1,4 +1,5 @@
 "use client";
+import { cleanPrecedent } from "@/lib/precedent-clean";
 import { useState } from "react";
 import type { Precedent } from "@/ai/precedent";
 
@@ -28,9 +29,9 @@ export default function PrecedentButton({ description }: { description: string }
         {busy ? "Searching developer sites..." : "Find precedent (Tavily)"}
       </button>
       {error && <p className="notice notice-error" style={{ marginTop: 12 }}>{error}</p>}
-      {results && (results.length ? (
+      {results && (cleanPrecedent(results).length ? (
         <ul className="precedent" style={{ marginTop: 12 }}>
-          {results.map((p) => <li key={p.url + p.title}><a href={p.url} target="_blank" rel="noopener noreferrer">{p.title}</a><span>{p.snippet}</span></li>)}
+          {cleanPrecedent(results).map((p) => <li key={p.url + p.title}><a href={p.url} target="_blank" rel="noopener noreferrer">{p.title}</a><span>{p.snippet}</span></li>)}
         </ul>
       ) : <p className="notice" style={{ marginTop: 12 }}>No developer writeup found for this bug.</p>)}
     </div>

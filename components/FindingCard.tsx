@@ -1,6 +1,7 @@
 import type { Claim, Finding } from "@/lib/types";
 import { getData, replayHref } from "@/lib/data";
 import { rateInterval } from "@/lib/calibration";
+import { cleanPrecedent } from "@/lib/precedent-clean";
 
 const METRIC: Record<Claim["metric"], string> = {
   winRate: "win rate", quitRate: "quit rate", avgDuration: "avg round", koShare: "KO share", meanHpLoss: "mean hp loss",
@@ -64,11 +65,11 @@ export default function FindingCard({ f }: { f: Finding }) {
         <p>{f.suggestion}</p>
       </div>
 
-      {f.precedent && f.precedent.length > 0 && (
+      {f.precedent && cleanPrecedent(f.precedent).length > 0 && (
         <div>
           <div className="label">Related reading (Tavily web search results, not reviewed)</div>
           <ul className="precedent">
-            {f.precedent.map((p) => (
+            {cleanPrecedent(f.precedent).map((p) => (
               <li key={p.url + p.title}><a href={p.url} target="_blank" rel="noopener noreferrer">{p.title}</a><span>{p.snippet}</span></li>
             ))}
           </ul>
