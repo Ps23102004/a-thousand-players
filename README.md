@@ -4,7 +4,7 @@
 
 ![Demo: the crowd, the findings, a replayed bug, live triage](docs/media/demo-preview.gif)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Third-Party Notices](https://img.shields.io/badge/notices-THIRD--PARTY.md-blue)](THIRD-PARTY.md) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--30-176%20engine%20%2B%20385%20TS%20%2B%2088%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Third-Party Notices](https://img.shields.io/badge/notices-THIRD--PARTY.md-blue)](THIRD-PARTY.md) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--30-246%20engine%20%2B%20395%20TS%20%2B%20101%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
 **Demo video (2:47):** [https://youtu.be/tKOsGMdRnNc](https://youtu.be/tKOsGMdRnNc). **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above.
 
@@ -218,7 +218,7 @@ node scripts/check-recorded-replays.mjs   # recorded rounds replay event for eve
 npm run engine:test      # determinism: same seed twice gives identical hashes
 ```
 
-Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Current gates (measured offline on 2026-10-30): **engine: 176 pass, 1 todo** (`npm run test:engine`); **TypeScript: 385 pass, 2 todo** (`node --import tsx --test ai/*.test.ts lib/*.test.ts app/api/*.test.ts app/modes/**/*.test.ts*`, broken down as `npm run test:ts` 378 pass + `app/modes` tests 7 pass); **browser suite: 88 passed (7 skipped) in the last full run on 2026-10-30** plus **black-box spec: 6 planted-bug cases**; **recorded replays: 45 of 45**; **engine:test mismatches=0**.
+Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Current gates (measured offline on 2026-10-30): **engine + black-box: 246 pass, 1 todo** (`npm run test:engine`: 145 engine + 101 black-box); **TypeScript: 395 pass, 2 todo** (`node --import tsx --test ai/*.test.ts lib/*.test.ts app/api/*.test.ts app/modes/**/*.test.ts*`, broken down as `npm run test:ts` 388 pass + `app/modes` tests 7 pass); **browser suite: 101 passed, 10 skipped in the last full run on 2026-10-30 (real Chrome; the skipped ones spend model credits, and the 3 live Nemotron calls passed in a separate run), including 11 black-box cases**; **recorded replays: 45 of 45**; **engine:test mismatches=0**.
 
 ## Running it
 
