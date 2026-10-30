@@ -310,6 +310,7 @@ test("roast 7: Eyes on the sample round (p0537 round 1, default question) gets t
   assert.equal(cached.json.cached, true);
   assert.match(cached.json.text, /cardboard box/);
   assert.match(cached.json.text, /recorded/i, "the visible text says it is a recorded answer");
+  assert.match(cached.json.text, /not the frames you (just )?sent/i, "audit: the visible text must not imply the submitted frames were analysed");
   assert.equal(calls.length, before, "no model call");
   assert.equal((await send(eyes.POST, req({ frames: [PNG], question: "other?" }, { "x-forwarded-for": ip, referer }))).status, 429, "a different question is not the example");
   assert.equal((await send(eyes.POST, req({ frames: [PNG] }, { "x-forwarded-for": ip, referer: "http://localhost/replay?key=p0653%3A2" }))).status, 429);

@@ -111,15 +111,24 @@ export function getTiles(n: number): Tile[] {
   });
 }
 
-/** Finds the recorded round (and its trace, if one was kept) for a replay: by "p:round" key first, else by the token's seed. */
-export function findRound(key: string | undefined, seed: number | undefined): { run: RunLine | undefined; trace: Trace | undefined } {
+/** Finds the recorded round (and its trace, if one was kept) for a replay: by "p:round" key first, else by the token's seed.
+ *  When a key resolves but its seed/persona differs from the token, that is a mismatch: no round is returned, so the
+ *  key's recorded result can never be shown beside a different token's replay. */
+export function findRound(key: string | undefined, seed: number | undefined, personaId?: string): { run: RunLine | undefined; trace: Trace | undefined; mismatch: boolean } {
   const { traceByRun, runs } = getData();
-  let k = key && runs.has(key) ? key : undefined;
-  if (!k && seed !== undefined) {
+  if (key && runs.has(key)) {
+    const keyed = runs.get(key)!;
+    if (seed !== undefined && (keyed.seed !== seed || (personaId !== undefined && keyed.p !== personaId))) {
+      return { run: undefined, trace: undefined, mismatch: true };
+    }
+    return { run: keyed, trace: traceByRun.get(key), mismatch: false };
+  }
+  let k: string | undefined;
+  if (seed !== undefined) {
     const r = [...runs.values()].find((r) => r.seed === seed);
     if (r) k = `${r.p}:${r.round}`;
   }
-  return { run: k ? runs.get(k) : undefined, trace: k ? traceByRun.get(k) : undefined };
+  return { run: k ? runs.get(k) : undefined, trace: k ? traceByRun.get(k) : undefined, mismatch: false };
 }
 
 let triageCache: { stamp: string; data: BugView[] } | null = null;

@@ -16,7 +16,17 @@ export default async function ReplayPage({ searchParams }: { searchParams: Promi
   const { t, key } = await searchParams;
   const decoded = decodeToken(t);
   const { traces, personas } = getData();
-  const { run, trace } = findRound(key, decoded?.seed);
+  const { run, trace, mismatch } = findRound(key, decoded?.seed, decoded?.persona?.id);
+  if (mismatch) {
+    return (
+      <section className="section wrap">
+        <h1>Replay</h1>
+        <p className="notice" style={{ marginTop: 20 }}>
+          This replay link is not valid: the key and the token refer to different rounds. Pick a round from <Link href="/#crowd">the crowd</Link> or a seed from <Link href="/#findings">a finding</Link>.
+        </p>
+      </section>
+    );
+  }
   const token = decoded ?? (run ? { seed: run.seed, tuning: recordedTuning(), fighter: fighterFor(run.p), maxT: Math.ceil(run.t), persona: personas.get(run.p) } : null);
 
   if (!token) {

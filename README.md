@@ -43,7 +43,7 @@ flowchart LR
   M --> E[Super-VL on frames, Tavily precedent]
 ```
 
-Models propose; code checks. Every number on a finding is recomputed from the raw runs, and every fix verdict comes from replaying the exact seed, never from the model's own confidence.
+Models propose; code checks. Every structured claim number is recomputed from the raw runs, cited seeds/rounds/events and drift quotes/symbols are checked to exist, and every fix verdict comes from replaying the exact seed, never from the model's confidence. Titles, prose and root-cause explanations are shown as model claims, not verified.
 
 ## Start here (two minutes)
 
