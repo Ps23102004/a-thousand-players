@@ -193,3 +193,13 @@ No WebGL-only fixture establishes renderer/context diagnosis. Screenshot pixels 
 intentional darkness from lost WebGL context. Seeds and traces cannot guarantee replay.
 Screenshots, console text and URLs may contain private data; artifacts stay local unless vision
 is requested, and are not automatically redacted.
+
+## First run on three real open-source games (2026-10-30, before the explorer fixes)
+
+These were first runs of an earlier version of the explorer on three MIT shooters. I checked each saved report against its screenshots. None of them shows a game bug; they show explorer weaknesses, now fixed and covered by tests on local fixtures.
+
+- **animal-strike:** the report listed 4 `page-error` findings. All four are "The root document of this element is not valid for pointer lock", a refusal by automated Chrome, not a game defect. The game started (the `PLAY` button was clicked) and responded to input. The current explorer classifies this message as an environment refusal.
+- **agentofduty:** the report listed one `freeze`. The saved frames show the game on its own "ON HOLD / Mission paused" screen with the message "Could not start: The root document of this element is not valid for pointer lock". The pause screen was the cause, and the old explorer did not press Resume. That finding was a false positive.
+- **warzone:** the run ended `incomplete` with no frames: the old explorer aborted on an intercepted canvas click.
+
+The fixed explorer has not been re-run on these three games: that needs starting their third-party dev servers (`bash ~/Developer/test-games/run-games.sh`). Until it is run, this document makes no claim about what the fixed explorer finds in them.
