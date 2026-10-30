@@ -47,7 +47,7 @@ export function classifyControlsResponse(probeDiffs, expectedControlProbes = 11)
   return probeDiffs.length >= expectedControlProbes ? 'unresponsive' : 'inconclusive';
 }
 // Frames bound each diff interval. Blank pixels must never establish a freeze streak.
-function visualObservation({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], animationEvidence = false, intervalActivity = [] } = {}) {
+function visualObservation({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], animationEvidence = false, intervalActivity = [], resumedIntervals = [] } = {}) {
   if (frames.some((frame, i) => i > 0 && frame.blank && frames[i - 1].blank && frame.t - frames[i - 1].t >= 5000)) return { kind: 'blank' };
   let stillIntervals = 0, freeze;
   let previouslyChanged = animationEvidence || controlDiffs.some(d => d > STILL);
@@ -56,7 +56,8 @@ function visualObservation({ frames = [], diffs = [], inputsSent = [], controlDi
     // A complete unchanged repeat suite remains evidence through adjacent still
     // intervals. Budget-truncated probes do not erase it; any response resets it.
     const controlsStill = intervalActivity[i] === false || (intervalActivity[i] == null && stillIntervals > 0);
-    stillIntervals = previouslyChanged && controlsStill && nonBlank && diffs[i] <= STILL && inputsSent[i] > 0 ? stillIntervals + 1 : 0;
+    // An interval in which the explorer pressed a start/resume button is the game's own pause screen, not a freeze.
+    stillIntervals = previouslyChanged && controlsStill && nonBlank && !resumedIntervals[i] && diffs[i] <= STILL && inputsSent[i] > 0 ? stillIntervals + 1 : 0;
     if (stillIntervals >= 2 && !freeze) freeze = { kind: 'freeze', t: frames[i + 1]?.t };
     if (diffs[i] > STILL) previouslyChanged = true;
   }
@@ -65,10 +66,10 @@ function visualObservation({ frames = [], diffs = [], inputsSent = [], controlDi
 export function classifyVisualState(observation = {}) {
   return visualObservation(observation).kind;
 }
-export function summarize({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], animationEvidence = false, intervalActivity = [], expectedControlProbes = 11, events = [] } = {}) {
+export function summarize({ frames = [], diffs = [], inputsSent = [], controlDiffs = [], animationEvidence = false, intervalActivity = [], resumedIntervals = [], expectedControlProbes = 11, events = [], started = true } = {}) {
   const findings = [], environment = [];
   const environmentKind = e => ['page-error', 'console-error', 'console-warning'].includes(e.kind) ? classifyPageError(e.message) : null;
-  const notes = new Set(['input-error', 'dialog', 'dialog-error', 'popup', 'popup-error', 'download', 'download-error', 'navigation-away', 'deadline-exceeded', 'budget-exhausted', 'report-write-error']);
+  const notes = new Set(['resume-click', 'input-error', 'dialog', 'dialog-error', 'popup', 'popup-error', 'download', 'download-error', 'navigation-away', 'deadline-exceeded', 'budget-exhausted', 'report-write-error']);
   const noise = new Map();
   for (const e of events) {
     const kind = notes.has(e.kind) ? e.kind : environmentKind(e);
@@ -91,9 +92,16 @@ export function summarize({ frames = [], diffs = [], inputsSent = [], controlDif
     if (e.count >= 2 || critical) findings.push({ ...e, ...(e.count === 1 ? { confidence: 'low' } : {}) });
   }
   // Uncontrolled idle animation prevents attributing screenshot changes to inputs.
-  const controls = animationEvidence ? 'inconclusive' : classifyControlsResponse(controlDiffs, expectedControlProbes);
+  let controls = animationEvidence ? 'inconclusive' : classifyControlsResponse(controlDiffs, expectedControlProbes);
+  // No start click, no idle animation and no pixel change at all: the page never visibly started (for example a level menu
+  // the explorer cannot operate). Dead controls cannot be told apart from that, so say so instead of reporting deadkeys.
+  if (controls === 'unresponsive' && !started) {
+    controls = 'inconclusive';
+    environment.push({ kind: 'not-started', message: 'The page never changed and no start control was recognised; the game may be waiting on a menu the explorer cannot operate.', count: 1 });
+  }
+  if (resumedIntervals.some(Boolean)) environment.push({ kind: 'self-paused', message: 'The game showed a start/resume screen during the run; the explorer pressed it. Still frames in those intervals are not counted as a freeze.', count: resumedIntervals.filter(Boolean).length });
   const frozen = frozenStreak(diffs, inputsSent);
-  const visual = visualObservation({ frames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity });
+  const visual = visualObservation({ frames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity, resumedIntervals });
   if (!findings.some(e => e.kind === 'crash')) {
     if (visual.kind === 'blank') findings.push({ kind: 'blank', message: 'Two consecutive near black/white screenshot samples.' });
     else if (visual.kind === 'freeze') {

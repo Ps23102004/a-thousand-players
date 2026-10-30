@@ -251,3 +251,20 @@ test('deadkeys coverage matches normal and keyboard-only probe sets and exposes 
   assert.equal(partial.controls, 'inconclusive');
   assert.equal(partial.freezeAssessment, 'inconclusive');
 });
+
+test('real games 2026-10-30: a page that never visibly started is "not started", not dead controls', () => {
+  const still = { frames: [{ blank: false }, { blank: false }, { blank: false }], diffs: [0, 0], inputsSent: [5, 5], controlDiffs: Array(11).fill(0), events: [] };
+  const notStarted = summarize({ ...still, started: false });
+  assert.deepEqual(notStarted.findings.map(f => f.kind), []);
+  assert.equal(notStarted.controls, 'inconclusive');
+  assert.ok(notStarted.environment.some(e => e.kind === 'not-started'));
+  assert.deepEqual(summarize({ ...still, started: true }).findings.map(f => f.kind), ['deadkeys'], 'a started game with dead inputs is still reported');
+});
+
+test('real games 2026-10-30: a still interval where the explorer pressed a resume/start button is a self-pause, not a freeze', () => {
+  const v = { frames: [{ blank: false }, { blank: false }, { blank: false }, { blank: false }], diffs: [0, 0, 0], inputsSent: [5, 5, 5], controlDiffs: [0.02], animationEvidence: true, intervalActivity: [false, false, false], events: [] };
+  assert.deepEqual(summarize(v).findings.map(f => f.kind), ['freeze']);
+  const paused = summarize({ ...v, resumedIntervals: [true, true, true], events: [{ kind: 'resume-click', text: 'RESUME', t: 1 }] });
+  assert.deepEqual(paused.findings.map(f => f.kind), []);
+  assert.ok(paused.environment.some(e => e.kind === 'self-paused'));
+});

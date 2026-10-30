@@ -71,7 +71,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
   if (!Number.isFinite(seconds) || seconds <= 0 || !Number.isInteger(seed)) throw new TypeError('Invalid seconds or seed');
   lateGuards.get(page)?.();
   const handlerWork = new Set();
-  const start = now(), random = rng(seed), inputs = [], events = [], frames = [], diffs = [], inputsSent = [], controlDiffs = [], intervalActivity = [], startupClicks = [];
+  const start = now(), random = rng(seed), inputs = [], events = [], frames = [], diffs = [], inputsSent = [], controlDiffs = [], intervalActivity = [], resumedIntervals = [], startupClicks = [];
   let animationEvidence = false;
   let decoder, crashed = false, keyboardOnly = false, status = 'completed', previous, lastInputCount = 0, lastPeriodicAt = start, imageCount = 0;
   const deadline = start + seconds * 1000;
@@ -242,9 +242,10 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
     }
     return { responses, after: before };
   }
-  async function startSequence() {
+  async function startSequence({ canvasClick = true } = {}) {
     // A bounded number of rounds handles a consent dialog followed by a start menu.
     const clicked = new Set();
+    let sentClicks = 0;
     for (let round = 0; round < 3 && !crashed; round++) {
       const buttons = page.locator('button, a[href], [role="button"], [role="link"], input[type="button"], input[type="submit"]');
       let didClick = false;
@@ -262,7 +263,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
         clicked.add(text);
         try {
           await send('startup-click', { text }, () => button.click({ timeout: 1500 }));
-          click.status = 'sent'; didClick = true;
+          click.status = 'sent'; didClick = true; sentClicks++;
           await ensureStartPage();
         } catch (error) {
           if (error === deadlineError || error === restorationError) throw error;
@@ -273,6 +274,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       }
       if (!didClick) break;
     }
+    if (!canvasClick) return sentClicks;
     const canvas = page.locator('canvas');
     for (let i = 0, n = await bounded(() => canvas.count()); i < n; i++) {
       if (await bounded(() => canvas.nth(i).isVisible())) {
@@ -332,6 +334,10 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       if (now() - lastPeriodicAt >= 5000) {
         const pixels = await shot('periodic', true);
         if (diffs.at(-1) <= 0.0001) {
+          // A game can pause itself mid-run (e.g. when automated Chrome refuses pointer lock). Press its safe start/resume
+          // control again; that interval is then a self-pause, not a freeze.
+          const pressed = await startSequence({ canvasClick: false });
+          if (pressed) { resumedIntervals[diffs.length - 1] = true; event('resume-click', { message: startupClicks.at(-1)?.text ?? '' }); }
           const { responses } = await probeControls(pixels);
           intervalActivity[intervalActivity.length - 1] = responses.some(d => d > 0.0001) ? true : responses.length === CONTROL_KEYS.length + (keyboardOnly ? 0 : 1) ? false : null;
         }
@@ -400,8 +406,9 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
   // Periodic frames drive time-based detectors; probe/final images remain evidence only.
   const periodicFrames = frames.filter(f => f.label === 'initial' || f.label === 'periodic');
   const expectedControlProbes = CONTROL_KEYS.length + (keyboardOnly ? 0 : 1);
-  const report = { expectedControlProbes, restorationAttempts, url, seed, seconds, durationMs: t(), status, startupClicks, frames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity, events,
-    ...summarize({ frames: periodicFrames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity, expectedControlProbes, events }) };
+  const report = { expectedControlProbes, restorationAttempts, resumedIntervals, url, seed, seconds, durationMs: t(), status, startupClicks, frames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity, events,
+    ...summarize({ frames: periodicFrames, diffs, inputsSent, controlDiffs, animationEvidence, intervalActivity, resumedIntervals, expectedControlProbes, events,
+      started: startupClicks.some(c => c.status === 'sent') || animationEvidence || diffs.some(d => d > 0.0001) || controlDiffs.some(d => d > 0.0001) }) };
   try { await writeFile(join(out, 'report.json'), JSON.stringify(report, null, 2) + '\n'); }
   catch (error) { report.status = 'incomplete'; event('report-write-error', { file: 'report.json', message: error.message }); }
   finalized = true;

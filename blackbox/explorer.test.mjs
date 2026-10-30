@@ -637,24 +637,52 @@ for (const keyboardOnly of [false, true]) {
   for (const freezes of [false, true]) {
     test(`${keyboardOnly ? 'keyboard-only' : 'normal'} complete probes detect ${freezes ? 'freeze' : 'deadkeys'}`, async () => {
       let clock = 0, state = 0;
+      let pressedStart = false;
+      const startButton = { isVisible: async () => !pressedStart, isEnabled: async () => true, textContent: async () => 'Start', getAttribute: async () => null, click: async () => { pressedStart = true; } };
       const { report } = await fakeRun(1, false, page => {
         page.goto = async () => {};
         page.keyboard.down = async () => { if (freezes && clock < 7000) state++; };
-        if (keyboardOnly) {
-          page.locator = selector => ({ count: async () => selector === 'canvas' ? 1 : 0,
-            nth: () => ({ isVisible: async () => true, click: async () => { throw new Error('intercepted'); },
-              boundingBox: async () => ({x:0,y:0,width:100,height:100}) }) });
-          page.mouse.click = async () => { throw new Error('mouse unavailable'); };
-        }
+        // A visible Start button is pressed first, so the page is known to have started; dead inputs after that are deadkeys.
+        page.locator = selector => selector === 'canvas'
+          ? (keyboardOnly ? { count: async () => 1, nth: () => ({ isVisible: async () => true, click: async () => { throw new Error('intercepted'); }, boundingBox: async () => ({x:0,y:0,width:100,height:100}) }) } : { count: async () => 0 })
+          : { count: async () => (pressedStart ? 0 : 1), nth: () => startButton };
+        if (keyboardOnly) page.mouse.click = async () => { throw new Error('mouse unavailable'); };
       }, { seconds:23, now:() => clock, sleep: async ms => { clock += ms; },
         capture: async () => ({png:Buffer.from('board'),pixels:Uint8Array.from({length:9216},(_,i)=>[20 + state % 200,40,80,255][i%4])}) });
       assert.equal(report.expectedControlProbes, keyboardOnly ? 10 : 11);
       assert.equal(report.controls, freezes ? 'responsive' : 'unresponsive');
       assert.deepEqual(report.findings.map(f=>f.kind), [freezes ? 'freeze' : 'deadkeys']);
       if (freezes) assert.equal(report.freezeAssessment, 'suspected');
+      assert.ok(report.startupClicks.some(c => c.text === 'Start' && c.status === 'sent'));
     });
   }
 }
+
+test('real games 2026-10-30: a static page with no recognised start control is reported as not started, not deadkeys', async () => {
+  let clock = 0;
+  const { report } = await fakeRun(1, false, page => { page.goto = async () => {}; },
+    { seconds: 23, now: () => clock, sleep: async ms => { clock += ms; },
+      capture: async () => ({ png: Buffer.from('menu'), pixels: Uint8Array.from({ length: 9216 }, (_, i) => [20, 40, 80, 255][i % 4]) }) });
+  assert.deepEqual(report.findings.map(f => f.kind), []);
+  assert.equal(report.controls, 'inconclusive');
+  assert.ok(report.environment.some(e => e.kind === 'not-started'));
+});
+
+test('real games 2026-10-30: a Resume screen that appears mid-run is pressed again and its still frames are not a freeze', async () => {
+  let clock = 0, state = 0, paused = false, resumes = 0;
+  const resume = { isVisible: async () => paused, isEnabled: async () => true, textContent: async () => 'RESUME', getAttribute: async () => null,
+    click: async () => { resumes++; paused = true; } }; // like agentofduty: pressing Resume fails pointer lock and the game pauses again
+  const { report } = await fakeRun(1, false, page => {
+    page.goto = async () => {};
+    page.keyboard.down = async () => { if (clock < 6000) state++; else paused = true; };
+    page.locator = selector => selector === 'canvas' ? { count: async () => 0 } : { count: async () => (paused ? 1 : 0), nth: () => resume };
+  }, { seconds: 23, now: () => clock, sleep: async ms => { clock += ms; },
+    capture: async () => ({ png: Buffer.from('game'), pixels: Uint8Array.from({ length: 9216 }, (_, i) => [20 + state % 200, 40, paused ? 120 : 80, 255][i % 4]) }) });
+  assert.ok(resumes >= 1, 'Resume was pressed mid-run');
+  assert.ok(report.events.some(e => e.kind === 'resume-click'));
+  assert.ok(!report.findings.some(f => f.kind === 'freeze'));
+  assert.ok(report.environment.some(e => e.kind === 'self-paused'));
+});
 
 test('returning to start reruns startup once and focuses the canvas before more controls', async () => {
   let current = 'http://fake/game', started = false, focused = false, departed = false, starts = 0, focuses = 0;
@@ -719,3 +747,4 @@ test('healthy captures finishing just before the budget stay completed', async (
   assert.equal(report.status,'completed');
   assert.ok(!report.events.some(e => e.kind === 'deadline-exceeded'));
 });
+
