@@ -4,9 +4,9 @@
 
 ![Demo: the crowd, the findings, a replayed bug, live triage](docs/media/demo-preview.gif)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Third-Party Notices](https://img.shields.io/badge/notices-THIRD--PARTY.md-blue)](THIRD-PARTY.md) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--30-246%20engine%20%2B%20395%20TS%20%2B%20101%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Third-Party Notices](https://img.shields.io/badge/notices-THIRD--PARTY.md-blue)](THIRD-PARTY.md) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--30-265%20engine%20%2B%20397%20TS%20%2B%20104%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
-**Demo video (2:47):** [https://youtu.be/tKOsGMdRnNc](https://youtu.be/tKOsGMdRnNc). **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above.
+**Demo video (2:47):** [https://youtu.be/tKOsGMdRnNc](https://youtu.be/tKOsGMdRnNc). **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above. The demo video was recorded before the last bug1 fixes, so its /bugs screen shows the earlier bug1 status (not fixed, 0 of 8 seeds); the live site and docs/PROOF.md show the final status, with all 21 bug1 rounds clean under the hand fixes.
 
 Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, Parth's own CSCI 310 course-project 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, five bug fixes that can each be switched off so recorded rounds still replay as recorded, and a CPU low-block balance rule (default on). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/` (Clean Getaway is a private repository, so its adapter runs only with a local checkout of it). All models run on Nebius Token Factory; Tavily does the web search.
 
@@ -33,7 +33,7 @@ flowchart LR
   C --> R[(Recorded rounds<br/>events + seeds)]
   R --> U[Nemotron Ultra<br/>reads a summary of all rounds]
   U --> F[Findings]
-  F --> V{Code recomputes<br/>every number}
+  F --> V{Code recomputes the structured numbers<br/>and checks cited seeds and quotes}
   R --> B[Invariant checks<br/>cluster bugs]
   B --> T[Ultra proposes a patch]
   T --> Y{Engine replays the exact seed<br/>sandboxed, no network}
@@ -146,7 +146,7 @@ Every model call in the hosted app goes through the **Nebius Token Factory** inf
 - **Nemotron reviewing Nemotron** ([docs/nemotron-review.md](docs/nemotron-review.md)). Ultra judged the 8 Spec Drift claims: it agreed with the Gemini judge on 4 of 8 (kappa 0.24) and, checked by hand, was wrong on the 3 disagreements I verified, even though its quoted lines were real; the code check proves a quote exists, not that it was read correctly. In the other loop Super rewrote its own onboarding-aid text and Ultra reviewed it: 2 first drafts rejected, all 3 accepted after one retry, and one real inconsistency fixed ("80%" damage reduction was really 85%).
 - **Offline calls that produced the recorded data:** Nano (1000 personas, exploit strategies, ReproBot fresh-play attempt), Ultra (the report, bug triage, Spec Drift), Super (Tutorial Director onboarding aids), Super-VL (the Glitch Hunter batch), Tavily (review corpus collection).
 - **Where Token Factory sped the work up** (measured, `docs/token-factory-feedback.md`): Nano wrote 1000 personas in 289 s with 16 requests in flight; one Ultra call read the whole 220,334-token crowd summary where a chunked pipeline would otherwise be needed; one small client covered four models including image input; one setting (`enable_thinking: false`) turned reasoning off on all four.
-- **Other Nebius tools:** none. We did not use Nebius AI Cloud, Serverless Jobs or Endpoints, or DevPods; the web app is hosted outside Nebius (Vercel), which the rules allow because the model calls run on Token Factory.
+- **Other Nebius tools:** none. I did not use Nebius AI Cloud, Serverless Jobs or Endpoints, or DevPods; the web app is hosted outside Nebius (Vercel), which the rules allow because the model calls run on Token Factory.
 
 ## Model roles
 
@@ -218,7 +218,7 @@ node scripts/check-recorded-replays.mjs   # recorded rounds replay event for eve
 npm run engine:test      # determinism: same seed twice gives identical hashes
 ```
 
-Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Current gates (measured offline on 2026-10-30): **engine + black-box: 246 pass, 1 todo** (`npm run test:engine`: 145 engine + 101 black-box); **TypeScript: 395 pass, 2 todo** (`node --import tsx --test ai/*.test.ts lib/*.test.ts app/api/*.test.ts app/modes/**/*.test.ts*`, broken down as `npm run test:ts` 388 pass + `app/modes` tests 7 pass); **browser suite: 101 passed, 10 skipped in the last full run on 2026-10-30 (real Chrome; the skipped ones spend model credits, and the 3 live Nemotron calls passed in a separate run), including 11 black-box cases**; **recorded replays: 45 of 45**; **engine:test mismatches=0**.
+Browser end-to-end suite (Playwright, pages, replay, forms, phone width, accessibility and game controls): see `e2e/README.md`. CI runs `npm test` and the typecheck (`.github/workflows/ci.yml`). Current gates (measured offline on 2026-10-30): **engine + black-box: 265 pass, 1 todo** (`npm run test:engine`: 145 engine + 120 black-box offline tests); **TypeScript: 397 pass, 2 todo** (`node --import tsx --test ai/*.test.ts lib/*.test.ts app/api/*.test.ts app/modes/**/*.test.ts*`, broken down as `npm run test:ts` 390 pass, 2 todo, plus `app/modes` tests 7 pass); **browser suite: 104 browser specs passing, 10 skipped, real Chrome, in the last full run on 2026-10-30 (the skipped ones spend model credits, and the 3 live Nemotron calls passed in a separate run), including the black-box real-Chrome spec with 11 cases**; **recorded replays: 45 of 45**; **engine:test mismatches=0**.
 
 ## Running it
 

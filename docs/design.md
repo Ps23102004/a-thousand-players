@@ -25,7 +25,7 @@ game (Three.js + Rapier, made deterministic)
 Nano   writes 1000 personas -> each persona = JSON decision-table policy (validated)
 engine runs sessions (1-5 rounds each, with a frustration/boredom quit model) -> runs/*.jsonl
 stats  funnel, heatmap, win-rate by archetype, KO positions, time-to-quit
-Ultra  reads ALL compact logs in one context (~250K tokens) -> findings.json, every finding cites seeds
+Ultra  reads a summary of every round in one context (~250K tokens) -> findings.json, every finding cites seeds
 Tavily looks up design precedent for each finding's fix ("fighting game sweep spam nerf")
 replay real 3D game re-simulates (seed, tuning, policy) and renders it; Super-VL looks at frames
 ```

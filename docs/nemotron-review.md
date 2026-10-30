@@ -4,7 +4,7 @@ This pipeline implements a multi-stage, self-auditing architecture where NVIDIA 
 
 The review covers two critical offline evaluation tracks:
 1. **`drift-judge`**: Nemotron Ultra acts as an independent second-model judge evaluating the 8 verified architectural drift claims between design documents and game source code, comparing against the earlier Gemini evaluations with Cohen's kappa inter-rater reliability.
-2. **`aid-fix`**: Nemotron Super and Nemotron Ultra collaborate to audit and correct tutorial aids drafted for struggling players, ensuring that every number, percentage, and control key is strictly factual and consistent with game rules and control definitions.
+2. **`aid-fix`**: Nemotron Super and Nemotron Ultra collaborate to audit and correct tutorial aids drafted for struggling players, ensuring that every structured number, percentage, and control key is strictly factual and consistent with game rules and control definitions.
 
 ---
 
