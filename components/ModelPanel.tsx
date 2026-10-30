@@ -5,7 +5,7 @@ const ROLES: { name: string; match: RegExp; id: string; role: string }[] = [
   { name: "Nemotron Nano", match: /nano/i, id: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", role: "Writes every persona's policy in bulk and proposes exploit strategies. Can also pick each action for a spotlight player (implemented, not in the main run)." },
   { name: "Nemotron Super", match: /super(?!.*vl)/i, id: "nvidia/nemotron-3-super-120b-a12b", role: "Turns English into things the engine runs: bug reports into oracles, patch notes into tuning." },
   { name: "Nemotron Super-VL", match: /vl/i, id: "nvidia/Nemotron-3.5-Super-VL", role: "Describes replay frames in the Eyes panel. A description aid: in a 6-round test it flagged 3 of 3 bug rounds and 0 of 3 clean ones, but the engine decides what is a bug." },
-  { name: "Nemotron Ultra", match: /ultra/i, id: "nvidia/Nemotron-3-Ultra-550b-a55b", role: "Reads every play log in one long-context call and writes the findings, citing seeds." },
+  { name: "Nemotron Ultra", match: /ultra/i, id: "nvidia/Nemotron-3-Ultra-550b-a55b", role: "Reads a summary of all 2,831 rounds in one long-context call (one of its 27 recorded calls) and writes the findings, citing seeds." },
   { name: "Tavily", match: /tavily/i, id: "web search API", role: "Finds related developer writeups: offline for each finding, and live from the Find precedent button on Repro." },
 ];
 const n = (v: number) => v.toLocaleString("en-US");

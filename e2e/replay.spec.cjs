@@ -84,3 +84,12 @@ test("game controls: pause, speed buttons, restart", async ({ page }) => {
   await page.locator("#restart").click();
   await expect(page.locator("#clock")).toHaveText(/^(99|98|97)$/);
 });
+
+test("audit round 2: a shipped-game replay (empty tuning) is NOT badged as the recorded build", async ({ page }) => {
+  const re = /\[after[^\]]*\]\(https:\/\/[^)]+\/replay\?t=([A-Za-z0-9_-]+)\)/;
+  const proof = require("node:fs").readFileSync(require("node:path").join(__dirname, "../docs/PROOF.md"), "utf8");
+  const token = proof.match(re)[1];
+  await page.goto(`/replay?t=${token}`);
+  await expect(page.frameLocator("iframe.game-frame").locator("#badge")).toContainText("shipped tuning", { timeout: 45_000 });
+  await expect(page.frameLocator("iframe.game-frame").locator("#badge")).not.toContainText("before the bug fixes");
+});

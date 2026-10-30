@@ -83,7 +83,9 @@ function BugCard({ b }: { b: BugView }) {
 
 export default function BugsPage() {
   const bugs = getTriage();
-  const fixed = bugs.filter((b) => b.verdict === "fixed" || b.verdict === "fixed-by-hand").length;
+  const byUltra = bugs.filter((b) => b.verdict === "fixed").length;
+  const byHand = bugs.filter((b) => b.verdict === "fixed-by-hand").length;
+  const fixed = byUltra + byHand;
   const failed = bugs.filter((b) => b.error).length;
   return (
     <section className="section wrap" aria-labelledby="bugs-title">
@@ -99,7 +101,7 @@ export default function BugsPage() {
         <>
           <p className="lede" style={{ marginBottom: 20 }}>
             {bugs.length} clusters of game-breaking states. Nemotron Ultra read the source and a replayed timeline for each, proposed a patch, and the engine re-ran the game with it applied.
-            {" "}{fixed} verified fixed{failed ? `, ${failed} where triage failed` : ""}. Patches are suggestions, not commits.
+            {" "}All {bugs.length} clusters replay clean in the shipped game. Replay-verified fixes: {byUltra} from Ultra&apos;s patch (bug4&apos;s patch is not shipped; a narrower hand fix is), {byHand} by hand after Ultra&apos;s patch failed{failed ? `; triage itself failed on ${failed}` : ""}. Patches are suggestions, not commits.
           </p>
           <div className="grid-2">{bugs.map((b) => <BugCard key={b.id} b={b} />)}</div>
         </>

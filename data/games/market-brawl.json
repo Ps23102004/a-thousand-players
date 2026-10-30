@@ -19,7 +19,7 @@
   {
    "kind": "airborne",
    "rounds": 21,
-   "verdict": "partly fixed",
+   "verdict": "fixed by hand, replay-verified 21 of 21",
    "example": {
     "player": "p0009",
     "seed": 822230,
@@ -49,7 +49,7 @@
   {
    "kind": "stuck:KNOCKDOWN+airborne+softlock",
    "rounds": 1,
-   "verdict": "fixed on 1 of 1 seeds, not shipped",
+   "verdict": "Ultra's patch fixed 1 of 1 seeds but is not shipped; a narrower hand fix is shipped and replay-verified 1 of 1",
    "example": {
     "player": "p0653",
     "seed": 529060,
@@ -58,8 +58,8 @@
   }
  ],
  "replays": {
-  "checked": 42,
-  "matched": 42,
+  "checked": 45,
+  "matched": 45,
   "note": "Sampled recorded rounds replayed event for event in the browser (README, Replay)."
  },
  "adapter": "The original target. Needed window and DOM shims plus Three.js in Node to run headless.",

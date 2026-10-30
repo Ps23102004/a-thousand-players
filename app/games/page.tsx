@@ -44,7 +44,7 @@ function GameCard({ g }: { g: GameResult }) {
       </dl>
 
       <div>
-        <div className="label">What the crowd found</div>
+        <div className="label">What the crowd found{g.id === "market-brawl" ? " (29 flagged rounds: 10 from the 2,831-round main run, 19 from the 2,875-round sweep-nerf run)" : ""}</div>
         {g.events.length ? (
           <ul style={{ paddingLeft: 18, margin: "6px 0" }}>
             {g.events.map((e) => (

@@ -36,7 +36,7 @@ replay real 3D game re-simulates (seed, tuning, policy) and renders it; Super-VL
 | Nemotron Nano 30B (thinking off, ~3 tokens out) | Writes persona policies in bulk; **spotlight players** pick every action live; mid-match strategy checkpoints | Thousands of cheap calls |
 | Nemotron Super 120B | Turns English into things the engine runs: bug report -> oracle predicate (Repro), patch notes -> tuning overrides (Balance) | Needs reliable structured output, still cheap |
 | Nemotron Super-VL | Looks at replay frames; confirms/captions findings ("fighter is pinned in the left corner") | Vision |
-| Nemotron Ultra 550B | Reads every play log at once, clusters players, finds the story and the exploit, writes the report | Long context: no chunking can see cross-player patterns |
+| Nemotron Ultra 550B | Reads a summary of every round at once, clusters players, finds the story and the exploit, writes the report | Long context: no chunking can see cross-player patterns |
 | Tavily | Design precedent for each fix | Runtime web search |
 
 ## Determinism contract (the thing everything stands on)

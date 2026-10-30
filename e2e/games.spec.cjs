@@ -30,3 +30,14 @@ test("games page has no horizontal scroll at phone width", async ({ page }) => {
   expect(scroll, "page wider than the viewport").toBeLessThanOrEqual(client);
   await shot(page, "games-mobile");
 });
+
+test("audit round 2: /games agrees with /bugs and PROOF (bug1 and bug4 fixed in the shipped game, 45 replays, two crowds)", async ({ page }) => {
+  await page.goto("/games");
+  const main = page.locator("main");
+  await expect(main).not.toContainText("partly fixed");
+  await expect(main).toContainText("a narrower hand fix is shipped and replay-verified 1 of 1");
+  await expect(main).toContainText("fixed by hand, replay-verified 21 of 21");
+  await expect(main).toContainText("45 of 45 replays match");
+  await expect(main).toContainText("10 from the 2,831-round main run");
+  await expect(main).toContainText("19 from the 2,875-round sweep-nerf run");
+});

@@ -39,3 +39,14 @@ test("security review: only http(s) links survive (no javascript: or data: URLs 
   const bad = [{ ...ok, url: "javascript:alert(1)" }, { ...ok, url: "data:text/html,x" }, { ...ok, url: "not a url" }];
   assert.deepEqual(cleanPrecedent([...bad, ok]), [ok]);
 });
+
+test("audit round 2: channel boilerplate, spam hosts and off-topic guides are dropped from the committed findings", async () => {
+  const { readFileSync } = await import("node:fs");
+  const data = JSON.parse(readFileSync("data/run-main/findings.json", "utf8")) as { findings: { precedent?: { title: string; url: string; snippet: string }[] }[] };
+  const shown = data.findings.flatMap((f) => cleanPrecedent(f.precedent ?? []));
+  for (const p of shown) {
+    assert.doesNotMatch(p.snippet, /GDC talks cover|fresh GDC video|Subscribe to the channel/i);
+    assert.doesNotMatch(p.url, /halloween-game-guide|realestatewebsites360/);
+  }
+  assert.ok(shown.length >= 8, `kept ${shown.length}`);
+});

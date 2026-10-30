@@ -67,4 +67,7 @@ test("a key with a token for a different seed is rejected, not shown beside the 
 test("unknown route returns 404 page", async ({ page }) => {
   const res = await page.goto("/does-not-exist");
   expect(res.status()).toBe(404);
+  await expect(page.locator("h1")).toHaveText("Page not found");
+  await expect(page.getByRole("link", { name: "Back to the home page" })).toHaveAttribute("href", "/");
+  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
 });

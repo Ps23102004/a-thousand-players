@@ -106,7 +106,7 @@ test("/bugs shows four clusters each with a verdict", async ({ page }) => {
     expect(b.chips.some((c) => VERDICTS.some((v) => c === v || c.startsWith(v + " · "))), `verdict chip on "${b.title}"`).toBe(true);
     expect(b.replay).toMatch(/^\/replay\?key=/);
   }
-  await expect(page.locator(".lede").first()).toContainText(/4 clusters of game-breaking states\. .*\d+ verified fixed/);
+  await expect(page.locator(".lede").first()).toContainText(/4 clusters of game-breaking states\. .*All 4 clusters replay clean/);
   await shot(page, "bugs");
   expect(w.problems()).toEqual([]);
 });
@@ -145,4 +145,13 @@ test("audit 2026-10-30: hero claims only what is measured, offers next steps, an
   await expect(page.locator("#findings")).not.toContainText("Trump");
   await page.goto("/modes/repro");
   await expect(page.locator("body")).not.toContainText("20-40 s");
+});
+
+test("audit round 2: /bugs says which fixes are Ultra's and which were made by hand; footer links to the repo", async ({ page }) => {
+  await page.goto("/bugs");
+  const lede = page.locator("p.lede").first();
+  await expect(lede).toContainText("All 4 clusters replay clean in the shipped game");
+  await expect(lede).toContainText("2 from Ultra's patch");
+  await expect(lede).toContainText("2 by hand after Ultra's patch failed");
+  await expect(page.locator(".site-footer").getByRole("link", { name: "Source code on GitHub" })).toHaveAttribute("href", "https://github.com/Ps23102004/a-thousand-players");
 });
