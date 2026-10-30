@@ -53,7 +53,7 @@ Our test bed is Market Brawl, Parth's own Three.js + Rapier fighting game, writt
 
 The players are synthetic. The findings are hypotheses to replay and check, not a replacement for real people.
 
-**Who it is for.** Small game teams with no QA department. The test-bed game, Market Brawl, is Parth's own. Other commercial tools use AI agents to play-test games; this project is MIT licensed, proves each finding with a deterministic replay, and checks the model's claims with code. It is a prototype: the full pipeline runs on Market Brawl, and the crowd harness also ran on two other games of Parth's. [PARTH: the claim about other commercial tools is recalled from memory (`docs/judge-panel.md`), not from a checked source. Name tools only after you have checked them, or drop the sentence.]
+**Who it is for.** Small game teams with no QA department. The test-bed game, Market Brawl, is Parth's own. This project is MIT licensed, proves each finding with a deterministic replay, and checks the model's claims with code. It is a prototype: the full pipeline runs on Market Brawl, and the crowd harness also ran on two other games of Parth's.
 
 ## How Nemotron is used
 
