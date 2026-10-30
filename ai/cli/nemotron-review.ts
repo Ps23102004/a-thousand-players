@@ -89,8 +89,9 @@ async function main() {
 
     let result;
     if (values["results-from"]) {
+      assertNoEnvFile(values["results-from"]);          // by name first: the file may not exist, and a .env must be refused either way
       const input = realpathSync(values["results-from"]);
-      assertNoEnvFile(input);
+      assertNoEnvFile(input);                            // and again after symlinks are resolved
       const text = readFileSync(input, "utf8");
       const parsed = extractJson(text);
       result = validateDriftVerdicts(parsed, excerpts, geminiJudge);
@@ -133,8 +134,9 @@ async function main() {
 
     let result;
     if (values["results-from"]) {
+      assertNoEnvFile(values["results-from"]);          // by name first: the file may not exist, and a .env must be refused either way
       const input = realpathSync(values["results-from"]);
-      assertNoEnvFile(input);
+      assertNoEnvFile(input);                            // and again after symlinks are resolved
       const text = readFileSync(input, "utf8");
       const parsed = extractJson(text) as any;
       let fakeAnswers: FakeAidAnswers;
