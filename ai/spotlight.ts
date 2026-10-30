@@ -15,15 +15,25 @@ export function parseAction(text: string): Action | null {
   return word && (ACTIONS as readonly string[]).includes(word) ? (word as Action) : null;
 }
 
+export function buildSystemPrompt(persona: Observation["persona"]): string {
+  return `You are a ${persona.archetype} player (aggression ${persona.aggression.toFixed(1)}, skill ${persona.skill.toFixed(1)}): ${persona.bio} You are playing a 1v1 street fighting game. Reply with exactly one word from: ${ACTIONS.join(" ")}.`;
+}
+
+export function formatFighter(x: Observation["me"]): string {
+  return `hp ${Math.round(x.hp)}, posture ${Math.round(x.posture)}, ${x.state}${x.guarding ? ", guarding" : ""}${x.grappled ? ", grappled" : ""}${x.onGround ? "" : ", airborne"}`;
+}
+
+export function buildUserPrompt(obs: Observation): string {
+  return `t=${obs.t.toFixed(1)}s distance ${obs.dist.toFixed(1)} (close < 1.3 < mid < 2.2 < far). You: ${formatFighter(obs.me)}. Rival: ${formatFighter(obs.rival)}. Your last actions: ${obs.recent.join(" ") || "none"}. Next action?`;
+}
+
 export async function chooseAction(obs: Observation): Promise<Action> {
   spotlightStats.calls++;
   const key = obsKey(obs);
   const hit = cache.get(key);
   if (hit) { spotlightStats.cacheHits++; return hit; }
-  const p = obs.persona;
-  const system = `You are a ${p.archetype} player (aggression ${p.aggression.toFixed(1)}, skill ${p.skill.toFixed(1)}): ${p.bio} You are playing a 1v1 street fighting game. Reply with exactly one word from: ${ACTIONS.join(" ")}.`;
-  const f = (x: Observation["me"]) => `hp ${Math.round(x.hp)}, posture ${Math.round(x.posture)}, ${x.state}${x.guarding ? ", guarding" : ""}${x.grappled ? ", grappled" : ""}${x.onGround ? "" : ", airborne"}`;
-  const user = `t=${obs.t.toFixed(1)}s distance ${obs.dist.toFixed(1)} (close < 1.3 < mid < 2.2 < far). You: ${f(obs.me)}. Rival: ${f(obs.rival)}. Your last actions: ${obs.recent.join(" ") || "none"}. Next action?`;
+  const system = buildSystemPrompt(obs.persona);
+  const user = buildUserPrompt(obs);
   try {
     const r = await chat({ model: NANO, system, user, maxTokens: 6, temperature: 0.5, thinking: false, timeoutMs: 15_000, retries: 0 });
     const action = parseAction(r.content);

@@ -141,13 +141,13 @@ The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We check
 - `world.js`: the arena's physics colliders moved into one function (`createArenaColliders`) so the headless engine builds the same arena;
 - `replay.html`, a new page that replays a round from a seed in the real game.
 
-**Changed in the game after the first commit.** All of these were committed on 2026-10-28 (no `game/` commit is dated later; the last is `5c5792c`, 2026-10-28 21:45 -0400). They are 8 files and 62 lines added, 14 removed since commit `5794356`. Each rule fix sits behind a flag in `game/src/tuning.js`, so rounds recorded before the fix still replay as recorded:
+**Changed in the game after the first commit.** The original committed snapshot was dated 2026-10-28 (last game commit `5c5792c`, 2026-10-28 21:45 -0400): 8 files and 62 lines added, 14 removed since commit `5794356`. The low-block default decision below is a later uncommitted change. Each rule fix sits behind a flag in `game/src/tuning.js`, so rounds recorded before the fix still replay as recorded:
 - `mountReleaseFix` (commit `299bbde`): mount release avoids crates and refreshes the body's floor contact (`ground.js`, `main.js`). Commit `8c5589f` then put the fix behind the rule flag (`tuning.js`, `ground.js`) so recorded rounds still replay as recorded.
 - `throwPropGuard` (`9ad93a5`): `throwProp` skips a crate that broke while carried (`props.js`). This is Ultra's patch.
 - `grabReleaseFix` (`55cd763`): the same floor-contact refresh after a grab (`character.js`).
 - `knockdownOnPropFix` (`5c5792c`): a knockdown ends once the body is at rest (`ground.js`).
 - `getupCrateFix`: refresh floor contacts once at getup near an intact prop (`ground.js`); seed 501070 no longer floats beside the crate. Default on, recorded-build flag off.
-- `cpuLowBlock` (`5c5792c`), default off: an optional CPU rule to crouch-block low attacks (`ai.js`).
+- `cpuLowBlock` (`5c5792c`), now default on: a balance change that crouch-blocks low attacks and answers crouching recovery with a sweep (`ai.js`). The 100-seed decision sweep cuts crouch-jab wins 100/100 → 0/100 and all-keys wins 100/100 → 40/100; crowd win rate drops 31.0% → 23.5%, casual stays 5/39. Recorded rounds and comparison baselines pin 0 ([decision](cpu-lowblock.md#decision)).
 - `replay.html`: replay-link validation and clearer errors.
 
 The game README also changed, and the 162 old model and texture files were removed from the tree and the history on 2026-10-28 because their license was not established (`docs/team/LEGAL-AND-LICENSES.md`).

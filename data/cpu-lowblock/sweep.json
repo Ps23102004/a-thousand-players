@@ -1,0 +1,403 @@
+{
+  "timestamp": "2026-10-29T23:47:01.083Z",
+  "wallTimeSec": 62.36,
+  "command": "node scripts/cpu-lowblock-sweep.mjs",
+  "config": {
+    "values": [
+      0,
+      0.25,
+      0.5,
+      0.75,
+      1
+    ],
+    "mindlessA": {
+      "mode": "crouch + tap J at 6 Hz",
+      "seeds": "7000000..7000099",
+      "fighter": "kai",
+      "count": 100
+    },
+    "mindlessB": {
+      "mode": "all keys held, release 1 tick in 3 (20 Hz)",
+      "seeds": "7000000..7000099",
+      "fighter": "kai",
+      "count": 100
+    },
+    "personas": {
+      "count": 200,
+      "baseSeed": 1,
+      "rounds": 1
+    }
+  },
+  "results": [
+    {
+      "v": 0,
+      "mindlessA": {
+        "rounds": 100,
+        "wins": 100,
+        "winRate": 1,
+        "wilson95": [
+          0.963,
+          1
+        ],
+        "kos": 100,
+        "koRate": 1,
+        "medianSeconds": 11.33
+      },
+      "mindlessB": {
+        "rounds": 100,
+        "wins": 100,
+        "winRate": 1,
+        "wilson95": [
+          0.963,
+          1
+        ],
+        "kos": 100,
+        "koRate": 1,
+        "medianSeconds": 9.9
+      },
+      "personas": {
+        "rounds": 200,
+        "wins": 62,
+        "winRate": 0.31,
+        "byArchetype": {
+          "casual": {
+            "rounds": 39,
+            "wins": 5,
+            "winRate": 0.1282
+          },
+          "cheeser": {
+            "rounds": 23,
+            "wins": 19,
+            "winRate": 0.8261
+          },
+          "learner": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "turtle": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "masher": {
+            "rounds": 36,
+            "wins": 9,
+            "winRate": 0.25
+          },
+          "rusher": {
+            "rounds": 33,
+            "wins": 14,
+            "winRate": 0.4242
+          },
+          "explorer": {
+            "rounds": 13,
+            "wins": 6,
+            "winRate": 0.4615
+          },
+          "speedrunner": {
+            "rounds": 10,
+            "wins": 7,
+            "winRate": 0.7
+          }
+        }
+      }
+    },
+    {
+      "v": 0.25,
+      "mindlessA": {
+        "rounds": 100,
+        "wins": 96,
+        "winRate": 0.96,
+        "wilson95": [
+          0.9016,
+          0.9843
+        ],
+        "kos": 96,
+        "koRate": 0.96,
+        "medianSeconds": 12.12
+      },
+      "mindlessB": {
+        "rounds": 100,
+        "wins": 96,
+        "winRate": 0.96,
+        "wilson95": [
+          0.9016,
+          0.9843
+        ],
+        "kos": 96,
+        "koRate": 0.96,
+        "medianSeconds": 14.59
+      },
+      "personas": {
+        "rounds": 200,
+        "wins": 58,
+        "winRate": 0.29,
+        "byArchetype": {
+          "casual": {
+            "rounds": 39,
+            "wins": 5,
+            "winRate": 0.1282
+          },
+          "cheeser": {
+            "rounds": 23,
+            "wins": 19,
+            "winRate": 0.8261
+          },
+          "learner": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "turtle": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "masher": {
+            "rounds": 36,
+            "wins": 8,
+            "winRate": 0.2222
+          },
+          "rusher": {
+            "rounds": 33,
+            "wins": 11,
+            "winRate": 0.3333
+          },
+          "explorer": {
+            "rounds": 13,
+            "wins": 6,
+            "winRate": 0.4615
+          },
+          "speedrunner": {
+            "rounds": 10,
+            "wins": 7,
+            "winRate": 0.7
+          }
+        }
+      }
+    },
+    {
+      "v": 0.5,
+      "mindlessA": {
+        "rounds": 100,
+        "wins": 62,
+        "winRate": 0.62,
+        "wilson95": [
+          0.5221,
+          0.709
+        ],
+        "kos": 62,
+        "koRate": 0.62,
+        "medianSeconds": 14.75
+      },
+      "mindlessB": {
+        "rounds": 100,
+        "wins": 85,
+        "winRate": 0.85,
+        "wilson95": [
+          0.7672,
+          0.9069
+        ],
+        "kos": 85,
+        "koRate": 0.85,
+        "medianSeconds": 16.35
+      },
+      "personas": {
+        "rounds": 200,
+        "wins": 51,
+        "winRate": 0.255,
+        "byArchetype": {
+          "casual": {
+            "rounds": 39,
+            "wins": 5,
+            "winRate": 0.1282
+          },
+          "cheeser": {
+            "rounds": 23,
+            "wins": 14,
+            "winRate": 0.6087
+          },
+          "learner": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "turtle": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "masher": {
+            "rounds": 36,
+            "wins": 8,
+            "winRate": 0.2222
+          },
+          "rusher": {
+            "rounds": 33,
+            "wins": 9,
+            "winRate": 0.2727
+          },
+          "explorer": {
+            "rounds": 13,
+            "wins": 6,
+            "winRate": 0.4615
+          },
+          "speedrunner": {
+            "rounds": 10,
+            "wins": 7,
+            "winRate": 0.7
+          }
+        }
+      }
+    },
+    {
+      "v": 0.75,
+      "mindlessA": {
+        "rounds": 100,
+        "wins": 22,
+        "winRate": 0.22,
+        "wilson95": [
+          0.15,
+          0.3107
+        ],
+        "kos": 22,
+        "koRate": 0.22,
+        "medianSeconds": 12.95
+      },
+      "mindlessB": {
+        "rounds": 100,
+        "wins": 72,
+        "winRate": 0.72,
+        "wilson95": [
+          0.6251,
+          0.7986
+        ],
+        "kos": 72,
+        "koRate": 0.72,
+        "medianSeconds": 16.9
+      },
+      "personas": {
+        "rounds": 200,
+        "wins": 48,
+        "winRate": 0.24,
+        "byArchetype": {
+          "casual": {
+            "rounds": 39,
+            "wins": 5,
+            "winRate": 0.1282
+          },
+          "cheeser": {
+            "rounds": 23,
+            "wins": 12,
+            "winRate": 0.5217
+          },
+          "learner": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "turtle": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "masher": {
+            "rounds": 36,
+            "wins": 8,
+            "winRate": 0.2222
+          },
+          "rusher": {
+            "rounds": 33,
+            "wins": 8,
+            "winRate": 0.2424
+          },
+          "explorer": {
+            "rounds": 13,
+            "wins": 6,
+            "winRate": 0.4615
+          },
+          "speedrunner": {
+            "rounds": 10,
+            "wins": 7,
+            "winRate": 0.7
+          }
+        }
+      }
+    },
+    {
+      "v": 1,
+      "mindlessA": {
+        "rounds": 100,
+        "wins": 0,
+        "winRate": 0,
+        "wilson95": [
+          0,
+          0.037
+        ],
+        "kos": 0,
+        "koRate": 0,
+        "medianSeconds": 11.6
+      },
+      "mindlessB": {
+        "rounds": 100,
+        "wins": 40,
+        "winRate": 0.4,
+        "wilson95": [
+          0.3094,
+          0.498
+        ],
+        "kos": 40,
+        "koRate": 0.4,
+        "medianSeconds": 16.38
+      },
+      "personas": {
+        "rounds": 200,
+        "wins": 47,
+        "winRate": 0.235,
+        "byArchetype": {
+          "casual": {
+            "rounds": 39,
+            "wins": 5,
+            "winRate": 0.1282
+          },
+          "cheeser": {
+            "rounds": 23,
+            "wins": 11,
+            "winRate": 0.4783
+          },
+          "learner": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "turtle": {
+            "rounds": 23,
+            "wins": 1,
+            "winRate": 0.0435
+          },
+          "masher": {
+            "rounds": 36,
+            "wins": 8,
+            "winRate": 0.2222
+          },
+          "rusher": {
+            "rounds": 33,
+            "wins": 8,
+            "winRate": 0.2424
+          },
+          "explorer": {
+            "rounds": 13,
+            "wins": 6,
+            "winRate": 0.4615
+          },
+          "speedrunner": {
+            "rounds": 10,
+            "wins": 7,
+            "winRate": 0.7
+          }
+        }
+      }
+    }
+  ]
+}

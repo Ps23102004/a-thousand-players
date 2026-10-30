@@ -1,11 +1,74 @@
 # ReproBot fresh play
 
-The committed JSON contains results from the live run (an inconclusive 2-round run stopped by the call budget). The experiment uses the report and oracle in `data/samples/repro.json`, the current default game rules, and fresh seeds checked against both recorded run files. It drives the player against the normal CPU. Every 12 ticks it chooses an action; successful answers are cached by the existing spotlight observation key. Each round stops when the entire oracle first matches or when the round ends. The first match time is the simulation time at which all conditions hold, not the time of the earliest contributing event. The oracle inherits the engine's 220-event cap.
+ReproBot evaluates whether a model-driven player can reproduce an example bug report in fresh, unscripted play.
 
-The lead can run the real experiment separately, with their existing model credentials in the environment, using `node --import tsx ai/cli/reprobot.ts --out /tmp/reprobot-results.json`. At most 40 calls are attempted, including failed responses; `--max-calls` can lower that limit. Once an uncached observation needs a call beyond the cap, the current round is marked incomplete and the run stops. Successful cached actions remain available without calls. Fallbacks are not cached. A high fallback count means the model may not have been available and must not be interpreted as a passive Nano player.
+## Design
 
-Import a reviewed output with `node --import tsx ai/cli/reprobot.ts --results-from /path/to/results.json`. The importer checks seeds, counts, and totals before replacing `data/reprobot/results.json`. `--out` chooses a different output path. `--dry-run` prints the plan without playing or writing, and `--fake-model` runs offline using a fixed action; fake results are explicitly labeled. Neither mode establishes a Nano result. For a complete run the block reports the reproductions among 20 completed rounds; if the budget stops it early, it reports the actual number completed and the number planned. It is one report and one run, not a success rate or evidence that the bug is absent. The live run was performed in this worktree (see below); the run is inconclusive: 2 rounds started, 1 completed, 0 reproduced, exhausting the 40-call budget.
+### Choosers (`--chooser nano|local|fake`, default `fake`)
+- **`local`**: Calls a local Ollama server over HTTP at `POST http://localhost:11434/api/chat`.
+  - Model: configured by `REPROBOT_LOCAL_MODEL` (default: `gemma4:e4b-mlx`).
+  - Options: `stream: false`, `temperature: 0.5`, small token budget (`num_predict: 6`), 20-second timeout per call, 0 retries.
+  - Prompting & Caching: Reuses the exact same system prompt (`buildSystemPrompt`) and user prompt (`buildUserPrompt`) as `ai/spotlight.ts`, along with `obsKey` observation state rounding/caching and `parseAction`.
+  - Fallback safety: Network errors, timeouts, or unparseable outputs fall back to the `"wait"` action. If fallbacks exceed 30% after 40 calls, the run aborts cleanly so that an unavailable local server is never mistaken for a passive player.
+- **`fake`**: Fast, offline deterministic chooser for automated testing and CI.
+- **`nano`**: Nemotron Nano cloud model via Nebius API.
 
-## Result of the one live run (2026-10-29)
+### Reports (`--report rare|common`, default `rare`)
+- **`rare`**: The built-in example bug report: "floats upward while blocking, then out of bounds". Targets `data/reprobot/results.json`.
+- **`common`**: A frequent gameplay event oracle: "The player is knocked down at least once in the first 30 seconds." (`{ event: "knockdown", who: 0, minCount: 1, withinSeconds: [0, 30] }`). Demonstrates mechanism parity across arms since knockdown is not a bug. Targets `data/reprobot/results-common.json`.
 
-`npx tsx --env-file=.env ai/cli/reprobot.ts --max-calls 40`: the 40-call Nano budget was used up after **2 rounds started (1 completed), 0 reproduced**, 68 cache hits, 0 fallbacks. Result: **inconclusive**. The Nano player asks the model about every few ticks, so a full round costs about 27 calls; 20 rounds would need hundreds of calls. Nothing can be said about how often this works, and the bug in the example report is a rare one. The file is `data/reprobot/results.json`.
+### Multi-Arm Builds (`--build recorded|shipped|both`, default `both`)
+When running with `--build both`, ReproBot plays the same deterministic fresh seeds across three comparative arms:
+1. **Recorded build (`recorded`)**: Applies the `recordedWith` tuning from `data/run-main/meta.json` (bug fix flags set to 0, matching the version where the bug was originally reported).
+2. **Shipped build (`shipped`)**: Applies `{}` (the current game rules where the bug has been fixed; an effective bug fix should yield 0 reproductions).
+3. **Scripted control (`scripted`)**: Uses the baseline CPU policy from `engine/policy.mjs` for the player (no model calls) on the recorded build, providing a control baseline to compare model-driven play against heuristic play.
+
+### Experiment Parameters
+- **Early Stop**: Rounds stop immediately once the bug oracle (from `data/samples/repro.json` via `lib/oracle.ts`) matches, recording `tFirstMatch`.
+- **Wall-Clock Cap**: `--max-seconds` (default: 900 seconds) prevents runaway execution.
+- **Seeds**: Deterministic list of fresh seeds (default 20, starting at 2,000,000) that do not appear in `data/run-main/runs.jsonl` or `runs-sweep-nerf.jsonl`.
+- **Dry Run**: `--dry-run` prints the execution plan and parameters as JSON without starting the simulator or contacting the model.
+
+### Execution
+Run the full local multi-arm experiment (rare report):
+```bash
+npx tsx ai/cli/reprobot.ts --chooser local --build both --rounds 20 --report rare
+```
+
+Run the common report experiment:
+```bash
+npx tsx ai/cli/reprobot.ts --chooser local --build both --rounds 20 --report common
+```
+
+To test execution offline with a fake model:
+```bash
+npx tsx ai/cli/reprobot.ts --chooser fake --build both --rounds 20 --report common
+```
+
+To preview without running:
+```bash
+npx tsx ai/cli/reprobot.ts --chooser local --build both --rounds 20 --dry-run
+```
+
+To import a reviewed results file:
+```bash
+npx tsx ai/cli/reprobot.ts --results-from /path/to/results.json --out data/reprobot/results.json
+```
+
+## Result: rare report
+
+- **Configuration**: `data/reprobot/results.json`, chooser local `gemma4:e4b-mlx`, 20 fresh seeds per arm.
+- **Report**: Built-in example report ("floats upward while blocking, then out of bounds").
+- **Reproductions**:
+  - Recorded build: 0 of 20 reproduced
+  - Shipped build: 0 of 20 reproduced
+  - Scripted control: 0 of 20 reproduced
+- **Local-player fallbacks**:
+  - Recorded arm: 89 of 383 calls (23%)
+  - Shipped arm: 53 of 159 calls (33%)
+  - Scripted arm: 0 calls
+- **Analysis**: That bug is rare: 4 of 2,831 recorded rounds, so the chance of at least one hit in 20 rounds is $1 - (1 - 4/2831)^{20} = 2.8\%$: the experiment cannot show anything for that report at this scale.
+
+## Result: common report
+
+*(To be filled by the lead after running the live local experiment with `--report common`)*

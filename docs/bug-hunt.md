@@ -10,7 +10,7 @@ performance pass. No Nebius or Tavily credit was spent. Output is under `.work/h
 | # | Finding | Where | Severity | Status |
 |---|---|---|---|---|
 | H1 | **bug2 still happens on the shipped build.** After a throw, the thrown fighter keeps a stale floor contact, sinks 0.3 m and is ejected upward. Next to the wall, it rides the wall over the top. The same cause produces 25 of the 33 remaining `airborne` rounds (the open part of bug1). | `game/src/character.js` | High (visible, 1 in 2,500 rounds) | **Fixed, on by default** (`rules.grabReleaseFix: 1`; test fixtures re-pinned, see below) |
-| H2 | **Mindless input wins every round.** Hold crouch, tap J at 6 Hz: 6 of 6 KOs in about 11 s. Hold every key and release one tick in three: 100 of 100 perfect KOs, all at exactly 9.9 s, whatever the seed or fighter. | `game/src/ai.js`, crouch attacks | High (balance) | Optional rule `rules.cpuLowBlock`, **off by default** ([numbers](#h2-crouch-attack-spam-beats-the-cpu-every-time)) |
+| H2 | **Mindless input wins every round.** Hold crouch, tap J at 6 Hz: 6 of 6 KOs in about 11 s. Hold every key and release one tick in three: 100 of 100 perfect KOs, all at exactly 9.9 s, whatever the seed or fighter. | `game/src/ai.js`, crouch attacks | High (balance) | Balance rule `rules.cpuLowBlock`, **on by default** ([numbers](#h2-crouch-attack-spam-beats-the-cpu-every-time)) |
 | H3 | **A knockdown can never end** when the fighter lands on a crate. `FALL` waits for `y < 1.08`, and a body resting on a crate sits at y = 1.23. That is also below the 1.3 `airborne` threshold, so only `stuck`/`softlock` fire. This is bug4's cause through a new route. | `game/src/ground.js:40` | Medium | **Fixed, on by default** (`rules.knockdownOnPropFix: 1`; the height guard stays) |
 | H4 | **Balance range has a dead zone.** With every `anim.*.active` at its allowed minimum (25% of default), no strike ever lands. 1,500 rounds gave 0 strike hits and 76% softlocks. At 50% the game works normally. | `data/baseline-tuning.json` bounds, `applyTuning` | Medium (Balance mode can propose it) | **Fixed** (raised minimums, plus a 2-tick window guard in `applyTuning`) |
 | H5 | 7 `oob` escapes under extreme tunings that the grab fix does not clear (mostly `max-reach-drive`). | tuning extremes | Low | Documented |
@@ -115,8 +115,8 @@ So crouch plus a 6 Hz jab tap is enough, which a human can do. Mechanism, from t
 Fix direction (design, not small): when the player has been crouching for more than about 0.5 s, the CPU should
 answer with low or crouching attacks or a throw. Alternatively, crouch attacks could give up their frame advantage on block.
 
-**Optional rule, off by default.** `rules.cpuLowBlock` (default 0, so the shipped game is unchanged and draws no extra random
-numbers) is a probability p. With p > 0: when the CPU blocks a crouch attack (BODY_JAB, BODY_HOOK, SWEEP) it crouch-blocks with
+**Shipped balance change, on by default.** `rules.cpuLowBlock` (default 1; recorded rounds explicitly pin 0, preserving the original random
+sequence) is a probability p. With p > 0: when the CPU blocks a crouch attack (BODY_JAB, BODY_HOOK, SWEEP) it crouch-blocks with
 probability p, and while a crouching player recovers it answers with SWEEP instead of CROSS or ROUNDHOUSE with probability p.
 Crouch-blocking alone changes nothing (the CPU's standing block already stops body jabs; it loses because its high counters whiff),
 so the low answer is what breaks the loop. 1,000 seeds per exploit, 5,000 crowd rounds per setting (all 1,000 personas, base seed 8080,
@@ -124,13 +124,12 @@ so the low answer is what breaks the loop. 1,000 seeds per exploit, 5,000 crowd 
 
 | `rules.cpuLowBlock` | S+J at 6 Hz: player wins (perfect) | All keys, released 1 tick in 3 | Persona crowd win rate | Crowd bug rounds |
 |---|---|---|---|---|
-| 0 (shipped) | 100% (995 at 100 HP) | 100% (1,000) | 30.7% | 1 |
+| 0 (recorded CPU) | 100% (995 at 100 HP) | 100% (1,000) | 30.7% | 1 |
 | 0.5 | 59.1% (87) | 88.9% (62) | 28.1% | 1 |
-| 1 | **0.4%** (0) | 47.7% (0) | 24.9% | 1 |
+| 1 (shipped) | **0.4%** (0) | 47.7% (0) | 24.9% | 1 |
 | 1, crouch-block only (no low answer, scratch copy) | 100% (994) | 100% (1,000) | | |
 
-So at 1 the crouch-jab exploit is gone and the all-keys flicker is cut in half, but casual players lose 6 more rounds in 100. It stays
-off: making it the default is a balance call for the game, not a bug fix. Test: `engine/tests/hunt-cpu-low-block.test.mjs`. Harness:
+In this earlier 1,000-seed sample, at 1 the crouch-jab exploit nearly disappears and all-keys flicker is cut in half, but casual players lose 6 more rounds in 100. The lead has now shipped 1 as a balance change. The later 100-seed decision sweep found crouch-jab wins 100/100 → 0/100, all-keys wins 100/100 → 40/100, casual wins unchanged at 5/39, and crowd win rate 31.0% → 23.5%; see [the decision](cpu-lowblock.md#decision). Test: `engine/tests/hunt-cpu-low-block.test.mjs`. Harness:
 `.work/h2-exploit.mjs`.
 
 ### H3: knockdown on top of a crate never ends
@@ -146,7 +145,7 @@ allow FALL to end once the body is asleep, or after fallTime + 1 s.
 `y < 1.08` guard stays for everything else, and a time-based end was rejected because a body still falling would freeze mid-air
 in DOWNED. bug4's representative round (p0653 r2, seed 529060) with the rule off: knocked onto the left crate at 15.87 s, rests at
 y = 1.395, `airborne` 18.5 s, `stuck:KNOCKDOWN` 26 s, `softlock` 41 s, time-out loss. With it on: DOWNED at 17.25 s, the CPU mounts,
-the player gets up, and the round ends by KO at 19.53 s with no bug events. `data/run-main/meta.json` records the run with the rule at 0.
+the player gets up, and the round ends by KO at 18.9 s with no bug events. `data/run-main/meta.json` records the run with the rule at 0.
 Test: `engine/tests/hunt-knockdown-prop.test.mjs` (also checks a round whose knockdowns land on the floor is unchanged).
 
 ### H4: the `active` minimum makes every strike whiff

@@ -12,6 +12,6 @@ export const RULES = { guardDamageMultiplier: 0.2, postureOnBlock: 15, postureOn
   // 1 = refresh floor contacts when getting up near an intact prop, preventing a sink-and-eject; 0 = original behavior.
   getupCrateFix: 1,
   // Probability that the CPU crouch-blocks when it blocks a crouch attack (bug hunt H2: crouch + jab spam wins every round).
-  // 0 = the shipped CPU, which only blocks standing; an optional rule for Balance mode, not on by default.
-  cpuLowBlock: 0 };
+  // Also answers a crouching player's recovery with a sweep. 1 = shipped balance rule; 0 = recorded CPU (no extra random draws).
+  cpuLowBlock: 1 };
 export const RULE_DEFAULTS = Object.freeze({ ...RULES });

@@ -58,7 +58,8 @@ test('a healthy round leaves sim.crashed undefined', async () => {
 });
 
 test('regression: throwing a carried crate that already shattered no longer traps Rapier (p0047, seed 596926)', async () => {
-  const sim = await createSim({ seed: CRASH_CASE.seed, fighter: 'kai' });
+  // The old CPU sequence reaches the shattered crate; the new balance can end the round earlier.
+  const sim = await createSim({ seed: CRASH_CASE.seed, fighter: 'kai', tuning: { 'rules.cpuLowBlock': 0 } });
   let threwBroken = false;
   const policy = createPolicy(CRASH_CASE.persona, CRASH_CASE.seed);
   const res = await runRound(sim, { step: s => { if (s.player.carriedProp?.isBroken) threwBroken = true; return policy.step(s); } });

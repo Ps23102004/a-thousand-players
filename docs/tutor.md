@@ -27,3 +27,46 @@ Prophet compares the recorded tuning and each override with paired personas and 
 | Learn to Guard Effectively (guard multiplier 0.15) | 66 to 60 | 5 to 5 | 1 to 1 |
 
 Read this carefully: one seed, 39 casual rounds, and differences of 3 to 9 wins are within the noise of such a small sample (the same seed-1 baseline is 66 wins; Prophet's second seed gave a different baseline, see `docs/prophet.md`). Nothing here shows that an aid teaches a new player anything; it only shows what happens to round-1 win rates when the tuning behind the tip changes. The quit and frustration model was not re-simulated, and no real new player took part. The player-facing text of each aid was checked by hand against the game's own controls (J x4 chain, Q/V sidestep, guard multiplier 0.2) and matches, except that the guard aid's text says "reduce incoming damage by 80%" while its tuning (0.15) would give 85%.
+
+## Multi-Seed Replication
+
+The initial proposal measurement evaluated each onboarding aid on only **seed 1** (e.g. overall wins 66 to 75 of 200), meaning observed changes may be sample noise.
+
+To replicate across multiple seeds, run:
+
+```sh
+# Dry-run: view plan and seeds without running simulations or modifying files
+npx tsx scripts/tutor-replicate.ts --dry-run
+
+# Custom subset of seeds (e.g. seeds 1 and 2)
+npx tsx scripts/tutor-replicate.ts --seeds 1,2
+
+# Full 8-seed replication (seeds 1..8)
+npx tsx scripts/tutor-replicate.ts
+```
+
+For each aid in `data/tutor/results.json`, `scripts/tutor-replicate.ts` runs `lib/prophet.ts runProphet(tuning, { seed })` for seeds 1..8 (200 personas, 1 round each; paired against the recorded baseline tuning inside `runProphet`).
+
+`ai/tutor-replication.ts` aggregates the measurements:
+- Overall and casual wins before/after per aid and per seed.
+- Mean paired difference and min/max across seeds.
+- Count of seeds improved (strictly more wins), tied, worsened, with a paired sign summary (e.g. `+7 / =1 / -0`).
+- Student's t-based 95% confidence interval of the mean paired difference in overall wins ($df = n - 1$).
+- Computed verdict:
+  - `"clear gain"`: 95% interval strictly entirely above 0 AND at least 7 of 8 seeds improved.
+  - `"clear loss"`: 95% interval strictly entirely below 0 AND at least 7 of 8 seeds worsened.
+  - `"not distinguishable from noise"`: otherwise.
+
+Results are written to `data/tutor/replication.json` with wall times. The onboarding page displays this replication table below the single-seed table for each aid with the honest caveat (still round 1 only, quit model not re-simulated, no real new players).
+
+## Result of the replication run (lead)
+
+*(To be executed and filled in by the lead)*
+
+Run `npx tsx scripts/tutor-replicate.ts` from repository root to populate `data/tutor/replication.json` and publish live replication statistics.
+
+| Aid | Mean Paired Diff | 95% Interval (t-based) | Seeds (+ / = / -) | Verdict |
+|---|---|---|---|---|
+| Master Your First Combo | *pending lead run* | *pending* | *pending* | *pending* |
+| Practice Sidestepping | *pending lead run* | *pending* | *pending* | *pending* |
+| Learn to Guard Effectively | *pending lead run* | *pending* | *pending* | *pending* |

@@ -116,11 +116,60 @@ def finish(a, plan, warnings, how, vdur, wav):
     print("wrote", a.out, f"{duration(a.out):.2f}s")
 
 
+def finish_scenes(a, L, segs, vdur, wav):
+    """One continuous passage per scene: the take from the scene's first line to its last, long internal pauses shortened, fitted to the scene."""
+    scenes = []
+    for i, (t0, t1, scene, text) in enumerate(L):
+        if scenes and scenes[-1]["name"] == scene:
+            scenes[-1]["last"] = i
+        else:
+            scenes.append({"name": scene, "first": i, "last": i})
+    plan, warnings, cur_end = [], [], 0.0
+    tmp = tempfile.mkdtemp(prefix="scenes-")
+    cmd = ["ffmpeg", "-v", "error", "-y"]
+    filters, labels = [], []
+    for n, sc in enumerate(scenes):
+        a0, a1 = segs[sc["first"]][0], segs[sc["last"]][1]
+        start = max(L[sc["first"]][0], cur_end + 0.2)
+        nxt = (L[scenes[n + 1]["first"]][0] - 0.15) if n + 1 < len(scenes) else vdur - 0.2
+        # measure the passage after shortening pauses longer than 0.4 s to 0.25 s
+        clip = os.path.join(tmp, f"s{n}.wav")
+        r = run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a0:.3f}", "-t", f"{a1 - a0:.3f}", "-i", wav, "-af",
+                 "silenceremove=stop_periods=-1:stop_duration=0.4:stop_threshold=-38dB:stop_silence=0.22", clip])
+        d = duration(clip)
+        speed = min(a.max_speed, max(1.0, d / max(0.5, nxt - start)))
+        end = start + d / speed
+        if end > nxt + 0.05:
+            warnings.append(f"scene {sc['name']} ends {end - nxt:.1f}s after the next scene starts")
+        if start - L[sc["first"]][0] > 1.5:
+            warnings.append(f"scene {sc['name']} starts {start - L[sc['first']][0]:.1f}s after its scene")
+        plan.append((n + 1, start, d, speed, d / speed, sc["name"]))
+        cmd += ["-i", clip]
+        atempo = f"atempo={speed:.4f}," if speed > 1.001 else ""
+        filters.append(f"[{n}:a]{atempo}afade=t=in:d=0.03,adelay={int(start * 1000)}:all=1,apad=whole_dur={vdur:.3f}[a{n}]")
+        labels.append(f"[a{n}]")
+        cur_end = end
+    for p in plan:
+        print(f"scene {p[0]:2d} {p[5]:9s} start {p[1]:6.1f}s  speech {p[2]:5.1f}s  speed {p[3]:.2f}x  -> {p[4]:5.1f}s (ends {p[1] + p[4]:.1f}s)")
+    for w in warnings:
+        print("WARNING:", w)
+    if a.report:
+        return
+    graph = ";".join(filters) + ";" + "".join(labels) + f"amix=inputs={len(plan)}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,atrim=0:{vdur:.3f}[aout]"
+    cmd += ["-i", VIDEO, "-filter_complex", graph, "-map", f"{len(plan)}:v", "-map", "[aout]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-t", f"{vdur:.3f}", "-movflags", "+faststart", a.out]
+    r = run(cmd)
+    if r.returncode:
+        sys.exit("ffmpeg failed: " + r.stderr[-600:])
+    print("wrote", a.out, f"{duration(a.out):.2f}s")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("audio")
     ap.add_argument("--out", default=os.path.join(ROOT, "footage/cut/final.mp4"))
     ap.add_argument("--transcript", help="whisper JSON with word timestamps (use when the take was read as paragraphs, not line by line)")
+    ap.add_argument("--scenes", action="store_true", help="with --transcript: play each scene as one continuous passage (natural phrasing) instead of placing every line separately")
     ap.add_argument("--max-speed", type=float, default=1.3)
     ap.add_argument("--report", action="store_true", help="only print the alignment, write nothing")
     a = ap.parse_args()
@@ -133,6 +182,8 @@ def main():
     if a.transcript:
         segs, how = transcript_segments(a.transcript, L, wav), ("transcript", 0)
         vdur = duration(VIDEO)
+        if a.scenes:
+            return finish_scenes(a, L, segs, vdur, wav)
         plan, warnings, cur_end = [], [], 0.0
         for i, ((a0, a1), (t0, t1, scene, text)) in enumerate(zip(segs, L)):
             d = a1 - a0

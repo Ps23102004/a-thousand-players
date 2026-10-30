@@ -9,7 +9,8 @@
     "rules.throwPropGuard": 0,
     "rules.grabReleaseFix": 0,
     "rules.knockdownOnPropFix": 0,
-    "rules.getupCrateFix": 0
+    "rules.getupCrateFix": 0,
+    "rules.cpuLowBlock": 0
   },
   "personas": 200,
   "roundsEach": 1,

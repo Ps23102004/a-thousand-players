@@ -22,10 +22,11 @@ test('grabReleaseFix is a known rule and data/run-main/meta.json records the run
 
 for (const c of CASES) {
   test(`seed ${c.seed}: off reproduces the wall escape, on clears it`, async () => {
-    const off = (await play(p0653, c.seed, { tuning: { 'rules.grabReleaseFix': 0 } })).res;
+    // Keep the historical combat sequence so this tests the contact fix, not CPU balance.
+    const off = (await play(p0653, c.seed, { tuning: { 'rules.cpuLowBlock': 0, 'rules.grabReleaseFix': 0 } })).res;
     assert.deepEqual(bugs(off), ['airborne', 'oob', 'softlock']);
     assert.equal(off.ev.find(e => e[1] === 'oob')[0], c.oobAt);
-    const on = (await play(p0653, c.seed, { tuning: ON })).res;
+    const on = (await play(p0653, c.seed, { tuning: { ...ON, 'rules.cpuLowBlock': 0 } })).res;
     assert.deepEqual(bugs(on), []);
     assert.ok(on.t < 99, `round should end by KO, ended at ${on.t}`);
   });

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { decodeToken, encodeToken, fighterFor } from "./replay-token";
@@ -11,6 +11,19 @@ const persona: Persona = { id: "p0001", name: "Mira", archetype: "turtle", skill
 const base: ReplayToken = { seed: 8812, tuning: null, fighter: "kai", maxT: 60 };
 const b64 = (s: string) => Buffer.from(s).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const tokenOf = (o: unknown) => b64(JSON.stringify(o));
+
+test("proof replay links pin all recorded flags only on their before side", () => {
+  const recorded = JSON.parse(readFileSync("data/run-main/meta.json", "utf8")).recordedWith;
+  const links = [...readFileSync("docs/PROOF.md", "utf8").matchAll(/\/replay\?t=([\w-]+)/g)];
+  assert.equal(links.length, 8);
+  for (let i = 0; i < links.length; i++) {
+    const token = decodeToken(links[i][1]);
+    assert.ok(token);
+    for (const [key, value] of Object.entries(recorded)) {
+      assert.equal(token.tuning?.[key], i % 2 === 0 ? value : undefined, key);
+    }
+  }
+});
 
 test("round trip keeps every field: tuning, persona with rules, inputs", () => {
   const t: ReplayToken = { ...base, tuning: { "anim.JAB.damage": 12.5, "rules.mountReleaseFix": 0 }, persona, inputs: [[0, 8], [12, 0], [40, 130]] };

@@ -14,6 +14,8 @@ let airBug;
 const AIR_FIX = { file: 'character.js', find: 'const p = rb.translation(); root.position.set(', replace: 'if (rb.translation().y > 1.2) { const q = rb.translation(); rb.setTranslation({ x: q.x, y: 0.82, z: q.z }, true); } const p = rb.translation(); root.position.set(' };
 // Undoes the shipped props.js throwProp fix in the scratch copy only: the crash must come back there.
 const REVERT_CRASH_FIX = { file: 'props.js', find: 'if (prop.rigidBody && !(RULES.throwPropGuard && prop.isBroken)) {', replace: 'if (prop.rigidBody) {' };
+// Reproduce the old crash sequence in the scratch copy; the shipped CPU balance can avoid the shattered crate.
+const ORIGINAL_CPU = { file: 'tuning.js', find: 'cpuLowBlock: 1', replace: 'cpuLowBlock: 0' };
 const HARMLESS = { file: 'props.js', find: 'export function throwProp(', replace: '/* nothing */export function throwProp(' };
 const verify = (bug, patches, extra = []) => {
   writeJson(join(dir, 'fixes', `${bug}.json`), { patches });
@@ -109,9 +111,9 @@ test('a patch that removes the bug is "fixed": the shipped replay still shows it
   assert.ok(!readFileSync(join(ROOT, 'game/src/character.js'), 'utf8').includes('rb.translation().y > 1.2'), 'the real game/src is never modified');
 });
 
-test('reverting the shipped props.js fix in the scratch copy brings the old crash back: verify-fix reports it', () => {
-  const r = verify(CRASH, [REVERT_CRASH_FIX]);
-  assert.deepEqual(r.out.applied, [{ file: 'props.js', ok: true }]);
+test('reverting the shipped props.js fix with the original CPU in the scratch copy brings the old crash back: verify-fix reports it', () => {
+  const r = verify(CRASH, [REVERT_CRASH_FIX, ORIGINAL_CPU]);
+  assert.deepEqual(r.out.applied, [{ file: 'props.js', ok: true }, { file: 'tuning.js', ok: true }]);
   assert.equal(r.report.before[0].crash, null, 'the shipped game no longer crashes on this round');
   assert.match(r.report.after[0].crash, /^RuntimeError: unreachable in throwProp \(props\.js:\d+\)$/);
   assert.equal(r.out.verdict, 'did-not-reproduce', 'the bug was absent before the patch, so the verdict cannot be a fix');
@@ -144,7 +146,7 @@ test('regression crowd: a no-op patch plays the same crowd as the shipped game; 
   const fixed = run(AIR, [AIR_FIX]);
   assert.ok(fixed.regression.patched.bugRounds < fixed.regression.shipped.bugRounds);
   // The fixture run is base seed 2; the old crash is p0047 r1 at base seed 1 (CRASH_CASE), so that crowd is played at seed 1.
-  const reverted = run(CRASH, [REVERT_CRASH_FIX], '1');
+  const reverted = run(CRASH, [REVERT_CRASH_FIX, ORIGINAL_CPU], '1');
   const crashed = readFileSync(join(ROOT, reverted.scratch, 'out/runs.jsonl'), 'utf8').trim().split('\n').map(JSON.parse).filter(r => r.ev.some(e => e[1] === 'crash'));
   assert.deepEqual(crashed.map(r => `${r.p}:${r.round}`), ['p0047:1'], 'the reverted fix crashes the session at the old crash round');
 });

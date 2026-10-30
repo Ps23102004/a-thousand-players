@@ -1,11 +1,21 @@
-import {describe,it,expect} from 'vitest';
+import {describe,it,expect,vi} from 'vitest';
 import {createAIMemory,recordAIAction,decideRivalAction,updateRivalAI,resetRivalAI} from '../src/ai.js';
 import {createFighterRig} from '../src/character.js';
 import {initPhysics} from '../src/physics.js';
+import {RULES} from '../src/tuning.js';
 import * as THREE from 'three';
 const rival=m=>({health:100,grappleCooldown:0,aiMemory:m});
 const player=(x={})=>({health:100,state:'IDLE',distance:1.1,...x});
 describe('AI tactical variety',()=>{
+ it('answers crouching recovery with a low attack by default, with the original counter at flag 0',()=>{
+  const original=RULES.cpuLowBlock;
+  try{
+   const p=player({state:'RECOVERY',isCrouching:true});
+   expect(decideRivalAction(rival(createAIMemory()),p,[],{rng:()=>0}).type).toBe('SWEEP');
+   RULES.cpuLowBlock=0;
+   expect(decideRivalAction(rival(createAIMemory()),p,[],{rng:()=>0}).type).toBe('CROSS');
+  }finally{RULES.cpuLowBlock=original}
+ });
  it('uses a kick after two punches rather than endlessly repeating punches',()=>{
   const m=createAIMemory();recordAIAction(m,'JAB');recordAIAction(m,'CROSS');
   expect(['ROUNDHOUSE','SWEEP']).toContain(decideRivalAction(rival(m),player(),[],{rng:()=>0}).type);
@@ -36,6 +46,7 @@ describe('AI tactical variety',()=>{
  });
  it('executes real kick animations and stores move observations per rival',async()=>{
   resetRivalAI();const {world}=await initPhysics(),s=new THREE.Scene(),p=createFighterRig(s,world,true,-.7),r=createFighterRig(s,world,false,.7);
-  updateRivalAI(r,p,[],.02);expect(['ROUNDHOUSE_KICK','SWEEP']).toContain(r.currentAnim);expect(r.aiMemory.history.length).toBe(1);
+  const roll=vi.spyOn(Math,'random').mockReturnValue(0);
+  try{updateRivalAI(r,p,[],.02);expect(['ROUNDHOUSE_KICK','SWEEP']).toContain(r.currentAnim);expect(r.aiMemory.history.length).toBe(1)}finally{roll.mockRestore()}
  });
 });

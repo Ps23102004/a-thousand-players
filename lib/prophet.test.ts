@@ -44,6 +44,23 @@ test("same tuning and seed produce the same measured before/after numbers in rea
   assert.equal(a.roundsEach, 1);
   assert.equal(a.baselineTuning["rules.mountReleaseFix"], 0);
   assert.equal(a.baselineTuning["rules.getupCrateFix"], 0);
+  assert.equal(a.baselineTuning["rules.cpuLowBlock"], 0);
+  const unchanged = await runProphet({ "rules.guardDamageMultiplier": 0.2 }, { limit: 8 });
+  assert.deepEqual(unchanged.after, unchanged.before, "shipped defaults must not leak into either side");
+});
+
+test("Prophet and Tutor caches pin every recorded rule, including the CPU balance rule", () => {
+  const recorded = JSON.parse(readFileSync("data/run-main/meta.json", "utf8")).recordedWith;
+  assert.equal(recorded["rules.cpuLowBlock"], 0);
+  for (const path of ["data/prophet/example.json", "data/prophet/seed-2.json", "data/tutor/results.json"]) {
+    const text = readFileSync(path, "utf8");
+    let baselines = 0;
+    JSON.parse(text, (key, value) => {
+      if (key === "baselineTuning") { assert.deepEqual(value, recorded, path); baselines++; }
+      return value;
+    });
+    assert.ok(baselines > 0, path);
+  }
 });
 
 test("limit, busy slot and timeout use only a matching example cache; slots release after errors", async () => {
