@@ -240,36 +240,22 @@ intentional darkness from lost WebGL context. Seeds and traces cannot guarantee 
 Screenshots, console text and URLs may contain private data; artifacts stay local unless vision
 is requested, and are not automatically redacted.
 
-## Real open-source games: final run (2026-10-30, explorer commit 55be90f)
+## Real open-source games: third and final run (2026-10-30, explorer commit 7163273)
 
-Five open-source browser games, 60 seconds each, seed 1. Results were checked against each game's screenshots, not only the report.
+Five open-source browser games, 60 seconds each, seed 1, after menu progression was added. Results were checked against each game's screenshots, not only the report. Earlier runs of the same games (before the fixes) produced two false positives, which are fixed and covered by tests on local fixtures.
 
-| Game | What the explorer actually did (from screenshots) | Result |
+| Game | What the explorer did (from screenshots) | Result |
 |---|---|---|
-| agentofduty | Pressed Resume, started the mission, took damage. | No findings. The earlier freeze was the game's own pause screen, now handled. |
-| animal-strike | Pressed PLAY and played. | No findings. Pointer-lock refusals are filed as browser limits, not game bugs. |
-| hexapipes | Pressed Play but stayed on the puzzle-picker page; no puzzle solved. | No findings. Partly tested only. |
-| warzone | Pressed PLAY, ENDLESS and CONTINUE: menus only, no combat. | No findings. Not really played. |
-| canvas-td | Stayed on its level-select screen. Read-only source inspection later confirmed DOM anchors without `href` for Loopy, Backtrack and Dash (`index.html:30–32`, click binding in `scripts/ui.js:358`). | "Not started": not tested in that run. |
+| agentofduty | Pressed Resume twice (the game pauses itself when automated Chrome refuses pointer lock), started the mission, took damage. | Played. No findings. |
+| animal-strike | Pressed PLAY and played. | Played. No findings. The pointer-lock refusal is no longer even logged as an environment note. |
+| canvas-td | Picked the level "Loopy" from its level list (plain anchors without `href`), then built a Laser tower; creeps walk the path in the frames. | Played. No findings. This was "not started" before menu progression. |
+| hexapipes | Pressed Play three times but stayed on the puzzle-picker page; no puzzle solved. | Reached only. No findings. |
+| warzone | Pressed PLAY, ENDLESS, CONTINUE and DEPLOY; every frame shows the main menu or the shop, never combat. | Not played. No findings. |
 
-The explorer found no game defect in these five. Two of the five games (agentofduty, animal-strike) were played; hexapipes was reached but no puzzle solved; warzone stayed in menus; canvas-td never started.
-This is a weak result and must not be presented as a clean bill of health for those games.
+The explorer found no game defect in these five. Three of the five games (agentofduty, animal-strike, canvas-td) were played; hexapipes was reached but no puzzle solved; warzone stayed in menus. This is a limited result and must not be presented as a clean bill of health for the two games that were not played.
 
-Read-only follow-up on the saved Warzone inputs, report, PNGs and source: PLAY, the long
-ENDLESS description and CONTINUE were sent at roughly 13 seconds. `src/screens.js:574`
-wires CONTINUE to character selection; the next control is `#deployBtn` (DEPLOY ▶).
-`src/main.js:3264` advances it to loadout, where `#loadout-deploy` (also DEPLOY ▶) starts
-the run through `src/screens.js:571`. The old three-round sequence exhausted its rounds
-before the first DEPLOY. Later screenshots show SHOP and the main menu, not combat;
-the input trace also sends Escape at 16.338 s after CONTINUE, and the game's menu Escape
-handler walks back up the stack (`src/main.js:3171–3176`).
-`animationEvidence: true` is consistent with animated menus, not proof of a run. Eight
-primary rounds can reach the first DEPLOY, but the no-repeat label rule still prevents
-the second identically labelled DEPLOY. Animated menus can also suppress broad fallback.
-This change does not claim Warzone combat was reached.
+Why warzone still fails (read-only analysis of its source and the saved trace): CONTINUE leads to character selection, whose DEPLOY ▶ button leads to a loadout screen with a second button that is also labelled DEPLOY ▶ (`src/screens.js:571-574`, `src/main.js:3264`). The explorer's no-repeat label rule refuses the second identical label, and later random Escape key presses walk the menu stack back (`src/main.js:3171-3176`). Allowing a repeated label when the screen has changed would probably fix it; that is not built. `animationEvidence: true` for warzone reflects animated menus, not a run.
 
-Canvas TD's choices are covered by the new DOM menu-walk fixture. Neither real game was
-executed for this change; the historical results above remain unchanged. The lead runs the
-real-Chrome fixture spec separately from offline verification.
+Canvas-drawn menus with no DOM element are still not operable.
 
 The first run's false positives (agentofduty freeze, canvas-td deadkeys) are fixed and covered by tests on local fixtures.
