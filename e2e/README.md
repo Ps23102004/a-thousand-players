@@ -40,3 +40,23 @@ Results: `e2e/test-results/results.json` (observed values are in each test's ann
 1. `/bugs` at 375 px scrolls sideways: the signature chip `crash:RuntimeError: unreachable in throwProp (props.js:303)` does not wrap (page is 480 px wide).
 2. `/bugs` jumps from `h1` to `h3`: the bug cards have no `h2` above them.
 3. `/game/replay.html` requests `/favicon.ico`, which returns 404 (a console error on every game load).
+
+## Black-box explorer only
+
+This suite serves only original `blackbox/fixtures` on `127.0.0.1:3193`; no Next server,
+model calls, external games, or other port is needed. Run it by itself with one worker:
+
+```bash
+NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules \
+  node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js \
+  test -c e2e/playwright.config.cjs blackbox.spec.cjs --workers=1 --headed
+```
+
+It covers the six original Square Courier scenarios, independently animated dead inputs (including animation starting during probes),
+a single missing script, one WebGL initialization console error, and the arrow-only turn-based fixture.
+The freeze fixture is static until input and has no moving marker. Animated dead inputs must
+report controls as inconclusive; single critical failures must have low confidence.
+Only this spec should be selected for fixture-only verification; the app/real-game specs above
+are outside that scope. Offline verification is `node --test blackbox/*.test.mjs`.
+No TypeScript is changed by these fixes, so the TypeScript check is skipped.
+Browser launch/server availability must be reported separately from passing offline tests.

@@ -1,0 +1,310 @@
+{
+  "expectedControlProbes": 11,
+  "restorationAttempts": 0,
+  "url": "http://127.0.0.1:3193/game?bug=freeze",
+  "seed": 1,
+  "seconds": 23,
+  "durationMs": 23023,
+  "status": "completed",
+  "startupClicks": [
+    {
+      "t": 116,
+      "text": "Start delivery",
+      "status": "sent"
+    }
+  ],
+  "frames": [
+    {
+      "t": 274,
+      "file": "frame-0000.png",
+      "label": "initial",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 540,
+      "file": "frame-0001.png",
+      "label": "idle-probe",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 829,
+      "file": "frame-0002.png",
+      "label": "control-probe:w",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 1090,
+      "file": "frame-0003.png",
+      "label": "control-probe:a",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 1352,
+      "file": "frame-0004.png",
+      "label": "control-probe:s",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 1612,
+      "file": "frame-0005.png",
+      "label": "control-probe:d",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 1870,
+      "file": "frame-0006.png",
+      "label": "control-probe:ArrowUp",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 2121,
+      "file": "frame-0007.png",
+      "label": "control-probe:ArrowLeft",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 2370,
+      "file": "frame-0008.png",
+      "label": "control-probe:ArrowDown",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 2618,
+      "file": "frame-0009.png",
+      "label": "control-probe:ArrowRight",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 2868,
+      "file": "frame-0010.png",
+      "label": "control-probe:Space",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 3117,
+      "file": "frame-0011.png",
+      "label": "control-probe:Enter",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 3390,
+      "file": "frame-0012.png",
+      "label": "control-probe:mouse",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 3654,
+      "file": "frame-0013.png",
+      "label": "post-control-idle",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 5403,
+      "file": "frame-0014.png",
+      "label": "periodic",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 10587,
+      "file": "frame-0015.png",
+      "label": "periodic",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 15769,
+      "file": "frame-0016.png",
+      "label": "periodic",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 16017,
+      "file": "frame-0017.png",
+      "label": "control-probe:w",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 16316,
+      "file": "frame-0018.png",
+      "label": "control-probe:a",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 16569,
+      "file": "frame-0019.png",
+      "label": "control-probe:s",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 16837,
+      "file": "frame-0020.png",
+      "label": "control-probe:d",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 17095,
+      "file": "frame-0021.png",
+      "label": "control-probe:ArrowUp",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 17372,
+      "file": "frame-0022.png",
+      "label": "control-probe:ArrowLeft",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 17635,
+      "file": "frame-0023.png",
+      "label": "control-probe:ArrowDown",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 17884,
+      "file": "frame-0024.png",
+      "label": "control-probe:ArrowRight",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 18131,
+      "file": "frame-0025.png",
+      "label": "control-probe:Space",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 18383,
+      "file": "frame-0026.png",
+      "label": "control-probe:Enter",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 18663,
+      "file": "frame-0027.png",
+      "label": "control-probe:mouse",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 20884,
+      "file": "frame-0028.png",
+      "label": "periodic",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 21203,
+      "file": "frame-0029.png",
+      "label": "control-probe:w",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 21467,
+      "file": "frame-0030.png",
+      "label": "control-probe:a",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 21735,
+      "file": "frame-0031.png",
+      "label": "control-probe:s",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 22000,
+      "file": "frame-0032.png",
+      "label": "control-probe:d",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 22252,
+      "file": "frame-0033.png",
+      "label": "control-probe:ArrowUp",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 22620,
+      "file": "frame-0034.png",
+      "label": "control-probe:ArrowLeft",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    },
+    {
+      "t": 22885,
+      "file": "frame-0035.png",
+      "label": "control-probe:ArrowDown",
+      "blank": false,
+      "region": "largest-visible-canvas"
+    }
+  ],
+  "diffs": [
+    0.0007125998547567175,
+    0.004884940087145969,
+    0,
+    0
+  ],
+  "inputsSent": [
+    25,
+    43,
+    45,
+    32
+  ],
+  "controlDiffs": [
+    0.00508578431372549,
+    0.004496868191721133,
+    0.005081245461147422,
+    0.004496868191721133,
+    0.005083514887436456,
+    0.004496868191721133,
+    0.005081245461147422,
+    0.004496868191721133,
+    0,
+    0,
+    0
+  ],
+  "animationEvidence": false,
+  "intervalActivity": [
+    null,
+    null,
+    false,
+    null
+  ],
+  "events": [],
+  "mode": "blackbox",
+  "replayGuaranteed": false,
+  "controls": "responsive",
+  "freezeAssessment": "inconclusive",
+  "frozenIntervals": 2,
+  "environment": [],
+  "findings": []
+}

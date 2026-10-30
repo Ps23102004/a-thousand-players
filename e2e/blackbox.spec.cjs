@@ -10,23 +10,29 @@ test.describe('black-box planted bugs', () => {
   let server;
   test.beforeAll(async () => {
     const html = await readFile(resolve(__dirname, '../blackbox/fixtures/bugged-game.html'));
+    const turns = await readFile(resolve(__dirname, '../blackbox/fixtures/turn-based-game.html'));
     server = createServer((req, res) => {
       if (!req.url.startsWith('/game')) { res.writeHead(404); res.end(); return; }
-      res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(html);
+      res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(req.url.startsWith('/game-turns') ? turns : html);
     });
-    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(3181, '127.0.0.1', resolve); });
+    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(3193, '127.0.0.1', resolve); });
   });
   test.afterAll(async () => { if (server?.listening) await new Promise(resolve => server.close(resolve)); });
-  for (const [bug, expected] of Object.entries({ none: [], freeze: ['freeze'], blank: ['blank'], error: ['page-error'], deadkeys: ['deadkeys'], crash: ['crash'] })) {
+  for (const [bug, expected] of Object.entries({ none: [], 'animated-deadkeys': [], 'delayed-animated-deadkeys': [], 'single-request': ['failed-request'], 'single-console': ['console-error'], freeze: ['freeze'], blank: ['blank'], error: ['page-error'], deadkeys: ['deadkeys'], crash: ['crash'] })) {
     test(`reports exactly ${bug}`, async ({ browser }, testInfo) => {
       const { explore } = await import(pathToFileURL(resolve(__dirname, '../blackbox/explorer.mjs')).href);
       const context = await browser.newContext({ viewport: { width: 960, height: 640 } });
       try {
         const page = await context.newPage();
         const out = testInfo.outputPath(`blackbox-${bug}`);
-        const report = await explore({ page, url: `http://127.0.0.1:3181/game?bug=${bug}`, seconds: 23, seed: 1, out });
+        const report = await explore({ page, url: `http://127.0.0.1:3193/game?bug=${bug}`, seconds: 23, seed: 1, out });
         expect(report.status).toBe(bug === 'crash' ? 'crashed' : 'completed');
         expect([...new Set(report.findings.map(f => f.kind))].sort()).toEqual(expected);
+        if (bug.includes('animated-deadkeys')) {
+          expect(report.animationEvidence).toBe(true);
+          expect(report.controls).toBe('inconclusive');
+        }
+        if (bug.startsWith('single-')) expect(report.findings[0].confidence).toBe('low');
         expect(report.startupClicks.some(c => /start/i.test(c.text) && c.status === 'sent')).toBe(true);
         expect(report.frames.length).toBeGreaterThanOrEqual(2);
         const trace = JSON.parse(await readFile(join(out, 'inputs.json'), 'utf8'));
@@ -37,4 +43,17 @@ test.describe('black-box planted bugs', () => {
       } finally { await context.close(); }
     });
   }
+
+  test('arrow-only turn-based fixture has no deadkeys or freeze finding', async ({ browser }, testInfo) => {
+    const { explore } = await import(pathToFileURL(resolve(__dirname, '../blackbox/explorer.mjs')).href);
+    const context = await browser.newContext({ viewport: { width: 960, height: 640 } });
+    try {
+      const report = await explore({ page: await context.newPage(), url: 'http://127.0.0.1:3193/game-turns',
+        seconds: 23, seed: 1, out: testInfo.outputPath('turns') });
+      expect(report.status).toBe('completed');
+      expect(report.controls).toBe('responsive');
+      expect(report.findings).toEqual([]);
+      expect(report.frames.some(f => f.label === 'control-probe:ArrowUp')).toBe(true);
+    } finally { await context.close(); }
+  });
 });
