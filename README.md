@@ -110,7 +110,7 @@ Patch Prophet measurements are separate from the main run: the example tuning ga
 
 ## Honest limits
 
-- **Black-box runs cannot guarantee replay.** See [black-box limits](docs/blackbox.md#limits).
+- **Black-box runs cannot guarantee replay.** See [black-box limits](docs/blackbox.md#optional-vision-and-limits).
 
 - **Patch Prophet is a sample.** It uses the first 200 recorded personas, one round each, with paired seeds. Two seeds do not establish statistical significance or human preference. It does not rerun the full 1000-player crowd.
 - **Still not built.** Mechanic Forge, ModForge, SightGuide, SimDojo. Commercial games were not tested. Repro searches recorded rounds.

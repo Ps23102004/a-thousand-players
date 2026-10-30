@@ -50,6 +50,8 @@ The test bed is Market Brawl, Parth's own Three.js + Rapier fighting game, writt
 
 The players are synthetic. The findings are hypotheses to replay and check, not a replacement for real people.
 
+**Black-box mode (for games without a headless port).** The full pipeline needs a deterministic headless port of the game. For any other browser game, `node blackbox/cli.mjs <url>` opens it in Chrome, clicks safe start buttons, sends keys and mouse input from a seed, and reports page errors, crashes, blank or frozen frames and dead controls, with screenshots and an input trace. It finds all 6 bug types planted in an original fixture and stays quiet on a healthy fixture and on a turn-based arrow-key game (11 real-Chrome cases, 120 offline tests). Two independent model reviews found 20+ weaknesses on the first version; the fixed version is what ships. On three open-source shooters the first version produced two false positives and one aborted run, no game bug was found, and I have not yet re-run the fixed version on them. Evidence is observational and not replayable. It is a local command, not part of the hosted app. Details: [docs/blackbox.md](https://github.com/Ps23102004/a-thousand-players/blob/main/docs/blackbox.md).
+
 **Who it is for.** Small game teams with no QA department. The test-bed game, Market Brawl, is Parth's own. This project is MIT licensed, proves each finding with a deterministic replay, and checks the model's claims with code. It is a prototype: the full pipeline runs on Market Brawl, and the crowd harness also ran on two other games of Parth's.
 
 ## How Nemotron is used
