@@ -91,8 +91,8 @@ test("unknown extra fields pass through (the engine stamps an `exp` field)", () 
 test("A11: size cap is 8000 characters, below Node's 16 KB header limit, so an oversized link gets the invalid-link page, not a raw 431", () => {
   // 6000 JSON bytes -> exactly 8000 base64 chars. Pad a rule string to hit that (persona text fields are length-capped).
   const make = (bytes: number) => {
-    const empty = JSON.stringify({ ...base, persona: { ...persona, rules: [{ dist: "" }] } }).length;
-    return encodeToken({ ...base, persona: { ...persona, rules: [{ dist: "x".repeat(bytes - empty) }] } });
+    const empty = JSON.stringify({ ...base, persona: { ...persona, rules: [{ dist: "" } as never] } }).length;
+    return encodeToken({ ...base, persona: { ...persona, rules: [{ dist: "x".repeat(bytes - empty) } as never] } });
   };
   const at = make(6000), over = make(6001), under = make(5999);
   assert.equal(at.length, 8000); assert.equal(under.length, 7999); assert.ok(over.length > 8000);
