@@ -29,3 +29,8 @@ test("the committed Ultra findings show no scraped news or shortcodes after clea
   assert.ok(shown.length >= 10, `expected most precedent links to survive, got ${shown.length}`);
   for (const p of shown) assert.doesNotMatch(p.snippet, /Trump|Duckworth|\[caption|maintenance|Sponsored|^Title:/i);
 });
+
+test("review: a relevant patch-notes snippet with a heading in the middle is kept", () => {
+  const notes = { ...ok, title: "Patch Notes v1.13", snippet: "Developer Comments: the goal is to make Full Block less dominant. ### Fighters. Jab recovery +2 frames." };
+  assert.equal(cleanPrecedent([notes]).length, 1);
+});

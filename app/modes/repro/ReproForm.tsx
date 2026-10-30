@@ -39,7 +39,7 @@ export default function ReproForm() {
             <p className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 12 }}>
               Plain code, not the model, runs the oracle over the recorded rounds. Zero matches does not prove the bug is absent:
               the crowd may never have reached it, and each round keeps at most 220 events.
-              &quot;Triage this&quot; sends one matched round to Nemotron Ultra live (one call, a second only if the first patch does not apply; usually about 5-10 s): it reads a timeline re-simulated from the seed plus the game source and proposes a patch, which code applies to a scratch copy and replays on the same seed.
+              &quot;Triage this&quot; sends one matched round to Nemotron Ultra live (one call, a second only if the first patch does not apply; about 5-10 s in the recorded runs, longer if Ultra is slow): it reads a timeline re-simulated from the seed plus the game source and proposes a patch, which code applies to a scratch copy and replays on the same seed.
             </p>
             {examples.length > 0 && (
               <div className="table-wrap">

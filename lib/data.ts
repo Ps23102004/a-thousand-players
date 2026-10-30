@@ -160,7 +160,7 @@ export function getTriage(): BugView[] {
       title: t?.title, isRealBug: t?.isRealBug, severity: t?.severity, rootCause: t?.rootCause, playerImpact: t?.playerImpact, confidence: t?.confidence,
       patches: t?.patches ?? [],
       verdict: manual && m ? (m[1] === m[2] ? "fixed-by-hand" : "partly-fixed-by-hand") : v?.verdict, fixedRounds: manual && m ? +m[1] : v?.fixedRounds, verifyRounds: manual && m ? +m[2] : v?.rounds, attempts: b.attempts,
-      regression: manual?.regression ?? v?.regression,
+      regression: manual?.regression ?? v?.regression, regressionNote: manual?.regressionNote,
       replay: `/replay?key=${encodeURIComponent(`${rep.p}:${rep.round}`)}&t=${token}`,
     };
   });

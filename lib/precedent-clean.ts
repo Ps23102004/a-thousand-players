@@ -2,7 +2,7 @@
 // and strip leading "Title: ..." / markdown heading noise from the ones we keep.
 export type PrecedentItem = { title: string; url: string; snippet: string };
 
-const JUNK = /###|\[caption|\[\/?[a-z_]+ id=|sorry for the inconvenience|scheduled maintenance|sponsored content|cookie|subscribe to our/i;
+const JUNK = /^\s*###|\[caption|\[\/?[a-z_]+ id=|sorry for the inconvenience|scheduled maintenance|sponsored content|cookie|subscribe to our/i;
 
 export function cleanPrecedent<T extends PrecedentItem>(items: T[]): T[] {
   return items

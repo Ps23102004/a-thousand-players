@@ -68,7 +68,7 @@ function BugCard({ b }: { b: BugView }) {
 
       {r && (
         <div>
-          <div className="label">Regression run · {r.personas} personas · patch fixed {b.fixedRounds} of {b.verifyRounds} replayed rounds</div>
+          <div className="label">Regression run · {r.personas} personas · {b.verdict?.endsWith("by-hand") ? "hand fix" : "patch"} fixed {b.fixedRounds} of {b.verifyRounds} replayed rounds{b.regressionNote ? ` · ${b.regressionNote}` : ""}</div>
           <table className="regress">
             <thead><tr><th scope="col" /><th scope="col">rounds</th><th scope="col">win rate</th><th scope="col">avg round</th><th scope="col">bug rounds</th></tr></thead>
             <tbody><Side name="shipped" s={r.shipped} /><Side name="patched" s={r.patched} /></tbody>

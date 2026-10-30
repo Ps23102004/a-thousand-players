@@ -51,3 +51,9 @@ test("bug1 on /bugs matches PROOF.md: fixed by hand, all 21 flagged rounds repla
   assert.equal(b1.fixedRounds, 21);
   assert.equal(b1.verifyRounds, 21);
 });
+
+test("review: bug1's regression table says which fix it measured", async () => {
+  const { getTriage } = await import("./data");
+  const b1 = getTriage().find((b) => b.id === "bug1")!;
+  assert.match(b1.regressionNote ?? "", /bug2 hand fix only/);
+});

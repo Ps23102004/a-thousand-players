@@ -21,6 +21,7 @@ export interface BugView {
   patches: { file: string; find: string; replace: string }[];
   verdict?: string; fixedRounds?: number; verifyRounds?: number; attempts?: number;
   regression?: { personas: number; shipped: RegressionSide; patched: RegressionSide };
+  regressionNote?: string;
   replay: string;
 }
 export interface RegressionSide { rounds: number; winRate: number; avgT: number; bugRounds: number }
