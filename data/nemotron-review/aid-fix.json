@@ -1,3 +1,234 @@
 {
-  "placeholder": true
+  "placeholder": false,
+  "source": "model",
+  "modelSuper": "nvidia/nemotron-3-super-120b-a12b",
+  "modelUltra": "nvidia/Nemotron-3-Ultra-550b-a55b",
+  "generatedAt": "2026-10-30T00:49:25.964Z",
+  "aids": [
+    {
+      "aidIndex": 0,
+      "title": "Master Your First Combo",
+      "originalText": "Tap J four times quickly: jab → cross → hook → uppercut.",
+      "computedFacts": {
+        "aidIndex": 0,
+        "title": "Master Your First Combo",
+        "archetype": "casual",
+        "overrideKeys": [
+          "anim.JAB.damage",
+          "anim.JAB.startup",
+          "anim.JAB.active",
+          "anim.JAB.recovery",
+          "anim.JAB.hitStop",
+          "anim.JAB.reach",
+          "anim.JAB.drive"
+        ],
+        "overrides": {
+          "anim.JAB.damage": 15,
+          "anim.JAB.startup": 0.05,
+          "anim.JAB.active": 0.12,
+          "anim.JAB.recovery": 0.22,
+          "anim.JAB.hitStop": 4,
+          "anim.JAB.reach": 1.2,
+          "anim.JAB.drive": 1.5
+        },
+        "facts": {
+          "anim.JAB.damage": 15,
+          "anim.JAB.startup": 0.05,
+          "anim.JAB.active": 0.12,
+          "anim.JAB.recovery": 0.22,
+          "anim.JAB.hitStop": 4,
+          "anim.JAB.reach": 1.2,
+          "anim.JAB.drive": 1.5
+        },
+        "allowedNumbers": [
+          1,
+          2,
+          3,
+          4,
+          99,
+          0.45,
+          0.4,
+          0.12,
+          1.6,
+          1.25,
+          0.8,
+          2.4,
+          0,
+          8,
+          2000,
+          64,
+          12,
+          17,
+          47,
+          22,
+          5173,
+          23,
+          48,
+          100,
+          15,
+          0.05,
+          0.22,
+          1.2,
+          1.5
+        ]
+      },
+      "rewrite": "Tap J four times quickly: jab → cross → hook → uppercut.",
+      "codeCheck": {
+        "valid": true,
+        "reasons": []
+      },
+      "reviewerVerdict": {
+        "aidIndex": 0,
+        "verdict": "ACCEPT",
+        "reason": "Accurate, uses official controls and correct numbers."
+      },
+      "retries": 1,
+      "initialRewrite": "Tap J four times fast: jab → cross → hook → uppercut → hook → uppercut.",
+      "initialCodeCheck": {
+        "valid": true,
+        "reasons": []
+      },
+      "initialReviewerVerdict": {
+        "aidIndex": 0,
+        "verdict": "REJECT",
+        "reason": "Proposed rewrite adds two extra attacks (hook → uppercut) not present in original text; original specifies only four taps (jab → cross → hook → uppercut)."
+      }
+    },
+    {
+      "aidIndex": 1,
+      "title": "Practice Sidestepping to Create Openings",
+      "originalText": "Press Q or V to sidestep deeper or nearer to the screen and find your opening.",
+      "computedFacts": {
+        "aidIndex": 1,
+        "title": "Practice Sidestepping to Create Openings",
+        "archetype": "casual",
+        "overrideKeys": [
+          "anim.JAB.reach"
+        ],
+        "overrides": {
+          "anim.JAB.reach": 1.3
+        },
+        "facts": {
+          "anim.JAB.reach": 1.3
+        },
+        "allowedNumbers": [
+          1,
+          2,
+          3,
+          4,
+          99,
+          0.45,
+          0.4,
+          0.12,
+          1.6,
+          1.25,
+          0.8,
+          2.4,
+          0,
+          8,
+          2000,
+          64,
+          12,
+          17,
+          47,
+          22,
+          5173,
+          23,
+          48,
+          100,
+          1.3
+        ]
+      },
+      "rewrite": "Press Q or V to sidestep deeper or nearer to the screen and create openings.",
+      "codeCheck": {
+        "valid": true,
+        "reasons": []
+      },
+      "reviewerVerdict": {
+        "aidIndex": 0,
+        "verdict": "ACCEPT",
+        "reason": "Accurate, uses official controls and correct numbers."
+      },
+      "retries": 1,
+      "initialRewrite": "Tap Q or V to sidestep closer or farther from the camera — then strike with jabs that now reach further to catch evasive foes mid-move.",
+      "initialCodeCheck": {
+        "valid": true,
+        "reasons": []
+      },
+      "initialReviewerVerdict": {
+        "aidIndex": 1,
+        "verdict": "REJECT",
+        "reason": "Proposed rewrite adds claim 'jabs that now reach further' not in original text; original only describes sidestep input and finding an opening."
+      }
+    },
+    {
+      "aidIndex": 2,
+      "title": "Learn to Guard Effectively",
+      "originalText": "Hold away from your rival to guard and reduce incoming damage by 80%.",
+      "computedFacts": {
+        "aidIndex": 2,
+        "title": "Learn to Guard Effectively",
+        "archetype": "casual",
+        "overrideKeys": [
+          "rules.guardDamageMultiplier"
+        ],
+        "overrides": {
+          "rules.guardDamageMultiplier": 0.15
+        },
+        "facts": {
+          "rules.guardDamageMultiplier": 0.15,
+          "rules.guardDamageMultiplier.percentage": 15,
+          "rules.guardDamageMultiplier.damageTakenPct": 15,
+          "rules.guardDamageMultiplier.damageReductionPct": 85,
+          "rules.guardDamageMultiplier.complementPct": 85
+        },
+        "allowedNumbers": [
+          1,
+          2,
+          3,
+          4,
+          99,
+          0.45,
+          0.4,
+          0.12,
+          1.6,
+          1.25,
+          0.8,
+          2.4,
+          0,
+          8,
+          2000,
+          64,
+          12,
+          17,
+          47,
+          22,
+          5173,
+          23,
+          48,
+          100,
+          0.15,
+          15,
+          85,
+          0.85
+        ]
+      },
+      "rewrite": "Hold A or D away from your rival to guard and take only 15% of incoming damage.",
+      "codeCheck": {
+        "valid": true,
+        "reasons": []
+      },
+      "reviewerVerdict": {
+        "aidIndex": 2,
+        "verdict": "ACCEPT",
+        "reason": "Accurate: guard damage multiplier 0.15 equals 15% damage taken (85% reduction); uses official controls A/D for movement."
+      },
+      "retries": 0
+    }
+  ],
+  "rejections": {
+    "codeRejections": 0,
+    "reviewerRejections": 2,
+    "totalRetries": 2
+  }
 }

@@ -1,3 +1,120 @@
 {
-  "placeholder": true
+  "placeholder": false,
+  "source": "model",
+  "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+  "generatedAt": "2026-10-30T00:48:53.226Z",
+  "verdicts": [
+    {
+      "claimIndex": 1,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/ai.js:35 uses `dist>1.62` for ADVANCE while the design doc defines far as >2.2 and mid as 1.3-2.2, making 1.62 fall inside the mid band instead of far.",
+      "supported": true,
+      "geminiVerdict": "REAL_DRIFT",
+      "agreesWithGemini": true
+    },
+    {
+      "claimIndex": 2,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/ai.js:70 checks for states `['HIT_STUN','KNOCKDOWN','BEING_THROWN','GRABBED','GRAB']` which are not in the design doc's rival phase list `idle|startup|active|recovery|down|stunned`, and omits `idle` and `down`.",
+      "supported": true,
+      "geminiVerdict": "REAL_DRIFT",
+      "agreesWithGemini": true
+    },
+    {
+      "claimIndex": 3,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/ai.js:48 returns action types like `FEINT`, `THROW_PERSON`, `ROUNDHOUSE`, `CROSS`, `JAB`, `KICK_PROP`, `THROW_PROP` which are not in the design doc's action list `advance retreat block punch kick low_punch sweep parry grab jump prop wait` and uses uppercase vs lowercase naming.",
+      "supported": true,
+      "geminiVerdict": "REAL_DRIFT",
+      "agreesWithGemini": true
+    },
+    {
+      "claimIndex": 4,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/ai.js:60 includes `FEINT` with weight 1 in the neutral move options but `FEINT` is not handled in player input processing or animation system, making it a non-functional action that contradicts the claim of working feints.",
+      "supported": true,
+      "geminiVerdict": "NOT_DRIFT",
+      "agreesWithGemini": false
+    },
+    {
+      "claimIndex": 5,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/ai.js:13 initializes `observedMoves` as an empty array but the detection logic at line 54 uses `slice(-4)` (last 4 moves) not 8 as claimed in the design doc, and the history limit is 10 entries not 8.",
+      "supported": true,
+      "geminiVerdict": "NOT_DRIFT",
+      "agreesWithGemini": false
+    },
+    {
+      "claimIndex": 6,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/ai.js:53 uses `m.attacksSinceKick>=2` to force a kick after two non-kick attacks, but the design doc claims 'kick scheduling prevents endless punch chains' implying a more sophisticated scheduling than a simple counter threshold.",
+      "supported": true,
+      "geminiVerdict": "NOT_DRIFT",
+      "agreesWithGemini": false
+    },
+    {
+      "claimIndex": 7,
+      "verdict": "DOC_VAGUE",
+      "reason": "The design doc says 'throws have a cooldown' without specifying the mechanism, and the code's use of `rival.grappleCooldown` and `m.nextGrab` at line 32 is a reasonable implementation of that vague requirement.",
+      "supported": true,
+      "geminiVerdict": "DOC_VAGUE",
+      "agreesWithGemini": true
+    },
+    {
+      "claimIndex": 8,
+      "verdict": "REAL_DRIFT",
+      "reason": "The code at game/src/character.js:11 defines distinct `kai` and `rook` profiles with different styles but the AI in game/src/ai.js uses the same `decideRivalAction` for both with identical move options, contradicting the claim that both use punches and kicks in differentiated ways.",
+      "supported": true,
+      "geminiVerdict": "NOT_DRIFT",
+      "agreesWithGemini": false
+    }
+  ],
+  "agreement": {
+    "same": 4,
+    "different": 4,
+    "byClaim": {
+      "1": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "REAL_DRIFT",
+        "agree": true
+      },
+      "2": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "REAL_DRIFT",
+        "agree": true
+      },
+      "3": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "REAL_DRIFT",
+        "agree": true
+      },
+      "4": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "NOT_DRIFT",
+        "agree": false
+      },
+      "5": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "NOT_DRIFT",
+        "agree": false
+      },
+      "6": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "NOT_DRIFT",
+        "agree": false
+      },
+      "7": {
+        "nemotron": "DOC_VAGUE",
+        "gemini": "DOC_VAGUE",
+        "agree": true
+      },
+      "8": {
+        "nemotron": "REAL_DRIFT",
+        "gemini": "NOT_DRIFT",
+        "agree": false
+      }
+    },
+    "cohensKappa": 0.2381
+  },
+  "unsupportedCount": 0
 }
