@@ -70,7 +70,7 @@ The new test was run before implementation and failed with `ERR_MODULE_NOT_FOUND
 | `npm run engine:test` | `16 seeds x2 runs, mismatches=0, 24.6 rounds/s, 19k ticks/s`. |
 | `npm run dev -- -p 3141` | Blocked: `listen EPERM 0.0.0.0:3141`. No server was started by this session. |
 | `NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules E2E_BASE_URL=http://localhost:3141 node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs e2e/prophet.spec.cjs` | Attempted new spec: 3 fail before feature assertions because Chrome launch/socket access is blocked. |
-| `env -u E2E_REAL NODE_PATH=/Users/parthsingh/.local/lib/node_modules/@playwright/cli/node_modules E2E_BASE_URL=http://localhost:3141 node /Users/parthsingh/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs` | Attempted full browser suite: 83 fail, 3 skipped, 0 pass under the same restrictions. No browser pass is claimed. |
+| `env -u E2E_REAL NODE_PATH=~/.local/lib/node_modules/@playwright/cli/node_modules E2E_BASE_URL=http://localhost:3141 node ~/.local/lib/node_modules/@playwright/cli/node_modules/playwright/cli.js test -c e2e/playwright.config.cjs` | Attempted full browser suite: 83 fail, 3 skipped, 0 pass under the same restrictions. No browser pass is claimed. |
 | `NEXT_FONT_GOOGLE_MOCKED_RESPONSES=/private/tmp/prophet-font-mock.cjs npm run build -- --webpack` | Initial empty-CSS mock failed (`Font loaders must return one or more @font-face's`); corrected local-font CSS mock builds successfully. Google font requests are mocked to avoid network access. Build marks `/modes/balance` static and `/api/prophet` dynamic. Real font rendering is not verified. |
 | Production trace assertion (Node, below) | All 11 required-file checks pass. |
 | `git diff --check` | Pass. |
@@ -88,18 +88,18 @@ These commands supported the work; commands repeated for targeted verification a
 | --- | --- |
 | `pwd && rg --files -g 'AGENTS.md' -g 'README.md' -g 'e2e/README.md' -g '!node_modules' -g '!data'` | Confirmed worktree and instruction/readme paths. |
 | `cat AGENTS.md README.md e2e/README.md` | Read project instructions and offline/browser test procedures first. |
-| `cat /Users/parthsingh/.codex/skills/capabilities/SKILL.md /Users/parthsingh/.agents/CAPABILITIES/INDEX.md` | Read required capability routing. |
-| `rg -n 'prophet\|sparring\|Thousand' /Users/parthsingh/.codex/memories/MEMORY.md` | No relevant hit. |
-| `cat` on canonical Engineering Brain `ROUTING-CONSTITUTION.md`, `TOOL-ROUTING.md`, `MODEL-ROUTING.md`, `HARNESS-INTEGRATION.md`, `HEALTH-CHECK.md`, and capability `coding-workflow-and-review.md` | Read focused local engineering policy. No local model service was used. |
+| `cat` on the capability routing notes (local notes, not in the repo) | Read required capability routing. |
+| `rg` over the local memory file (local notes, not in the repo) | No relevant hit. |
+| `cat` on local engineering policy notes (local notes, not in the repo) | Read focused local engineering policy. No local model service was used. |
 | `git status --short && git branch --show-current && cat package.json next.config.mjs && cat app/api/balance/route.ts app/modes/balance/*` | Initially clean branch `p1-prophet`; learned test scripts, tracing and current Balance flow. Repeated targeted reads without edits. |
 | `cat app/api/triage/route.ts lib/triage-live.ts engine/crowd.mjs` | Read triage's child/slot/timeout patterns and crowd CLI. |
-| `cat /Users/parthsingh/.codex/skills/graphify/SKILL.md` and capability workflow file | Read navigation guidance; GitNexus repository inventory had no project index. No graph/model extraction was run. |
+| `cat` on the graphify skill and capability workflow file (local notes, not in the repo) | Read navigation guidance; GitNexus repository inventory had no project index. No graph/model extraction was run. |
 | `rg --files node_modules/next/dist/docs` filtered for route-handlers/server-and-client/next-config | Located installed Next documentation. |
 | `cat lib/ai-route.ts ai/balance.ts game/src/tuning.js e2e/playwright.config.cjs` and `cat engine/crowd.mjs ai/balance.ts lib/ai-route.ts` | Inspected route guards/config; `ai/balance.ts` does not exist, so targeted lookup located `ai/nl.ts`. |
 | `cat data/samples/balance.json data/patches/sweep-nerf.json data/run-main/meta.json` | Established exact example tuning and recorded-build overrides. |
 | `cat components/AiForm.tsx` | Read existing translation form and cache notice handling. |
 | `cat e2e/forms.spec.cjs e2e/playwright.config.cjs` | Read selectors, fake/real-call boundary and port override. |
-| `cat /Users/parthsingh/.codex/skills/test-driven-development/SKILL.md` | Applied test-first workflow. |
+| `cat` on the test-driven-development skill (local notes, not in the repo) | Applied test-first workflow. |
 | `cat lib/rate-limit.ts lib/tuning.ts` | Read reusable limiter; `lib/tuning.ts` does not exist. |
 | `rg -n 'recordedTuning\|validateTuning\|TuningSpec\|interface Run\|interface Persona' lib ai game/src/tuning.js` | Located shared allowlist, recorded tuning and types. |
 | `cat node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md` | Read installed route-handler conventions before coding. |

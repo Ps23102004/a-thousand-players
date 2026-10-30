@@ -133,3 +133,16 @@ test("exploit table has landed-hits column and working replay links", async ({ p
   test.info().annotations.push({ type: "exploit-badge", description: badge });
   expect(w.problems()).toEqual([]);
 });
+
+test("audit 2026-10-30: hero claims only what is measured, offers next steps, and the footer says where typed text goes", async ({ page }) => {
+  await page.goto("/");
+  const lede = page.locator(".lede").first();
+  await expect(lede).not.toContainText("every log");
+  await expect(lede).toContainText("summary");
+  await expect(page.getByRole("link", { name: "See the 4 bugs and their proof" })).toHaveAttribute("href", "/bugs");
+  await expect(page.getByRole("link", { name: "Try a live model call" })).toHaveAttribute("href", "/modes/repro");
+  await expect(page.locator(".site-footer")).toContainText("Nebius Token Factory");
+  await expect(page.locator("#findings")).not.toContainText("Trump");
+  await page.goto("/modes/repro");
+  await expect(page.locator("body")).not.toContainText("20-40 s");
+});

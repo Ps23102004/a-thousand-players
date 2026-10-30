@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@dimforge/rapier3d-compat": "^0.14.0",
     "three": "^0.170.0",

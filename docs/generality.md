@@ -10,10 +10,9 @@ Run on 2026-10-28. Two games besides Market Brawl, both the user's own, both dri
 |---|---|---|---|---|
 | **Homeground**: longboard downhill on your own street, built from map data | GHFS clone `Ps23102004/homeground` (MIT) | TypeScript, Three.js, Express tile server | Easy. The board physics (`src/game/board.ts`, `collider.ts`) is already three.js-free with a fixed 120 Hz substep and a headless test. No randomness. Real levels need the live map tile server, so the adapter builds seeded synthetic tiles in the same format as the game's own physics test. | yes |
 | **Clean Getaway**: 9-seat heist, investigation, arrest/chase, trial | `~/Developer/clean-getaway` (no LICENSE file, so referenced by path, nothing copied) | TypeScript, pure state-machine engine, Netlify functions | Easy. `createGame/startGame/act/tick(state, now)` takes explicit time, has its own seeded RNG and its own bots. Only nondeterminism: `crypto.randomUUID()` for player ids, which the adapter seeds. | yes |
-| **Bully remake** | GHFS clone `Ps23102004/bully-remake-private`; `~/Developer/bully-remake` is a symlink to the unmounted external drive "Project Dev" | Unreal Engine 5.8, C++ | **Not testable here.** Not a web project. It needs the UE 5.8 editor and assets imported from an owned copy of *Bully: Scholarship Edition*. A headless UE build could run it (`-nullrhi`, automation), but that is a different adapter: C++ input injection and a game-thread hash. | no |
-| **GTA 5** | `~/Developer/playgta5-mods` (launcher patch + local mirror server for a third-party browser streaming site; the mirror itself is not on disk) | Commercial game | **Not testable.** The real GTA V is a commercial console/PC game. It cannot be run or driven here. Only a browser remake or clone could be, and none is on this machine. | no |
-| neon-underground, dynamo games-puzzles | symlinks into the unmounted "Project Dev" drive | unknown | Not reachable. Mount the drive to survey them. | no |
 | Secret-knock lock sim | GHFS clone | Three.js | A simulation, not a game. Skipped. | no |
+
+The crowd harness was only run on games Parth owns or that are MIT licensed. Commercial games were not tested.
 
 Both picks are a long way from a fighting game. One is continuous vehicle physics with no opponent. The other
 is a discrete, timed, multi-seat social game with no physics at all.
@@ -129,9 +128,9 @@ the game. The cost rises steeply when:
 
 - the sim is tangled with rendering or the DOM (Market Brawl needed `KeyTarget`, window shims, and Three.js in Node);
 - the game uses `Math.random`/`Date.now` all over (patch them, as `engine/sim.mjs` does);
-- the game is native, such as the Unreal Bully remake. That needs an in-engine harness (UE automation plus
+- the game is native, such as an Unreal Engine game. That needs an in-engine harness (UE automation plus
   `-nullrhi`, an input-injection component, and a state hash on the game thread). It is days, not hours, and
-  needs the UE editor and the owned game assets on the machine;
+  needs the UE editor and the game's assets on the machine;
 - there is no built-in bot and the game is strategic. Then "competent play" needs a model.
 
 ## Is it general, or only Market Brawl?

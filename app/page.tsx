@@ -1,3 +1,4 @@
+import Link from "next/link";
 import CrowdGrid from "@/components/CrowdGrid";
 import SourceTag from "@/components/SourceTag";
 import FindingCard from "@/components/FindingCard";
@@ -18,8 +19,12 @@ export default function Home() {
         <SourceTag recorded="1000 players, 2,831 rounds, Ultra report" />
         <h1 id="hero-title" style={{ marginTop: 14 }}>A crowd of <em>synthetic players</em> breaks your game so you can fix it.</h1>
         <p className="lede">
-          NVIDIA Nemotron models write the players, Market Brawl runs their matches headless, and Nemotron Ultra reads every log at once.
+          NVIDIA Nemotron models write the players, Market Brawl runs their matches headless, and Nemotron Ultra reads a summary of all 2,831 rounds in one call.
           Every finding below comes with a seed you can replay in the real game.
+        </p>
+        <p style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 16 }}>
+          <Link className="chip" href="/bugs">See the 4 bugs and their proof</Link>
+          <Link className="chip" href="/modes/repro">Try a live model call</Link>
         </p>
         <div className="counters">
           <div className="counter"><div className="counter-value">{s.players.toLocaleString("en-US")}</div><div className="counter-label">players</div></div>

@@ -3,7 +3,7 @@
 **Date:** 2026-10-20  
 **Status:** Draft for Builder Check & User Approval  
 **Project:** CSCI 310 GUI & Game — Client-Side Web 3D Single Player Game  
-**Target Repository:** `/Users/parthsingh/Documents/Omi/AI-Brain-Vault/02 - University/Csci 310 - GUI/market-brawl`
+**Target Repository:** the original course project folder (local notes, not in the repo); copied here as `game/`
 
 ---
 

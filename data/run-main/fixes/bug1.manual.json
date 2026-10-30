@@ -1,13 +1,13 @@
 {
  "bug": "bug1",
- "method": "no fix of its own; the bug2 hand fix (mount release) also clears some bug1 rounds",
+ "method": "by hand after Ultra's patch fixed 0 of 8: the bug2 mount-release fix plus grabReleaseFix and getupCrateFix together",
  "changes": [
-  "game/src/ground.js: releaseSpot() avoids crates (setMountObstacles registry)",
-  "game/src/ground.js: sleep()+wakeUp() on both fighters at release",
-  "game/src/main.js, engine/sim.mjs: register props as obstacles"
+  "game/src/ground.js: releaseSpot() avoids crates; sleep()+wakeUp() on both fighters at release (mountReleaseFix)",
+  "game/src grab release: grabReleaseFix (rules flag, default on)",
+  "game/src getup beside a crate: getupCrateFix clears stale contacts (rules flag, default on)"
  ],
  "replay": {
-  "bug1": "5/8 clean"
+  "bug1": "21/21 clean (node scripts/proof-table.mjs: every flagged bug1 round, shipped build)"
  },
  "determinism": "mismatches=0",
  "regression": {
@@ -24,5 +24,6 @@
    "avgT": 12.06,
    "bugRounds": 1
   }
- }
+ },
+ "regressionNote": "regression block measured with the bug2 hand fix only (before grabReleaseFix and getupCrateFix)"
 }

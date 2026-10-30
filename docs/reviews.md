@@ -2,7 +2,7 @@
 
 This is cited retrieval with attribution, not training, fine-tuning, or a dataset claim. A short public review quote can suggest a design hypothesis. It does not measure what a player population likes, prove that a proposed change works, or turn the simulated crowd into human playtesters.
 
-`data/reviews/corpus.json` is committed as an empty valid corpus with `"placeholder": true`. There are no collected public review quotes in this change. The UI counts the actual entries and says collection is pending. Invented quotes in tests are fixtures only; they are never loaded as production evidence.
+`data/reviews/corpus.json` holds 12 collected entries (`"placeholder": false`): IGN 4, Reddit 3, GameSpot 3, Steam 2. Each quote is at most 300 characters and keeps its source URL. The UI counts the actual entries. Invented quotes in tests are fixtures only; they are never loaded as production evidence.
 
 ## Collect or convert reviews
 

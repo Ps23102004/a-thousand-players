@@ -6,7 +6,7 @@ Written after building on Token Factory for the Nebius x NVIDIA hackathon. The o
 
 Tools covered: (a) Nebius Token Factory, (b) Nemotron Nano, (c) Nemotron Super, (d) Nemotron Super-VL, (e) Nemotron Ultra. A short Tavily note is at the end (Tavily is not a Nebius or NVIDIA tool, but the app calls it at runtime).
 
-**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](../ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](../data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing.
+**Where the numbers come from.** Each number names its source file. Latency and throughput were measured on 2026-10-28 from one machine and vary with load ([`ai/README.md`](https://github.com/Ps23102004/a-thousand-players/blob/main/ai/README.md)). Token counts for the main run are in [`data/run-main/usage.json`](https://github.com/Ps23102004/a-thousand-players/blob/main/data/run-main/usage.json). Calibration numbers are in [`docs/calibration.md`](https://github.com/Ps23102004/a-thousand-players/blob/main/docs/calibration.md). The onboarding sections are built only from the build log, `ai/README.md`, `docs/calibration.md` and `git log` timestamps. Where none of them records a time or an event, the text says so instead of guessing.
 
 Model ids as sent to Token Factory (`ai/models.ts`): `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3.5-Super-VL`, `nvidia/Nemotron-3-Ultra-550b-a55b`.
 
@@ -55,7 +55,7 @@ Every model call in the project: persona generation, the crowd report, bug triag
 
 ### 5. Would we build with it again?
 
-Yes. We would build this again if we get the chance. We can improve it a lot, and it has a lot of potential. The evidence-based reasons: one OpenAI-compatible client served four models including image input, and one 220K-token call replaced a chunked pipeline. What would stop us from depending on it for a paid product: no price table we could verify, unpublished token-per-minute limits, and no clear statement on structured outputs.
+Yes. The evidence-based reasons: one OpenAI-compatible client served four models including image input, and one 220K-token call replaced a chunked pipeline. What would stop us from depending on it for a paid product: no price table we could verify, unpublished token-per-minute limits, and no clear statement on structured outputs.
 
 ---
 
@@ -155,7 +155,7 @@ Yes, we would build with it again, as a description aid next to a deterministic 
 ### 1. What we used it for
 
 - **The crowd report.** One call read a summary of all 1000 players and 2,831 rounds (220,334 prompt tokens, 4,439 out) and returned 8 findings, each with structured claims and seeds (`data/run-main/findings.json`). Settings: thinking off, temperature 0.2, `max_tokens` 12000, answer in one fenced JSON block (`ai/README.md`).
-- **Bug triage.** Ultra reads a 10 Hz timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a patch. In the hosted app, **Triage this (Ultra)** makes one call of about 27K prompt tokens (up to two calls per click). The Ultra call took 2.6 to 6.0 s in the three recorded live runs and the whole click 4.9 to 7.1 s (`docs/evidence/triage-live/`); the page itself tells users to expect about 20-40 s. Code applies the patch to a temp copy and replays the seed; the replay decides the verdict (`README.md`).
+- **Bug triage.** Ultra reads a 10 Hz timeline re-simulated from the seed plus the relevant game source, and proposes a root cause and a patch. In the hosted app, **Triage this (Ultra)** makes one call of about 27K prompt tokens (up to two calls per click). The Ultra call took 2.6 to 6.0 s in the three recorded live runs and the whole click 4.9 to 7.1 s (`docs/evidence/triage-live/`); the page says about 5-10 s. Code applies the patch to a temp copy and replays the seed; the replay decides the verdict (`README.md`).
 
 ### 2. What worked
 

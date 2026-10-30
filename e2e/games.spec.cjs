@@ -14,8 +14,9 @@ test("games page loads clean with all three games", async ({ page }) => {
     await expect(card).toContainText(/replays \d+ of \d+ match/);
   }
   await expect(page.locator('article[data-game="homeground"]')).toContainText("seed 100135");
-  await expect(page.getByText("Bully remake: not testable here")).toBeVisible();
-  await expect(page.getByText("GTA V: not testable")).toBeVisible();
+  await expect(page.getByText("Commercial games: not tested")).toBeVisible();
+  await expect(page.locator("main")).not.toContainText("GTA");
+  await expect(page.locator("main")).not.toContainText("Bully");
   await page.waitForLoadState("networkidle").catch(() => {});
   await shot(page, "route-games");
   expect(w.problems(), "console errors / failed requests").toEqual([]);

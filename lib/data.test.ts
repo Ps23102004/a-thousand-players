@@ -43,3 +43,11 @@ test("findRound: matching key + token still resolves; no key falls back to seed"
   assert.equal(keyOnly.mismatch ?? false, false, "key without a token is not a mismatch");
   assert.equal(keyOnly.run?.seed, keyRun.seed);
 });
+
+test("bug1 on /bugs matches PROOF.md: fixed by hand, all 21 flagged rounds replay clean on the shipped build", async () => {
+  const { getTriage } = await import("./data");
+  const b1 = getTriage().find((b) => b.id === "bug1")!;
+  assert.equal(b1.verdict, "fixed-by-hand");
+  assert.equal(b1.fixedRounds, 21);
+  assert.equal(b1.verifyRounds, 21);
+});

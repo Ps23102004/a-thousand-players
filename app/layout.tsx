@@ -49,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="wrap">
             <span>A Thousand Players. Open source, MIT license.</span>
             <span>Test bed: Market Brawl. Models: NVIDIA Nemotron on Nebius Token Factory.</span>
+            <span>Text you type in a live mode is sent to Nebius Token Factory (and Repro precedent search to Tavily). The app does not save it.</span>
           </div>
         </footer>
       </body>

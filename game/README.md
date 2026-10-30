@@ -131,19 +131,13 @@ No deployment is configured in this checkout. The old README's demo URL was not 
 2. Publish only the contents of dist/ in a dedicated game repository or a Pages deployment artifact. All paths are relative, so a project subdirectory works.
 3. Enable GitHub Pages for that repository / deployment branch.
 4. Open the actual published URL and test loading, movement, damage and restart.
-5. Add that verified URL to a reserved project block on your Project 1 personal work page.
-
-The containing Git repository is the full personal Obsidian vault. **Do not publish or push the vault to host this game.** Use dist/ or the submission archive, which contain only the game.
 
 ## Assets and assistance
 
-Runtime models and arena are original code-generated geometry. `assets/art/midnight-circuit.png` is AI-generated promotional concept art used in the presentation and help panel; it is not a gameplay screenshot. Older imported files (`assets/models`, `assets/textures`) were never loaded by the game. Their licensing was not established, so they are not part of this repository and were removed from its history before publication; the course submission is the only place they may remain.
+Runtime models and arena are original code-generated geometry. `assets/art/midnight-circuit.png` is AI-generated promotional concept art used in the presentation and help panel; it is not a gameplay screenshot. Older imported files (`assets/models`, `assets/textures`) were never loaded by the game. Their licensing was not established, so they are not part of this repository and were removed from its history before publication.
 
-Three.js (MIT) and Rapier (Apache-2.0) license notices are preserved under vendor/. Google Fonts are optional externally hosted typography. AI assistance was used for implementation, debugging, visual design, tests and concept art. Review the code and adapt the developer notebook to describe your own learning and observations honestly.
+Three.js (MIT) and Rapier (Apache-2.0) license notices are preserved under vendor/. Google Fonts are optional externally hosted typography. AI assistance was used for implementation, debugging, visual design, tests and concept art.
 
-## Course submission
+## Course origin
 
-- Code: submit the game source and/or `output/Market-Brawl-Submission.zip` to Brightspace as required.
-- Presentation: `CSCI310_Project2_Slides.html`, 8 minutes plus 2 minutes of Q&A.
-- Notebook: `Development_Notebook_Project2.md` is a draft for your review and transfer to DocForge. It has not been submitted.
-- Hosting and portfolio link: publish and verify separately using the steps above.
+Market Brawl was written for CSCI 310, Project 2. The course slides, development notebook and submission archive are not part of this repository.

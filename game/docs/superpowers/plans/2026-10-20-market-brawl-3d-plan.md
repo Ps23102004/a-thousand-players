@@ -8,7 +8,7 @@
 
 **Tech Stack:** Three.js (r170), `@dimforge/rapier3d-compat` (v0.14.0), Web Audio API, Vanilla ES Modules, Vite/static web server compatible.
 
-**Spec:** `/Users/parthsingh/Documents/Omi/AI-Brain-Vault/02 - University/Csci 310 - GUI/market-brawl/docs/superpowers/specs/2026-10-20-market-brawl-3d-design.md`
+**Spec:** `game/docs/superpowers/specs/2026-10-20-market-brawl-3d-design.md`
 
 ## Global Constraints
 - **Client-Side Only:** 100% runnable in modern browser on GitHub Pages; no backend server or Node runtime in production.

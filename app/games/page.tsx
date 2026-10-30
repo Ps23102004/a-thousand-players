@@ -100,8 +100,7 @@ export default function GamesPage() {
 
       <h2 style={{ fontSize: "1.4rem", margin: "32px 0 12px" }}>Honest limits</h2>
       <ul className="limits">
-        <li><strong>Bully remake: not testable here</strong>Unreal Engine 5.8 and C++, not a web project. It needs the UE editor and assets from an owned copy of the original game. A headless UE build could run it, but that is a different adapter (input injection and a state hash on the game thread): days, not hours.</li>
-        <li><strong>GTA V: not testable</strong>A commercial PC and console game. It cannot be run or driven headless here, and no browser clone is on this machine.</li>
+        <li><strong>Commercial games: not tested</strong>The crowd harness was only run on games Parth owns or that are MIT licensed. Native engines (Unreal, Unity) would need an in-engine harness; that is future work.</li>
         <li><strong>Persona rules are fighting-game rules</strong>The Nemotron-written rules (distance, rival, punch) were dropped for both games. Archetype, skill and reaction time carried over. Rewriting rules per game would need a model call per game; not done.</li>
         <li><strong>Bug yield depends on the game</strong>One real design gap in Homeground, none in Clean Getaway. Market Brawl has the most because two physics bodies collide in real time, which is where a crowd earns its keep.</li>
       </ul>
