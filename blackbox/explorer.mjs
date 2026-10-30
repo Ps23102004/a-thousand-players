@@ -262,17 +262,23 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
     // Existing strict resume/restoration is separate: it may need the same Resume again.
     const clicked = recovery ? new Set() : startupLabels;
     let sentClicks = 0;
+    // The same label on a different screen is a different button (warzone: character select and loadout both say DEPLOY).
+    // Without a way to read the page the signature is empty and behaviour is unchanged.
+    const screenSignature = async () => {
+      try { return String(await bounded(() => page.evaluate(() => (document.body?.innerText ?? '').replace(/\s+/g, ' ').slice(0, 400))) ?? ''); } catch (error) { if (error === deadlineError || error === restorationError) throw error; return ''; }
+    };
     for (let round = 0; round < maxRounds && (recovery || startupRounds < 8) && !crashed && !budgetExpired && now() < deadline - 5; round++) {
       if (menuWalk && hasGameplayEvidence()) break;
       const buttons = page.locator(menuWalk
         ? 'button, a, [role="button"], [role="link"], input[type="button"], input[type="submit"], [onclick], li, div'
         : 'button, a[href], [role="button"], [role="link"], input[type="button"], input[type="submit"]');
+      const sig = page.evaluate ? await screenSignature() : '';
       const candidates = [];
       for (let i = 0, n = Math.min(await bounded(() => buttons.count()), 100); i < n && !crashed; i++) {
         const button = buttons.nth(i);
         if (!await bounded(() => button.isVisible()) || !await bounded(() => button.isEnabled())) continue;
         const text = (await bounded(() => button.textContent()) || await bounded(() => button.getAttribute('value')) || await bounded(() => button.getAttribute('aria-label')) || '').trim();
-        if (!(menuWalk ? isMenuWalkLabel(text) : isSafeStartLabel(text)) || clicked.has(labelKey(text))) continue;
+        if (!(menuWalk ? isMenuWalkLabel(text) : isSafeStartLabel(text)) || clicked.has(`${labelKey(text)}|${sig}`)) continue;
         const destination = button.evaluate ? await bounded(() => button.evaluate(node => ({
           href: node.href ?? node.closest('a[href]')?.href ?? node.getAttribute('href'),
           target: node.closest('[target]')?.getAttribute('target'), download: node.closest('[download]')?.getAttribute('download'),
@@ -289,9 +295,10 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       if (!candidates.length) break;
       if (menuWalk) candidates.sort((a, b) => a.priority - b.priority);
       const { button, text } = candidates[0];
+      const clickedKey = `${labelKey(text)}|${sig}`;
       if (!recovery) startupRounds++;
       const click = { t: t(), text, status: 'attempted' }; startupClicks.push(click);
-      clicked.add(labelKey(text));
+      clicked.add(clickedKey);
       try {
         await send('startup-click', { text }, () => button.click({ timeout: 1500 }));
         click.status = 'sent'; sentClicks++;

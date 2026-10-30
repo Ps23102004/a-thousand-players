@@ -910,3 +910,27 @@ test('real games 2026-10-30 (warzone): a start button that appears after load is
   assert.ok(started, 'PLAY was pressed once it appeared');
   assert.ok(report.startupClicks.some(c => c.text === 'PLAY' && c.status === 'sent' && c.t > 3000));
 });
+
+test('warzone: the same label on a different screen is pressed again (two DEPLOY buttons in a row), but not twice on one screen', async () => {
+  let step = 0, clicks = [];
+  const button = { isVisible: async () => step < 2, isEnabled: async () => true, textContent: async () => 'DEPLOY ▶', getAttribute: async () => null,
+    click: async () => { clicks.push(step); step++; } };
+  const { report } = await fakeRun(1, false, page => {
+    page.goto = async () => {};
+    page.evaluate = async () => `screen ${step}`; // the visible text changes after each press, like character select -> loadout
+    page.locator = selector => selector === 'canvas' ? { count: async () => 0 } : { count: async () => (step < 2 ? 1 : 0), nth: () => button };
+  }, { seconds: 12 });
+  assert.deepEqual(clicks, [0, 1], 'DEPLOY pressed once on each of the two screens');
+  assert.equal(report.startupClicks.filter(c => /DEPLOY/.test(c.text) && c.status === 'sent').length, 2);
+});
+
+test('the same label on an unchanged screen is still pressed only once', async () => {
+  let presses = 0;
+  const button = { isVisible: async () => true, isEnabled: async () => true, textContent: async () => 'DEPLOY ▶', getAttribute: async () => null, click: async () => { presses++; } };
+  await fakeRun(1, false, page => {
+    page.goto = async () => {};
+    page.evaluate = async () => 'same screen';
+    page.locator = selector => selector === 'canvas' ? { count: async () => 0 } : { count: async () => 1, nth: () => button };
+  }, { seconds: 12 });
+  assert.equal(presses, 1);
+});
