@@ -30,7 +30,7 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 
 **Nebius products used:** only Nebius Token Factory was used. Nebius AI Cloud was not used.
 
-**Teammates:** Parth Singh (owner and builder), Aman (research, rules and legal checks), Aashna (engineering and testing). [PARTH: Devpost needs each person's account added and the invitation accepted; name the Representative.]
+**Teammates:** Parth Singh (owner and builder), Aman (research, rules and legal checks), Aashna (engineering and testing). Parth Singh is the Representative. Each teammate needs a Devpost account and must accept the team invitation.
 
 ---
 
@@ -134,7 +134,7 @@ The Advisor can also cite public review quotes from a committed corpus of 12 sho
 
 The rules (section 4) ask for this. The hackathon opened on 2026-08-26. We checked dates with `git log`.
 
-**From the course project: the test-bed game, Market Brawl.** Market Brawl is a 3D fighting game (Three.js + Rapier) that Parth wrote for the course CSCI 310, Project 2. It is the game our crowd plays. It is not the product. Market Brawl has no repository of its own: its 10 commits (2026-10-20 13:34 to 16:17 -0400) are in the history of Parth's private notes repository, filtered to the course folder. That history is not public, so the date claim is not publicly checkable. Its design document in `game/docs/superpowers/specs/` is dated 2026-10-20. So the game is Parth's own course project, started after the hackathon opened; it was written for the course, not for this hackathon. Everything else below was built for the hackathon. [PARTH: confirm the course and university allow publishing Market Brawl under MIT (`docs/team/LEGAL-AND-LICENSES.md` L1). That decision is Parth's and Aman's.]
+**From the course project: the test-bed game, Market Brawl.** Market Brawl is a 3D fighting game (Three.js + Rapier) that Parth wrote for the course CSCI 310, Project 2. It is the game our crowd plays. It is not the product. Market Brawl has no repository of its own: its 10 commits (2026-10-20 13:34 to 16:17 -0400) are in the history of Parth's private notes repository, filtered to the course folder. That history is not public, so the date claim is not publicly checkable. Its design document in `game/docs/superpowers/specs/` is dated 2026-10-20. So the game is Parth's own course project, started after the hackathon opened; it was written for the course, not for this hackathon. Everything else below was built for the hackathon. Parth owns Market Brawl and publishes it in this repository under the MIT license.
 
 **Changed in the game for this project.** This repo's first commit is 2026-10-28 00:59 (-0400), and it already contains the game. Comparing `game/src` with the course project's `src` shows:
 - one new file, `game/src/tuning.js`, a table of rule constants (guard damage, posture, a CPU decision delay) that `combat.js` and `ai.js` now read instead of hard-coded numbers, so the engine can override them;
@@ -166,13 +166,11 @@ The adapters are new in this repo (first committed in `55cd763`, 2026-10-28).
 - Patch Prophet on Balance (`app/api/prophet`, `lib/prophet.ts`, `data/prophet/`), the game controls crawler (`e2e/game-ui.spec.cjs`, `docs/controls-report.json`, `/games` block), and the Glitch Hunter batch (`data/glitch-hunt/results.json`, `/bugs` block).
 - `adapters/`, `e2e/`, `scripts/`, the tests and the docs.
 
-The first commit already holds the engine, the AI layer and the web app, so any work before it was not committed in this repo. [PARTH: say when you actually began building the platform, if that matters for the form.]
+The first commit already holds the engine, the AI layer and the web app, so any work before it was not committed in this repo.
 
 ## How AI assistance was used
 
-[PARTH: confirm wording. This statement is yours to own.]
-
-AI coding assistants, mainly Claude, wrote much of the code, tests and documentation in this repo, and much of Market Brawl before it (the game README says AI assistance was used for implementation, debugging, visual design, tests and concept art). Parth directed the work and reviewed it. The commit trailers in this repo (`git log`, 33 of 34 commits) name Claude Opus 5.5 (23 commits), Claude Sonnet 5.5 (6) and Claude Fable 5.1 (4) as co-authors; they cover this repo only, not Market Brawl's history. The concept image `game/assets/art/midnight-circuit.png` is AI-generated. [PARTH: confirm wording: the hand-written share of the code, and the concept-art tool and date.]
+AI coding assistants, mainly Claude, wrote much of the code, tests and documentation in this repo, and much of Market Brawl before it (the game README says AI assistance was used for implementation, debugging, visual design, tests and concept art). Parth directed the work and reviewed it. The commit trailers in this repo (`git log`) name Claude Opus 5.5, Claude Sonnet 5.5, Claude Fable 5.1, OpenAI Codex (gpt-6.1-sol and gpt-6.1-terra) and Gemini 3.8 Flash as co-authors of most commits; they cover this repo only, not Market Brawl's history. Several models also reviewed each other's work (see `docs/nemotron-review.md` and the review notes in the README). The narration in the demo video is Parth's own voice, cloned locally with the open VoiceStudio tool from his recording, for this hackathon only. The concept image `game/assets/art/midnight-circuit.png` is AI-generated. The tool and date of that image are not recorded in the repo, and the share of the code written by hand was not measured.
 
 Reviews used independent models: Gemini 3.8 Flash (Prophet security review: no defects; Glitch Hunter scoring: found defects, fixed; Spec Drift judge; Advisor corpus review: found mislabelled keyword sentiment, fixed by removing sentiment), Codex gpt-6.1-terra and gpt-6-luna (docs fact-check, controls test quality, drift/ReproBot review). Builders: Codex gpt-6.1-sol and gpt-6.1-terra, Gemini 3.8 Flash; Claude planned, reviewed and ran tests.
 
