@@ -76,6 +76,8 @@ Small game teams that have no QA department: a crowd of synthetic players finds 
 14. **Review-grounded Design Advisor (`/modes/advisor`).** Grounded in a committed corpus of 12 short quotes (<= 300 chars) with URLs from public review pages (IGN 4, Reddit 3, GameSpot 3, Steam 2), collected with 12 Tavily searches (`data/reviews/corpus.json`, `docs/reviews.md`). The Advisor can cite them as "player opinion"; code drops any citation not in the corpus and any "players say/like" claim without a citation. Quotes are search snippets from many games, not only fighting games. Topic tags are keyword guesses and can be wrong; sentiment is NOT used. Retrieval with attribution, nothing was trained or fine-tuned.
 15. **Tutorial Director (`/modes/onboarding`).** Displays a struggle table computed from the recorded run (casual players: 5.9% round win rate, 97% quit) and 3 onboarding aids drafted by one Nemotron Super call, each measured with the Patch Prophet paired crowd (200 personas, 1 round, seed 1): overall wins of 200 before to after: 66 to 75, 66 to 69, 66 to 60; casual wins of 39: 5 to 9, 5 to 8, 5 to 5. One seed, within noise, round 1 only, quit model not re-simulated, no real new players. It shows what changes in win rates, not that any tip teaches anything ([notes](docs/tutor.md), [results](data/tutor/results.json)).
 
+- **Black-box mode.** Watch a browser game URL with screenshots and recorded inputs, without importing its source; evidence is observational ([guide and limits](docs/blackbox.md)).
+
 ## Screenshots
 
 | Findings and the crowd | Bugs and fix verdicts |
@@ -107,6 +109,8 @@ All numbers below come from files in `data/run-main/`.
 Patch Prophet measurements are separate from the main run: the example tuning gave **66 → 69 wins out of 200** on seed 1 and **55 → 64** on seed 2 ([notes](docs/prophet.md), [seed 1](data/prophet/example.json), [seed 2](data/prophet/seed-2.json)). A hosted run with different tuning took **36.7 s**, with **66/200** wins before and **62/200** after ([hosted smoke](docs/evidence/hosted-smoke-2026-10-29.md)). That was one hosted run.
 
 ## Honest limits
+
+- **Black-box runs cannot guarantee replay.** See [black-box limits](docs/blackbox.md#limits).
 
 - **Patch Prophet is a sample.** It uses the first 200 recorded personas, one round each, with paired seeds. Two seeds do not establish statistical significance or human preference. It does not rerun the full 1000-player crowd.
 - **Still not built.** Mechanic Forge, ModForge, SightGuide, SimDojo. Bully (Unreal) and GTA were not tested. Repro searches recorded rounds.
