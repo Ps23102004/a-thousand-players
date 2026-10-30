@@ -55,6 +55,15 @@ test("a malformed token next to a valid key silently replays the key", async ({ 
   await expect(page.getByText("This replay link is not valid.")).toHaveCount(0);
 });
 
+test("a key with a token for a different seed is rejected, not shown beside the token", async ({ page }) => {
+  const other = Buffer.from(JSON.stringify({ seed: 1, tuning: null, fighter: "kai", maxT: 99 })).toString("base64url");
+  await page.goto(`/replay?key=p0537%3A1&t=${other}`);
+  await expect(page.locator("h1")).toHaveText("Replay");
+  await expect(page.locator(".notice").first()).toContainText("key and the token refer to different rounds");
+  await expect(page.locator("iframe.game-frame")).toHaveCount(0);
+  await expect(page.getByText("round 1 · loss")).toHaveCount(0);
+});
+
 test("unknown route returns 404 page", async ({ page }) => {
   const res = await page.goto("/does-not-exist");
   expect(res.status()).toBe(404);

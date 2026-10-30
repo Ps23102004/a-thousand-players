@@ -22,8 +22,9 @@ export async function POST(req: Request) {
   if (limited) {
     // The sample round's frames are a deterministic re-simulation, so the recorded answer describes the same round.
     const cached = v.question === DEFAULT_QUESTION ? sampleAnswer(loadSample("eyes"), refererKey(req)) : null;
-    // The Eyes panel shows only `text`, so the notice goes in it too.
-    return cached ? Response.json({ ...cached, text: `${cached.cachedNotice}\n\n${cached.text}` }) : limited;
+    // The Eyes panel shows only `text`, so the notice goes in it too. Frames are not compared, so say they were not analysed.
+    const notice = `${cached?.cachedNotice} It describes the recorded frames of this round, not the frames you just sent.`;
+    return cached ? Response.json({ ...cached, cachedNotice: notice, text: `${notice}\n\n${cached.text}` }) : limited;
   }
   try {
     return Response.json({ text: await describeFrames(v.frames, v.question), frames: v.frames.length });
