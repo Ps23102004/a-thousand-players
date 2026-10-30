@@ -50,3 +50,8 @@ test("audit round 2: channel boilerplate, spam hosts and off-topic guides are dr
   }
   assert.ok(shown.length >= 8, `kept ${shown.length}`);
 });
+
+test("audit round 3: raw timestamped video transcripts are not shown as related reading", () => {
+  const t = { ...ok, title: "Metagame Balance For eSports & Fighting Games", url: "https://www.youtube.com/watch?v=x", snippet: "[22:24] game in which that wasn't the case which would require essentially [22:32] us out of this dominant position" };
+  assert.deepEqual(cleanPrecedent([t, ok]), [ok]);
+});

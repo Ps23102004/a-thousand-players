@@ -60,7 +60,7 @@ export default function Home() {
           <h2 id="findings-title">What Ultra found</h2>
           {findings && (
             <p className="lede mono" style={{ fontSize: "0.8rem" }}>
-              {findings.model} · read {findings.tokensIn.toLocaleString("en-US")} prompt tokens of logs in one call
+              {findings.model} · read a summary of 2,831 rounds ({findings.tokensIn.toLocaleString("en-US")} prompt tokens) in one call
             </p>
           )}
         </div>

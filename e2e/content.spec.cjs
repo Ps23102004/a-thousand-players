@@ -84,7 +84,7 @@ test("finding cards show code-verified claims and replayable seeds", async ({ pa
   }));
   test.info().annotations.push({ type: "findings", description: JSON.stringify({ cards: n, ...stats }) });
   expect(stats.seedLinks).toBeGreaterThan(0);
-  await expect(page.locator("#findings .lede.mono")).toContainText(/tokens of logs in one call/);
+  await expect(page.locator("#findings .lede.mono")).toContainText(/prompt tokens\) in one call/);
   await page.locator("#findings").screenshot({ path: `${__dirname}/screenshots/findings.png` });
 });
 
@@ -154,4 +154,31 @@ test("audit round 2: /bugs says which fixes are Ultra's and which were made by h
   await expect(lede).toContainText("2 from Ultra's patch");
   await expect(lede).toContainText("2 by hand after Ultra's patch failed");
   await expect(page.locator(".site-footer").getByRole("link", { name: "Source code on GitHub" })).toHaveAttribute("href", "https://github.com/Ps23102004/a-thousand-players");
+});
+
+test("audit round 3: bug4 card says Ultra's patch is not shipped; regression rows say what they measure; home header says summary", async ({ page }) => {
+  await page.goto("/bugs");
+  const bug4 = page.locator("article").filter({ hasText: "stuck:KNOCKDOWN" }).first();
+  await expect(bug4).toContainText("Ultra's patch fixed this seed but is not shipped");
+  await expect(bug4).toContainText("rules.knockdownOnPropFix");
+  await expect(page.locator("table.regress").first().getByRole("rowheader", { name: /before the (fix|patch)/ })).toBeVisible();
+  await expect(page.locator("table.regress").first().getByRole("rowheader", { name: /with the (fix|patch)/ })).toBeVisible();
+  await expect(page.locator("main")).not.toContainText("row shipped");
+  await page.goto("/");
+  await expect(page.locator("#findings-title").locator("xpath=..")).toContainText("a summary of 2,831 rounds");
+  await expect(page.locator("#findings-title").locator("xpath=..")).not.toContainText("prompt tokens of logs");
+});
+
+test("audit round 3: every PROOF replay link (before and after, all four bugs) has a badge that matches its tuning", async ({ page }) => {
+  const proof = require("node:fs").readFileSync(require("node:path").join(__dirname, "../docs/PROOF.md"), "utf8");
+  const links = [...proof.matchAll(/\[(before|after)[^\]]*\]\(https:\/\/[^)]+\/replay\?t=([A-Za-z0-9_-]+)\)/g)];
+  expect(links.length).toBe(8);
+  for (const [, which, token] of links) {
+    const tuning = JSON.parse(Buffer.from(token, "base64url").toString()).tuning ?? {};
+    const keys = Object.keys(tuning);
+    const expected = keys.length === 0 ? "shipped tuning" : keys.every((k) => k.startsWith("rules.") && tuning[k] === 0) ? "build as recorded" : "patched tuning";
+    await page.goto(`/replay?t=${token}`);
+    await expect(page.frameLocator("iframe.game-frame").locator("#badge")).toContainText(expected, { timeout: 45_000 });
+    if (which === "after" && keys.length === 0) await expect(page.frameLocator("iframe.game-frame").locator("#badge")).not.toContainText("recorded");
+  }
 });

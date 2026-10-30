@@ -17,6 +17,10 @@ const VERDICT: Record<string, { label: string; cls: string }> = {
   "did-not-reproduce": { label: "bug did not reproduce, no verdict", cls: "chip-warn" },
   "patch-did-not-apply": { label: "patch did not apply", cls: "chip-warn" },
 };
+// Where the shipped game differs from the patch shown above (README, docs/PROOF.md).
+const SHIPPED_NOTE: Record<string, string> = {
+  bug4: "Ultra's patch fixed this seed but is not shipped (it removes a height guard entirely). The shipped game uses a narrower hand fix, rules.knockdownOnPropFix, which also replays clean.",
+};
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 
 function Side({ name, s }: { name: string; s: RegressionSide }) {
@@ -64,6 +68,7 @@ function BugCard({ b }: { b: BugView }) {
             <span className="diff-add">{`+ ${p.replace}`}</span>
           </pre>
         )) : <p className="notice">No patch proposed.</p>}
+        {SHIPPED_NOTE[b.id] && <p className="notice" style={{ marginTop: 8 }}>{SHIPPED_NOTE[b.id]}</p>}
       </div>
 
       {r && (
@@ -71,7 +76,7 @@ function BugCard({ b }: { b: BugView }) {
           <div className="label">Regression run · {r.personas} personas · {b.verdict?.endsWith("by-hand") ? "hand fix" : "patch"} fixed {b.fixedRounds} of {b.verifyRounds} replayed rounds{b.regressionNote ? ` · ${b.regressionNote}` : ""}</div>
           <table className="regress">
             <thead><tr><th scope="col" /><th scope="col">rounds</th><th scope="col">win rate</th><th scope="col">avg round</th><th scope="col">bug rounds</th></tr></thead>
-            <tbody><Side name="shipped" s={r.shipped} /><Side name="patched" s={r.patched} /></tbody>
+            <tbody><Side name={`before the ${b.verdict?.endsWith("by-hand") ? "fix" : "patch"}`} s={r.shipped} /><Side name={`with the ${b.verdict?.endsWith("by-hand") ? "fix" : "patch"}`} s={r.patched} /></tbody>
           </table>
         </div>
       )}

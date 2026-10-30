@@ -252,7 +252,7 @@ Five open-source browser games, 60 seconds each, seed 1. Results were checked ag
 | warzone | Pressed PLAY, ENDLESS and CONTINUE: menus only, no combat. | No findings. Not really played. |
 | canvas-td | Stayed on its level-select screen. Read-only source inspection later confirmed DOM anchors without `href` for Loopy, Backtrack and Dash (`index.html:30–32`, click binding in `scripts/ui.js:358`). | "Not started": not tested in that run. |
 
-The explorer found no game defect in these five, and it did not play four of them through.
+The explorer found no game defect in these five. Two of the five games (agentofduty, animal-strike) were played; hexapipes was reached but no puzzle solved; warzone stayed in menus; canvas-td never started.
 This is a weak result and must not be presented as a clean bill of health for those games.
 
 Read-only follow-up on the saved Warzone inputs, report, PNGs and source: PLAY, the long

@@ -108,7 +108,7 @@ Yes, I would build with it again, for bulk structured generation where a validat
 
 - **Causal explanation from rule text alone.** Asked why 32 bot strategies beat the CPU, with only their rule text and the CPU code, it blamed "recovery-state grabs". The engine's hit log shows sweep spam into mount (117 SWEEP hits and 49 GROUND hits for the top strategy). With the measured hit tally in the prompt its prose names the sweep and the guard rule, but it still over-reads the grabs (`README.md`, `docs/devpost.md`).
 - **One inverted oracle in 10.** A report about the absence of hits ("nobody could land a hit") became a predicate on their presence and matched 2,880 rounds, 1 of them correct (`docs/calibration.md` section 3).
-- **A crash report was rejected**, but that one is my bug: the oracle prompt in `ai/nl.ts` does not list the `crash` event, so Super could not know it exists (`docs/calibration.md` section 3).
+- **A crash report was rejected** in the 2026-10-28 test, but that one was my bug: the oracle prompt in `ai/nl.ts` did not list the `crash` event, so Super could not know it existed (`docs/calibration.md` section 3). The prompt now lists `crash` (with its message as `arg`). I have not re-run the test since, so whether Super now handles crash reports is unmeasured.
 - **Format slip.** Once it put a position (`LEFT_CORNER`) into a field meant for a move name (`ai/README.md`).
 - **Thinking on empties short answers.** With thinking on, the reasoning goes to `reasoning_content` and still spends completion tokens (section a, item 1).
 - **Unmeasured.** The Advisor's suggestions were tested live on Market Brawl only and are not measured (`README.md`).

@@ -7,7 +7,8 @@ import { join } from 'node:path';
 import { node, tmp, writeJson, makeFixtureRun, ROOT, CRASH_CASE } from './helpers.mjs';
 
 const dir = tmp('verify-');
-const CRASH = 'zt-crash', AIR = 'zt-air';
+// Unique per process: a second concurrent run of this suite must not delete this run's scratch copies in its after() hook.
+const CRASH = `zt-crash-${process.pid}`, AIR = `zt-air-${process.pid}`;
 let airBug;
 
 // Test-only symptom clamp: snaps a fighter above 1.2 m back to the floor, so the airborne invariant cannot fire.

@@ -60,7 +60,7 @@
  "replays": {
   "checked": 45,
   "matched": 45,
-  "note": "Sampled recorded rounds replayed event for event in the browser (README, Replay)."
+  "note": "Sampled recorded rounds replayed event for event in Node (README, Replay)."
  },
  "adapter": "The original target. Needed window and DOM shims plus Three.js in Node to run headless.",
  "notes": [

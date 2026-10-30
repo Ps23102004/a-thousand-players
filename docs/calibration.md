@@ -8,7 +8,7 @@ Measured 2026-10-28. Question: "is its confidence right?" Short answer per signa
 | Ultra triage `confidence`, line-range prompt | **Still uninformative.** 0.85-0.95 again; 1 of 9 patches fixed the replay (stated 0.85). Brier 0.70 against 0.10 for a constant 0.11. | 9 triages with a replay verdict + 4 answers over the 12-line limit, out of 13 calls (section 6) |
 | Ultra triage validity | 5 of 12 controlled answers (42%) proposed a `find` text that is not in the source | `ai/cli/calibrate-triage.ts` |
 | "31 of 31 claims verified" | True but weak: **all 31** claims are cells of the code-computed header Ultra is shown; a 5% relative error or a 3-point error still passes on every rate claim | `ai/cli/calibration-audit.ts` |
-| Repro oracle (Super) | Precise when the report names an invariant (4 of 4 clear bug reports exact); 1 inverted oracle (a "nobody could hit" report matched every round); crash reports are rejected | 10 reports, 11 Super calls |
+| Repro oracle (Super) | Precise when the report names an invariant (4 of 4 clear bug reports exact); 1 inverted oracle (a "nobody could hit" report matched every round); the one crash report was rejected (prompt since fixed to list `crash`; not re-measured) | 10 reports, 11 Super calls |
 | Eyes (Super-VL) | 3 of 3 bug rounds flagged, 0 of 3 clean rounds flagged; named the real bug in 2 of 3 | 6 rounds, 6 Super-VL calls |
 | Headline rates | Tight enough to quote with an interval: casual win 5.9% (3.5-8.5%), casual quit 97.0% (94.5-99.0%), cheeser win 92.3% (89.2-95.3%) | bootstrap over players |
 
@@ -116,7 +116,7 @@ Every main-run claim's stated value shifted by a factor or by points; does it st
 - Too loose: 1 of 10 (stalemate: a report about the *absence* of hits became a predicate on their presence; the predicate language has no negation or "no X for N s" atom except `softlock`, which Super did not use).
 - Too strict: 2 of 10 (crash report rejected; "flying" read as the rival only).
 - Correct refusals or empty results: 4 of 4 for the wrong and off-topic reports.
-- **Cause of the crash rejection:** the oracle prompt in `ai/nl.ts` lists the invariant events without `crash`, although `ORACLE_EVENTS` accepts it, so Super never learns the event exists. Follow-up for the owner of `ai/nl.ts`: add `crash` (with its message as `arg`) to the prompt's event list.
+- **Cause of the crash rejection:** the oracle prompt in `ai/nl.ts` lists the invariant events without `crash`, although `ORACLE_EVENTS` accepts it, so Super never learns the event exists. Follow-up for the owner of `ai/nl.ts`: add `crash` (with its message as `arg`) to the prompt's event list. Done after this audit: the prompt now lists `crash`; the 10-report test has not been re-run.
 - The app already says "Zero matches does not prove the bug is absent"; it should also say a match count is only as good as the oracle shown above it, which the page does by printing the oracle's atoms.
 
 ## 4. Eyes (Nemotron Super-VL)
