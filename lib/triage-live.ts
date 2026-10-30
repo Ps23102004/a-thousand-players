@@ -66,7 +66,7 @@ export function sandboxArgs(engineDir: string): string[] {
 
 export function playRound(engineDir: string, job: RoundJob, timeoutMs = 30_000): Promise<RoundResult> {
   return new Promise((resolve, reject) => {
-    execFile(process.execPath, [...sandboxArgs(engineDir), WORKER, engineDir, JSON.stringify(job)], { timeout: timeoutMs, maxBuffer: 1e7, env: { PATH: process.env.PATH ?? "", NODE_ENV: "production" } }, (err, stdout, stderr) => {
+    execFile(process.execPath, [...sandboxArgs(engineDir), WORKER, engineDir, JSON.stringify(job)], { timeout: timeoutMs, killSignal: "SIGKILL", maxBuffer: 1e7, env: { PATH: process.env.PATH ?? "", NODE_ENV: "production" } }, (err, stdout, stderr) => {
       if (err?.killed) return reject(Object.assign(new Error(`the replay did not finish within ${timeoutMs} ms`), { timedOut: true }));
       if (err) return reject(new Error(errorLine(stderr) || err.message));
       try { resolve(JSON.parse(stdout.trim().split("\n").pop()!) as RoundResult); } catch { reject(new Error("the replay printed no result")); }

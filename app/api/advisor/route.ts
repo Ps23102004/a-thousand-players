@@ -16,16 +16,17 @@ export async function POST(req: Request) {
   if (body instanceof Response) return body;
   const v = validateAdvisorBody(body);
   if ("error" in v) return Response.json({ error: v.error }, { status: v.status });
-  const ctx = advisorContext(v.key);
-  if (!ctx) return Response.json({ error: "That round is not in the recorded data." }, { status: 404 });
   const off = notConfigured("NEBIUS_API_KEY", "The models");
   if (off) return off;
+  // Admission before the heavy recorded-data context (it re-reads the sweep JSONL), so a limited caller cannot make the server do that work.
   const limited = rateLimited(req, "advisor");
   if (limited) {
     // A round is a deterministic re-simulation, so the recorded answer describes the same frames the page just captured.
     const cached = sampleAnswer(loadSample("advisor"), v.key);
     return cached ? Response.json(cached) : limited;
   }
+  const ctx = advisorContext(v.key);
+  if (!ctx) return Response.json({ error: "That round is not in the recorded data." }, { status: 404 });
   try {
     const result = await runAdvisor({ frames: v.frames, frameTimes: ctx.frameTimes, crowd: ctx.crowd, gameText: ctx.gameText, genre: ctx.genre, tuningKeys: ctx.tuningKeys, reviews: parseReviewCorpus(corpus).entries });
     return Response.json({ ...result, key: ctx.key, game: ctx.game, crowd: ctx.crowd, gameTextLines: ctx.gameText.length });

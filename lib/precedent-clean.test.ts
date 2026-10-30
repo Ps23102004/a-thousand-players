@@ -34,3 +34,8 @@ test("review: a relevant patch-notes snippet with a heading in the middle is kep
   const notes = { ...ok, title: "Patch Notes v1.13", snippet: "Developer Comments: the goal is to make Full Block less dominant. ### Fighters. Jab recovery +2 frames." };
   assert.equal(cleanPrecedent([notes]).length, 1);
 });
+
+test("security review: only http(s) links survive (no javascript: or data: URLs from a search provider)", () => {
+  const bad = [{ ...ok, url: "javascript:alert(1)" }, { ...ok, url: "data:text/html,x" }, { ...ok, url: "not a url" }];
+  assert.deepEqual(cleanPrecedent([...bad, ok]), [ok]);
+});

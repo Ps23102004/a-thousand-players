@@ -98,7 +98,7 @@ test("rate limited: the built-in round gets the recorded real answer marked cach
   assert.equal(j.cached, true);
   assert.match(j.cachedNotice, /rate limit/i);
   assert.ok(j.recommendations.length > 0 && j.sources.length > 0 && j.crowd.length > 0);
-  assert.equal((await post({ key: "p0001:1", frames: good.frames }, ip)).status, 429);
+  assert.equal((await post({ key: "p0001:1", frames: good.frames }, ip)).status, 429);  assert.equal((await post({ key: "p9999:9", frames: good.frames }, ip)).status, 429, "security review: a limited caller is refused before the recorded-data context is built, so an unknown round is 429 not 404");
 });
 
 test("the route budget covers the model timeouts: vision + searches + up to two synthesis tries", () => {

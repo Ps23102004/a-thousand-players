@@ -4,9 +4,11 @@ export type PrecedentItem = { title: string; url: string; snippet: string };
 
 const JUNK = /^\s*###|\[caption|\[\/?[a-z_]+ id=|sorry for the inconvenience|scheduled maintenance|sponsored content|cookie|subscribe to our/i;
 
+const isWebUrl = (u: string) => { try { return /^https?:$/.test(new URL(u).protocol); } catch { return false; } };
+
 export function cleanPrecedent<T extends PrecedentItem>(items: T[]): T[] {
   return items
-    .filter((p) => !JUNK.test(p.snippet))
+    .filter((p) => isWebUrl(p.url) && !JUNK.test(p.snippet))
     .map((p) => ({ ...p, snippet: p.snippet.replace(/^\s*Title:[^#\n]*#?\s*/i, "").replace(/#+\s*/g, "").replace(/\s+/g, " ").trim() }))
     .filter((p) => p.snippet.length > 20);
 }
