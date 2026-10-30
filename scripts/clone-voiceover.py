@@ -60,7 +60,7 @@ def main():
     vdur = duration(VIDEO)
     plan = []
     for i, (t0, t1, scene, text) in enumerate(rows):
-        wav = os.path.join(OUTDIR, f"scene{i + 1:02d}-{scene}.wav")
+        wav = os.path.join(OUTDIR, f"{scene}.wav")
         if (not only or scene in only) and (only or not os.path.exists(wav)):
             print(f"generating {scene} ({len(text.split())} words)...", flush=True)
             open(wav, "wb").write(generate(text, a.gen_speed if only else 1.0))
