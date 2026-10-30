@@ -194,12 +194,18 @@ intentional darkness from lost WebGL context. Seeds and traces cannot guarantee 
 Screenshots, console text and URLs may contain private data; artifacts stay local unless vision
 is requested, and are not automatically redacted.
 
-## First run on three real open-source games (2026-10-30, before the explorer fixes)
+## Real open-source games: final run (2026-10-30, explorer commit 55be90f)
 
-These were first runs of an earlier version of the explorer on three MIT shooters. I checked each saved report against its screenshots. None of them shows a game bug; they show explorer weaknesses, now fixed and covered by tests on local fixtures.
+Five open-source browser games, 60 seconds each, seed 1. Results were checked against each game's screenshots, not only the report.
 
-- **animal-strike:** the report listed 4 `page-error` findings. All four are "The root document of this element is not valid for pointer lock", a refusal by automated Chrome, not a game defect. The game started (the `PLAY` button was clicked) and responded to input. The current explorer classifies this message as an environment refusal.
-- **agentofduty:** the report listed one `freeze`. The saved frames show the game on its own "ON HOLD / Mission paused" screen with the message "Could not start: The root document of this element is not valid for pointer lock". The pause screen was the cause, and the old explorer did not press Resume. That finding was a false positive.
-- **warzone:** the run ended `incomplete` with no frames: the old explorer aborted on an intercepted canvas click.
+| Game | What the explorer actually did (from screenshots) | Result |
+|---|---|---|
+| agentofduty | Pressed Resume, started the mission, took damage. | No findings. The earlier freeze was the game's own pause screen, now handled. |
+| animal-strike | Pressed PLAY and played. | No findings. Pointer-lock refusals are filed as browser limits, not game bugs. |
+| hexapipes | Pressed Play but stayed on the puzzle-picker page; no puzzle solved. | No findings. Partly tested only. |
+| warzone | Pressed PLAY, ENDLESS and CONTINUE: menus only, no combat. | No findings. Not really played. |
+| canvas-td | Stayed on its level-select screen (drawn on a canvas, not a DOM button). | "Not started": not tested. |
 
-The fixed explorer has not been re-run on these three games: that needs starting their third-party dev servers (`bash ~/Developer/test-games/run-games.sh`). Until it is run, this document makes no claim about what the fixed explorer finds in them.
+Summary: the explorer found no game defect in these five, and it did not play four of them through. This is a weak result and must not be presented as a clean bill of health for those games. Playing canvas-td and warzone properly needs a control for canvas-drawn menus, which is not built.
+
+The first run's false positives (agentofduty freeze, canvas-td deadkeys) are fixed and covered by tests on local fixtures.
