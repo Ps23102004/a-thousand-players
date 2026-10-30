@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) ![Node 22.15+](https://img.shields.io/badge/node-%E2%89%A522.15-blue) ![Tests](https://img.shields.io/badge/tests%20as%20of%202026--10--29-134%20engine%20%2B%20328%20TS%20%2B%2088%20browser-brightgreen) ![Models](https://img.shields.io/badge/Nemotron-Nano%20%C2%B7%20Super%20%C2%B7%20Ultra%20%C2%B7%20Super--VL-76b900)
 
-**Demo video (3 min):** link added at submission. **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above.
+**Demo video (2:47):** [https://youtu.be/tKOsGMdRnNc](https://youtu.be/tKOsGMdRnNc). **Live demo:** https://a-thousand-players.vercel.app (no login). **Proof the bugs were real and are fixed:** [docs/PROOF.md](docs/PROOF.md) (same seed replayed before and after each fix, with frames and engine numbers). A silent 24-second preview is above.
 
 Built for the Nebius x NVIDIA Global AI Hackathon. The test bed is **Market Brawl**, Parth's own CSCI 310 course-project 3D fighting game (Three.js + Rapier), copied into `game/` with small changes: a rules file for tuning, five bug fixes that can each be switched off so recorded rounds still replay as recorded, and a CPU low-block balance rule (default on). Two more games (Homeground and Clean Getaway) run through the same crowd harness under `adapters/` (Clean Getaway is a private repository, so its adapter runs only with a local checkout of it). All models run on Nebius Token Factory; Tavily does the web search.
 

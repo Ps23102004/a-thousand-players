@@ -22,7 +22,7 @@ Honest weakness: the triage agent is the weakest part. Across 24 measured triage
 
 **Links:**
 - Live demo: https://a-thousand-players.vercel.app
-- Demo video: [YOUTUBE_URL]
+- Demo video: https://youtu.be/tKOsGMdRnNc
 - Code: https://github.com/Ps23102004/a-thousand-players (MIT license)
 
 **Feedback (Token Factory and the NVIDIA models):** the full text is `docs/token-factory-feedback.md` in the repo. It gives five points for Token Factory, Nemotron Nano, Super, Super-VL and Ultra (what we used it for, what worked, what needs work, onboarding, would we build with it again), plus a Tavily note. Paste it into the form's feedback field or link it; the onboarding sections are filled from the build log and the git history.
