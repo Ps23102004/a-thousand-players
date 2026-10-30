@@ -12,6 +12,9 @@ The CLI uses the installed global Playwright and headed system Google Chrome in 
 node blackbox/cli.mjs http://127.0.0.1:3193/game --seconds 60 --seed 1 --out reports/my-game
 ```
 
+CLI `--seconds` must be finite and between 1 and 3600 inclusive. Out-of-range values
+produce a clear error before browser launch.
+
 Supply a server serving your authorized test target. The fixture browser spec below starts its
 own server. `PLAYWRIGHT_DIR` can override the default
 `~/.local/lib/node_modules/@playwright/cli/node_modules/playwright`.
@@ -25,13 +28,17 @@ Up to three rounds click visible, enabled labels matching a whole word from
 New Game and Continue as guest are eligible; New Game Plus and tested commerce/destructive
 combinations are excluded. Tests include donate, shop, store, order, checkout, subscribe,
 reset, start over, erase, wipe and delete, including combinations with play/start.
+Labels containing whole words `trial|premium|deposit|real money|bet|wager|forfeit|abandon|unlock|google|facebook|apple`
+are also excluded. Start, Play, New Game, Continue and Play again remain eligible.
 Hyphens and underscores are normalized. **This is a non-exhaustive label heuristic, not a
 safety guarantee.** Labels do not establish what a button actually does.
 
 Cross-origin/non-HTTP links and form actions, download attributes and new/named browsing
-targets are skipped at startup. Same-origin navigation is allowed. Unexpected top-level
+targets are skipped at startup. The URL landed on after the first navigation establishes the
+start origin and restoration URL, including HTTP-to-HTTPS and apex-to-www redirects.
+Same-origin links on that landed host are allowed. Unexpected top-level
 cross-origin departures record `navigation-away`. Before more input/capture, the explorer
-returns to the original URL, repeats startup once and clicks a visible canvas for focus.
+returns to the landed URL, repeats startup once and clicks a visible canvas for focus.
 There are at most two restoration attempts per run; another departure or failed restoration
 ends incomplete. Intercepted startup clicks record `click-intercepted`. Canvas clicks fall back
 to the canvas centre, then keyboard-only mode if that fails. Dispatch errors are recorded as
@@ -123,7 +130,12 @@ refusals and WebGL ReadPixels/software-rendering notices are counted under `envi
 Programming errors, generic initialization failures, GPU resets and context loss are not hidden
 as those refusals. A single ordinary warning/optional-resource error remains an observation.
 If the last event before a freeze is an environment refusal, `likelyCause` names it as a
-suspected cause. All browser events are retained. No findings means no observed signal.
+suspected cause. Console and network events are ignored while the page is away from the
+start origin; events attributed to a foreign page/frame are also ignored after restoration.
+Request ownership uses the page/frame URL, so the game's cross-origin CDN failures remain
+eligible. `net::ERR_ABORTED` during the explorer's restore navigation is ignored; game aborts
+outside restoration and other failures on the start origin remain evidence.
+Other browser events are retained. No findings means no observed signal.
 
 ## Verification and fixtures
 
@@ -139,6 +151,9 @@ Offline tests execute these actual scripts with a fake clock/rectangle rasterize
 fakes also test delayed downs, late pages/handlers, startup label/target exclusions, beforeunload
 recovery, restoration/focus and the two-restoration cap, deadline capture completion, both probe
 modes, missing evidence and elapsed sample timing. They do not verify actual Chrome rendering.
+Regression fakes cover redirected startup origins and landed-host links/restoration, foreign
+console/network events, restore aborts versus game failures, the additional label exclusions,
+and CLI budget bounds.
 The original fake clock advanced only during sleeps, with zero screenshot/decoding cost; its
 rectangle rasterizer samples pixel centers and omits grid strokes and browser resampling. Real
 Chrome consumes budget capturing/decoding and can produce different periodic pixel differences.
