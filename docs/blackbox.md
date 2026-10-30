@@ -240,21 +240,23 @@ intentional darkness from lost WebGL context. Seeds and traces cannot guarantee 
 Screenshots, console text and URLs may contain private data; artifacts stay local unless vision
 is requested, and are not automatically redacted.
 
-## Real open-source games: third and final run (2026-10-30, explorer commit 7163273)
+## Real open-source games: fourth and final run (2026-10-30, explorer commit b764c24)
 
-Five open-source browser games, 60 seconds each, seed 1, after menu progression was added. Results were checked against each game's screenshots, not only the report. Earlier runs of the same games (before the fixes) produced two false positives, which are fixed and covered by tests on local fixtures.
+Five open-source browser games, 60 seconds each, seed 1. Results were checked against each game's screenshots, not only the report. Earlier runs of the same games (before the fixes) produced two false positives, which are fixed and covered by tests on local fixtures.
 
 | Game | What the explorer did (from screenshots) | Result |
 |---|---|---|
-| agentofduty | Pressed Resume twice (the game pauses itself when automated Chrome refuses pointer lock), started the mission, took damage. | Played. No findings. |
-| animal-strike | Pressed PLAY and played. | Played. No findings. The pointer-lock refusal is no longer even logged as an environment note. |
-| canvas-td | Picked the level "Loopy" from its level list (plain anchors without `href`), then built a Laser tower; creeps walk the path in the frames. | Played. No findings. This was "not started" before menu progression. |
-| hexapipes | Pressed Play three times but stayed on the puzzle-picker page; no puzzle solved. | Reached only. No findings. |
-| warzone | Pressed PLAY, ENDLESS, CONTINUE and DEPLOY; every frame shows the main menu or the shop, never combat. | Not played. No findings. |
+| agentofduty | Ran the mission for the first seconds, then the game paused itself. The explorer pressed Resume 6 times and each time the game paused again, because automated Chrome refuses pointer lock ("Could not start: The root document of this element is not valid for pointer lock"). Most of the 60 seconds is the pause screen. | Reached gameplay only briefly. No findings. |
+| animal-strike | Pressed PLAY and played. | Played. No findings. |
+| canvas-td | Picked the level "Loopy", built a Laser tower; creeps walk the path. | Played. No findings. |
+| hexapipes | Pressed Play four times but stayed on the puzzle-picker page; no puzzle solved. | Reached only. No findings. |
+| warzone | Pressed PLAY, ENDLESS, CONTINUE and DEPLOY twice; frame 16 shows real gameplay (wave 1, score, minimap, ammo, health, rifle). A later frame shows its PAUSED screen, caused by the explorer's random Escape key. | Played. One repeated page error, see below. |
 
-The explorer found no game defect in these five. Three of the five games (agentofduty, animal-strike, canvas-td) were played; hexapipes was reached but no puzzle solved; warzone stayed in menus. This is a limited result and must not be presented as a clean bill of health for the two games that were not played.
+**Warzone page error (not diagnosed).** After the game started (about 25 s), the page logged `Cannot read properties of undefined (reading 'value')` 2,601 times until the run ended. Its render loop reads many `uniforms.*.value` properties (`src/main.js` lines 573, 3563-3584, 3831), so a missing shader uniform is plausible, but the explorer did not capture a stack trace, so I cannot name the line, and I have not shown the error appears without the explorer's random inputs. Treat it as an unconfirmed lead, not a confirmed game bug. The first version of the explorer reported each repeat as its own finding; it now reports one finding with a count (tested).
 
-Why warzone still fails (read-only analysis of its source and the saved trace): CONTINUE leads to character selection, whose DEPLOY ▶ button leads to a loadout screen with a second button that is also labelled DEPLOY ▶ (`src/screens.js:571-574`, `src/main.js:3264`). The explorer's no-repeat label rule refuses the second identical label, and later random Escape key presses walk the menu stack back (`src/main.js:3171-3176`). Allowing a repeated label when the screen has changed would probably fix it; that is not built. `animationEvidence: true` for warzone reflects animated menus, not a run.
+The explorer found no other game defect. Three games were played for most of the run (animal-strike, canvas-td, warzone), agentofduty only for its first seconds, and hexapipes was reached but no puzzle solved. This is a limited result: 60 seconds of seeded random input per game, and it says nothing about whether the games are bug-free.
+
+What it took to get here: the same button label on a different screen is now pressed again (warzone has two DEPLOY buttons in a row, one on character select and one on loadout), keyed by label plus the first 400 characters of visible text.
 
 Canvas-drawn menus with no DOM element are still not operable.
 

@@ -77,7 +77,12 @@ export function summarize({ frames = [], diffs = [], inputsSent = [], controlDif
       const existing = environment.find(entry => entry.kind === kind && entry.message === e.message && entry.url === e.url);
       if (existing) existing.count++;
       else environment.push({ ...e, kind, count: 1 });
-    } else if (['crash', 'page-error'].includes(e.kind)) findings.push(e);
+    } else if (e.kind === 'crash') findings.push(e);
+    else if (e.kind === 'page-error') {
+      // A render-loop error fires every frame: report it once with a count (first occurrence time kept).
+      const same = findings.find(f => f.kind === 'page-error' && f.message === e.message);
+      if (same) same.count++; else findings.push({ ...e, count: 1 });
+    }
     else if (['console-error', 'console-warning', 'failed-request'].includes(e.kind)) {
       const key = JSON.stringify([e.kind, e.url, e.message]);
       const existing = noise.get(key);

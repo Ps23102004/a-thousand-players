@@ -268,3 +268,15 @@ test('real games 2026-10-30: a still interval where the explorer pressed a resum
   assert.deepEqual(paused.findings.map(f => f.kind), []);
   assert.ok(paused.environment.some(e => e.kind === 'self-paused'));
 });
+
+test('real game (warzone): the same page error repeated every frame is one finding with a count, not thousands', () => {
+  const events = [
+    ...Array.from({ length: 500 }, (_, i) => ({ t: 25000 + i * 16, kind: 'page-error', message: "Cannot read properties of undefined (reading 'value')" })),
+    { t: 26000, kind: 'page-error', message: 'a different bug' },
+  ];
+  const r = summarize({ frames: [{ blank: false }, { blank: false }], diffs: [0.1], inputsSent: [1], controlDiffs: [0.1], events });
+  const pe = r.findings.filter(f => f.kind === 'page-error');
+  assert.equal(pe.length, 2);
+  assert.equal(pe.find(f => /reading 'value'/.test(f.message)).count, 500);
+  assert.equal(pe.find(f => f.message === 'a different bug').count, 1);
+});
