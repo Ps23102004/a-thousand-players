@@ -16,7 +16,8 @@ export function parseArgs(args) {
     if (!['--seconds', '--seed', '--out'].includes(arg) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(USAGE);
     const value = args[++i]; opts[arg.slice(2)] = arg === '--out' ? value : Number(value);
   }
-  if (!Number.isFinite(opts.seconds) || opts.seconds <= 0 || !Number.isSafeInteger(opts.seed) || opts.seed < 0 || opts.seed > 0xffffffff) throw new Error('seconds must be positive; seed must be an unsigned 32-bit integer');
+  if (!Number.isFinite(opts.seconds) || opts.seconds < 1 || opts.seconds > 3600) throw new Error('seconds must be between 1 and 3600 (inclusive)');
+  if (!Number.isSafeInteger(opts.seed) || opts.seed < 0 || opts.seed > 0xffffffff) throw new Error('seed must be an unsigned 32-bit integer');
   return opts;
 }
 export async function visionOpinion(images, { chat, VL }) {

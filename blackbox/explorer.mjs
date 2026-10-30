@@ -9,6 +9,7 @@ export const CONTROL_KEYS = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowD
 export const INPUT_KEYS = ['w', 'a', 's', 'd', 'Space', 'Shift', 'r', 'e', '1', '2', '3', '4', 'Enter', 'Escape', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
 export function isSafeStartLabel(text) {
   text = text.replace(/[-_]+/g, ' ');
+  if (/\b(?:trial|premium|deposit|real\s+money|bet|wager|forfeit|abandon|unlock|google|facebook|apple)\b/i.test(text)) return false;
   if (/\b(?:donat\w*|shop\w*|order\w*|start\s+over|close|restart\w*|quit\w*|exit\w*|reset\w*|delet\w*|eras\w*|remov\w*|wip\w*|clear\w*|overwrit\w*|buy\w*|purchas\w*|download\w*|shar\w*|sign\s*in|log\s*in|pay\w*|checkout|subscrib\w*|store|cart|upgrad\w*|install\w*|updat\w*|uninstall\w*)\b/i.test(text)) return false;
   if (/\bnew\s+game\s*(?:\+|plus\b)/i.test(text)) return false;
   return /\b(start|play|new|continue|ok|accept|begin|resume|deploy|retry|launch|enter|go|got\s+it)\b/i.test(text);
@@ -97,8 +98,15 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
   const t = () => Math.round(now() - start);
   const event = (kind, fields) => { if (!finalized) events.push({ t: t(), kind, ...fields }); };
   const crash = message => { if (!crashed) event('crash', { message }); crashed = true; };
-  const startOrigin = new URL(url).origin;
+  let startURL = url, startOrigin = new URL(url).origin, initialNavigation = true;
   let leftPage = false, restoringNavigation = false, restorationAttempts = 0;
+  const fromStartPage = owner => initialNavigation || (onStartOrigin() && (!owner?.url || new URL(owner.url()).origin === startOrigin));
+  function requestFromStartPage(req) {
+    let frame;
+    // Service-worker requests may have no frame; use the current page in that case.
+    try { frame = req?.frame?.(); } catch {}
+    return fromStartPage(frame);
+  }
   const restorationError = new Error('Start origin restoration limit exceeded (2 attempts)');
   async function ensureStartPage() {
     if (crashed) return;
@@ -106,7 +114,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       if (restorationAttempts >= 2) throw restorationError;
       restorationAttempts++;
       restoringNavigation = true;
-      try { await bounded(() => page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 })); }
+      try { await bounded(() => page.goto(startURL, { waitUntil: 'domcontentloaded', timeout: 15000 })); }
       finally { restoringNavigation = false; }
       if (new URL(page.url()).origin !== startOrigin) return ensureStartPage();
       leftPage = false;
@@ -131,18 +139,27 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       catch (error) { event('dialog-error', { message: error.message }); }
     },
     console: msg => {
+      if (!fromStartPage(msg.page?.())) return;
       if (msg.type() === 'error') event('console-error', { message: msg.text() });
       else if (msg.type() === 'warning') event('console-warning', { message: msg.text() });
     },
     pageerror: err => event('page-error', { message: err.message }),
-    requestfailed: req => event('failed-request', { url: req.url(), resourceType: req.resourceType?.(), message: req.failure()?.errorText ?? 'request failed' }),
-    response: res => { if (res.status() >= 400) event('failed-request', { url: res.url(), resourceType: res.request?.().resourceType?.(), message: `HTTP ${res.status()}` }); },
+    requestfailed: req => {
+      if (!requestFromStartPage(req)) return;
+      const message = req.failure()?.errorText ?? 'request failed';
+      if (restoringNavigation && message === 'net::ERR_ABORTED') return;
+      event('failed-request', { url: req.url(), resourceType: req.resourceType?.(), message });
+    },
+    response: res => {
+      const req = res.request?.();
+      if (requestFromStartPage(req) && res.status() >= 400) event('failed-request', { url: res.url(), resourceType: req?.resourceType?.(), message: `HTTP ${res.status()}` });
+    },
     crash: () => crash('Browser reported a page crash'),
     close: () => crash('Game page closed'),
     framenavigated: frame => {
       if (frame !== page.mainFrame()) return;
       if (frame.url() === 'about:blank') crash('Game navigated to about:blank');
-      else if (new URL(frame.url()).origin !== startOrigin) {
+      else if (!initialNavigation && new URL(frame.url()).origin !== startOrigin) {
         leftPage = true; event('navigation-away', { url: frame.url(), action: 'return-to-start' });
       }
     },
@@ -240,7 +257,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
           href: node.href ?? node.getAttribute('href'), target: node.getAttribute('target'), download: node.getAttribute('download'),
           formAction: node.form ? (node.getAttribute('formaction') != null ? node.formAction : node.form.action) : null,
           formTarget: node.getAttribute('formtarget') ?? node.form?.target,
-        }))), url)) continue;
+        }))), startURL)) continue;
         const click = { t: t(), text, status: 'attempted' }; startupClicks.push(click);
         clicked.add(text);
         try {
@@ -292,6 +309,7 @@ export async function explore({ page, url, seconds = 60, seed = 1, out = 'report
       await bounded(() => page.bringToFront());
     }
     await bounded(() => page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }));
+    startURL = page.url?.() ?? url; startOrigin = new URL(startURL).origin; initialNavigation = false;
     await ensureStartPage();
     await startSequence();
     const initial = await shot('initial', true);

@@ -54,6 +54,22 @@ test('safe start labels use whole words and reject destructive or external actio
   for (const label of unsafe.slice(0, 13)) assert.equal(explorer.isSafeStartLabel(`Play / ${label}`), false, label);
 });
 
+for (const label of ['Start free trial', 'Go Premium', 'Play for real money', 'Deposit & Play',
+  'Unlock and play', 'Continue with Google', 'Forfeit and play again', 'Abandon run and start new',
+  'Play and bet', 'Play and wager', 'Continue with Facebook', 'Continue with Apple']) {
+  test(`startup rejects risky label: ${label}`, () => {
+    for (const text of [label, label.toUpperCase(), label.replaceAll(' ', '-'), label.replaceAll(' ', '_')]) {
+      assert.equal(explorer.isSafeStartLabel(text), false, text);
+    }
+  });
+}
+
+test('ordinary startup and replay labels remain allowed', () => {
+  for (const label of ['Start', 'Play', 'New Game', 'Continue', 'Play again']) {
+    assert.equal(explorer.isSafeStartLabel(label), true, label);
+  }
+});
+
 async function fakeRun(seed, crash = false, configure = () => {}, options = {}) {
   const out = await mkdtemp(join(tmpdir(), 'blackbox-test-'));
   let time = 0, closed = false;
@@ -230,6 +246,36 @@ test('startup skips cross-origin links, downloads, new tabs and external form ta
   assert.deepEqual(clicked, [6]);
 });
 
+test('initial redirect adopts the landed origin for startup links, exploration and restoration', async () => {
+  const landed = 'https://www.fake.test/fixtures/game';
+  let current = 'http://fake/game', departed = false;
+  const navigations = [], clicks = [], foreignInputs = [];
+  const { report, trace } = await fakeRun(1, false, page => {
+    page.url = () => current;
+    page.goto = async url => {
+      navigations.push(url);
+      current = url === 'http://fake/game' ? landed : url;
+      page.emit('framenavigated', page);
+    };
+    page.locator = selector => ({ count: async () => selector === 'canvas' ? 0 : 1,
+      nth: () => ({ isVisible: async () => true, isEnabled: async () => true,
+        textContent: async () => 'Play', evaluate: async () => ({ href: 'https://www.fake.test/play' }),
+        click: async () => { clicks.push(current); } }) });
+    page.keyboard.down = async key => {
+      if (new URL(current).origin !== new URL(landed).origin) foreignInputs.push(key);
+      if (!departed) { departed = true; current = 'https://foreign.test/'; page.emit('framenavigated', page); }
+    };
+  });
+  assert.equal(report.status, 'completed');
+  assert.deepEqual(navigations, ['http://fake/game', landed]);
+  assert.deepEqual(clicks, [landed, landed]);
+  assert.deepEqual(foreignInputs, []);
+  assert.ok(report.frames.length > 0);
+  assert.ok(report.controlDiffs.length > 0);
+  assert.ok(trace.some(input => input.type === 'keydown' && input.status === 'sent'));
+  assert.equal(report.events.filter(event => event.kind === 'navigation-away').length, 1);
+});
+
 test('unexpected external navigation is recorded and restored before any further input', async () => {
   let current = 'http://fake/game', navigated = false, restored = 0;
   const foreignInputs = [];
@@ -246,6 +292,67 @@ test('unexpected external navigation is recorded and restored before any further
   assert.equal(restored, 1);
   assert.equal(report.status, 'completed');
   assert.ok(report.events.some(e => e.kind === 'navigation-away'));
+});
+
+test('foreign console and network events are ignored while away and from foreign owners after restore', async () => {
+  let current = 'http://fake/game', departed = false;
+  const { report } = await fakeRun(1, false, page => {
+    page.url = () => current;
+    const emitNoise = (tag, ownerURL) => {
+      const owner = { url: () => ownerURL };
+      for (const type of ['error', 'warning']) for (let i = 0; i < 2; i++) {
+        page.emit('console', { type: () => type, text: () => tag, ...(ownerURL ? { page: () => owner } : {}) });
+      }
+      const req = { url: () => `https://cdn.test/${tag}.js`, resourceType: () => 'script',
+        failure: () => ({ errorText: tag }), ...(ownerURL ? { frame: () => owner } : {}) };
+      page.emit('requestfailed', req);
+      page.emit('response', { status: () => 503, url: req.url, request: () => req });
+    };
+    page.goto = async url => {
+      current = url;
+      if (departed) {
+        emitNoise('foreign-late', 'https://foreign.test/');
+        emitNoise('game-cdn', current);
+      }
+    };
+    page.keyboard.down = async () => {
+      if (departed) return;
+      departed = true; current = 'https://foreign.test/'; page.emit('framenavigated', page);
+      emitNoise('foreign-away');
+    };
+  });
+  assert.equal(report.status, 'completed');
+  assert.ok(!report.events.some(event => /foreign-/.test(`${event.message} ${event.url}`)));
+  assert.ok(!report.findings.some(event => /foreign-/.test(`${event.message} ${event.url}`)));
+  assert.equal(report.events.filter(event => ['console-error', 'console-warning', 'failed-request'].includes(event.kind)).length, 6);
+  assert.deepEqual(report.findings.map(event => event.kind).sort(), ['console-error', 'console-warning', 'failed-request', 'failed-request']);
+});
+
+test('restore navigation aborts are ignored but game aborts and other restore failures remain evidence', async () => {
+  let current = 'http://fake/game', departed = false;
+  const { report } = await fakeRun(1, false, page => {
+    page.url = () => current;
+    const fail = (name, errorText) => page.emit('requestfailed', {
+      url: () => `http://fake/${name}.js`, resourceType: () => 'script', frame: () => page,
+      failure: () => ({ errorText }),
+    });
+    page.goto = async url => {
+      current = url;
+      if (departed) {
+        fail('restore-abort', 'net::ERR_ABORTED');
+        fail('restore-failure', 'net::ERR_FAILED');
+      }
+    };
+    page.keyboard.down = async () => {
+      if (departed) return;
+      fail('game-abort', 'net::ERR_ABORTED');
+      departed = true; current = 'https://foreign.test/'; page.emit('framenavigated', page);
+    };
+  });
+  assert.equal(report.status, 'completed');
+  assert.deepEqual(report.events.filter(event => event.kind === 'failed-request').map(event => event.url),
+    ['http://fake/game-abort.js', 'http://fake/restore-failure.js']);
+  assert.deepEqual(report.findings.map(event => event.url), ['http://fake/game-abort.js', 'http://fake/restore-failure.js']);
 });
 
 test('popup pages are closed and downloads cancelled while exploration continues', async () => {
