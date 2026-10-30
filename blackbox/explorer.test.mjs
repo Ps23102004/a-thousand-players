@@ -4,6 +4,7 @@ import { mkdtemp, readFile, rm, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
+import { runInNewContext } from 'node:vm';
 import { explore, INPUT_KEYS } from './explorer.mjs';
 import * as explorer from './explorer.mjs';
 
@@ -68,6 +69,154 @@ test('ordinary startup and replay labels remain allowed', () => {
   for (const label of ['Start', 'Play', 'New Game', 'Continue', 'Play again']) {
     assert.equal(explorer.isSafeStartLabel(label), true, label);
   }
+});
+
+test('menu-walk labels allow short level choices and reject commerce, destruction and meta navigation', () => {
+  for (const label of ['Loopy', 'Backtrack', 'Dash', 'Endless', 'Continue', 'Deploy', 'Easy', 'Level 2', 'Campaign', 'Story', 'Normal', 'Hard']) {
+    assert.equal(explorer.isMenuWalkLabel?.(label), true, label);
+  }
+  for (const label of ['Buy now', 'Delete save', 'Settings', 'Shop', 'Back', 'Log in', 'Quit',
+    'Options', 'Garage', 'Store', 'Leaderboard', 'Scores', 'Achievements', 'Credits', 'About', 'Help',
+    'How to play', 'Exit', 'Sound', 'Music', 'Language', 'Source', 'Github', 'Twitter', 'Share', 'Login', 'Register',
+    'Start free trial', 'New Game Plus', 'Play / delete', 'Continue with Google', 'Play-settings', 'Log_in',
+    '', '   ', '←', 'a'.repeat(25)]) {
+    assert.equal(explorer.isMenuWalkLabel?.(label), false, label);
+  }
+  assert.equal(explorer.isMenuWalkLabel?.('a'.repeat(24)), true);
+  assert.equal(explorer.isSafeStartLabel('Loopy'), false, 'primary policy stays strict');
+  assert.equal(explorer.isSafeStartLabel('Easy'), false);
+});
+
+// The menu is static under all probes. After its last choice, the game alone responds/animates.
+async function menuRun(stages, { animated = false, inGameChoice = 'Secret level', targets = [], seconds = 35 } = {}) {
+  let stage = 0, clock = 0, state = 0;
+  const clicks = [];
+  const result = await fakeRun(1, false, page => {
+    page.goto = async () => {};
+    page.keyboard.down = async () => { if (stage >= stages.length && !animated) state++; };
+    page.locator = selector => {
+      if (selector === 'canvas') return { count: async () => 0 };
+      const expanded = selector.includes('[onclick]');
+      const choices = stage >= stages.length ? [{ text: inGameChoice, extra: true }]
+        : stages[stage].filter(choice => expanded || !choice.extra);
+      return { count: async () => choices.length, nth: i => ({
+        isVisible: async () => choices[i].visible !== false, isEnabled: async () => choices[i].enabled !== false,
+        textContent: async () => choices[i].text, getAttribute: async () => null,
+        evaluate: async fn => choices[i].node
+          ? runInNewContext(`(${fn.toString()})(node)`, { node: choices[i].node, getComputedStyle: node => ({ cursor: node.cursor }) })
+          : ({ clickable: true, ...targets[choices[i].target] }),
+        click: async () => { clicks.push(choices[i].text); stage++; },
+      }) };
+    };
+  }, { seconds, now: () => clock, sleep: async ms => { clock += ms; },
+    capture: async () => ({ png: Buffer.from(stage >= stages.length ? 'game' : 'menu'),
+      pixels: Uint8Array.from({ length: 9216 }, (_, i) => [20 + (stage >= stages.length ? animated ? Math.floor(clock / 7) % 180 : state % 180 : 0), 40, 80, 255][i % 4]) }) });
+  return { ...result, clicks, stage };
+}
+
+test('primary startup re-queries deeper than three rounds', async () => {
+  const path = ['Play', 'Continue', 'Deploy', 'Start mission', 'Ready go'];
+  const { clicks, report } = await menuRun(path.map(text => [{ text }]));
+  assert.deepEqual(clicks, path);
+  assert.equal(report.controls, 'responsive');
+});
+
+test('menu walk reaches a DOM level choice and reports game probes rather than stale menu probes', async () => {
+  const { clicks, report } = await menuRun([[{ text: 'Settings' }, { text: 'Loopy', extra: true }]]);
+  assert.deepEqual(clicks, ['Loopy']);
+  assert.equal(report.controls, 'responsive');
+  assert.equal(report.controlDiffs.length, report.expectedControlProbes);
+  assert.ok(report.frames.some(f => f.label === 'initial'));
+  assert.ok(!report.environment.some(e => e.kind === 'not-started'));
+  assert.deepEqual(report.findings, []);
+});
+
+test('menu walk prefers start labels, then modes over other short labels and stops at animation', async () => {
+  const { clicks, report } = await menuRun([
+    [{ text: 'Play' }],
+    [{ text: 'Loopy', extra: true }, { text: 'Endless', extra: true }],
+    [{ text: 'Back', extra: true }, { text: 'Easy', extra: true }],
+    [{ text: 'Other', extra: true }, { text: 'Deploy', extra: true }],
+  ], { animated: true });
+  assert.deepEqual(clicks, ['Play', 'Endless', 'Easy', 'Deploy']);
+  assert.equal(report.animationEvidence, true);
+  assert.equal(report.controls, 'inconclusive');
+  assert.ok(!report.environment.some(e => e.kind === 'not-started'));
+});
+
+test('startup and fallback share an eight-round cap across periodic retries', async () => {
+  const { clicks } = await menuRun(Array.from({ length: 10 }, (_, i) => [{ text: `Level ${i + 1}`, extra: true }]));
+  assert.deepEqual(clicks, Array.from({ length: 8 }, (_, i) => `Level ${i + 1}`));
+});
+
+test('a normalized startup label is never attempted twice before gameplay', async () => {
+  const { clicks } = await menuRun([[{ text: 'Play' }], [{ text: ' play ' }], [{ text: 'Deploy' }]]);
+  assert.deepEqual(clicks, ['Play']);
+});
+
+test('fallback skips hidden, disabled, foreign, download, target and form destinations', async () => {
+  const targets = [{ href: 'https://other.test/level' }, { download: '' }, { target: '_self' },
+    { target: '' }, { formAction: 'https://other.test/form' }, { href: 'javascript:void(0)' }, { href: '/level' },
+    { clickable: false }];
+  const choices = [
+    { text: 'Hidden', extra: true, visible: false }, { text: 'Disabled', extra: true, enabled: false },
+    ...targets.map((_, target) => ({ text: `Level ${target}`, extra: true, target })),
+  ];
+  const { clicks, report } = await menuRun([choices], { targets });
+  assert.deepEqual(clicks, ['Level 6']);
+  assert.equal(report.status, 'completed');
+});
+
+test('fallback remains off when the initial page already animates or responds to input', async () => {
+  for (const animated of [true, false]) {
+    const { clicks } = await menuRun([], { animated, inGameChoice: 'Loopy' });
+    assert.deepEqual(clicks, []);
+  }
+});
+
+test('real DOM inspection accepts pointer choices and onclick, while respecting inherited destinations', async () => {
+  const node = (tag, attrs = {}, parent = null, cursor = 'auto') => ({
+    cursor, href: attrs.href && new URL(attrs.href, 'http://fake/game').href,
+    getAttribute: name => attrs[name] ?? null,
+    matches(selector) {
+      return selector.split(',').some(part => {
+        part = part.trim();
+        return part === tag || part === 'a[href]' && tag === 'a' && 'href' in attrs
+          || /^\[[\w-]+\]$/.test(part) && part.slice(1, -1) in attrs
+          || part === `[role="${attrs.role}"]`;
+      });
+    },
+    closest(selector) { return this.matches(selector) ? this : parent?.closest(selector) ?? null; },
+  });
+  for (const allowed of [node('li', {}, null, 'pointer'), node('section', { onclick: 'chooseLevel()' }), node('a'), node('div', { role: 'link' })]) {
+    const choices = [
+      node('div'),
+      node('div', {}, node('a', { href: 'https://foreign.test/level' }), 'pointer'),
+      node('li', {}, node('a', { href: '/level', target: '_self' }), 'pointer'),
+      node('div', {}, node('a', { href: '/level', download: '' }), 'pointer'),
+      allowed,
+    ].map((node, i) => ({ text: `Level ${i}`, extra: true, node }));
+    const { clicks, report } = await menuRun([choices]);
+    assert.equal(report.status, 'completed');
+    assert.deepEqual(clicks, ['Level 4']);
+  }
+});
+
+test('later responding probes permanently disable fallback even when periodic screenshots stay still', async () => {
+  let clock = 0, flash = false;
+  const clicks = [];
+  await fakeRun(1, false, page => {
+    page.goto = async () => {};
+    page.keyboard.down = async () => { flash = clock > 5000 && clock < 8000; };
+    page.locator = selector => ({ count: async () => selector === 'canvas' || clock < 9000 ? 0 : 1,
+      nth: () => ({ isVisible: async () => true, isEnabled: async () => true,
+        textContent: async () => 'Loopy', getAttribute: async () => null,
+        evaluate: async () => ({ clickable: true }), click: async () => { clicks.push('Loopy'); } }) });
+  }, { seconds: 23, now: () => clock, sleep: async ms => { clock += ms; }, capture: async () => {
+    const color = flash && clock < 8000 ? 80 : 20; flash = false;
+    return { png: Buffer.from('game'), pixels: Uint8Array.from({ length: 9216 }, (_, i) => [color, 40, 80, 255][i % 4]) };
+  } });
+  assert.deepEqual(clicks, []);
 });
 
 async function fakeRun(seed, crash = false, configure = () => {}, options = {}) {
@@ -492,8 +641,9 @@ test('startup destination checks use resolved link and form URLs including an ex
       isVisible: async () => true, isEnabled: async () => true,
       textContent: async () => `Play ${i}`,
       evaluate: async fn => fn({
+        closest: () => null, matches: () => true,
         href: i === 0 ? 'https://other.test/play' : undefined,
-        form: i === 1 ? { action: 'http://fake/submit', target: '' } : null,
+        form: i === 1 ? { action: 'http://fake/submit', getAttribute: () => null } : null,
         formAction: 'https://other.test/submit',
         getAttribute: name => i === 0 && name === 'href' ? '/play' : i === 1 && name === 'formaction' ? '/submit' : null,
       }),

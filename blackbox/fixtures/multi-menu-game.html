@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>Menu Trail — original local fixture</title>
+<style>body { margin:0; background:#142850; color:white; } canvas { display:block; } [hidden] { display:none; } li { cursor:pointer; }</style>
+<main id="menu"><button id="play">Play</button></main>
+<canvas width="640" height="360" tabindex="0" hidden></canvas>
+<script>
+const menu = document.querySelector('#menu'), canvas = document.querySelector('canvas'), ctx = canvas.getContext('2d');
+document.querySelector('#play').onclick = () => {
+  menu.innerHTML = '<p>Pick mode</p><div role="link" id="mode">Endless</div><button>Settings</button>';
+  document.querySelector('#mode').onclick = () => {
+    menu.innerHTML = '<p>Pick difficulty</p><ul><li id="easy">Easy</li><li>Back</li></ul>';
+    document.querySelector('#easy').addEventListener('click', start);
+  };
+};
+function start() {
+  menu.remove(); canvas.hidden = false; canvas.focus();
+  let x = 0;
+  function paint(t) {
+    ctx.fillStyle = '#142850'; ctx.fillRect(0, 0, 640, 360);
+    ctx.fillStyle = '#ffe066'; ctx.fillRect((t / 3 + x) % 580, 140, 60, 60);
+    requestAnimationFrame(paint);
+  }
+  addEventListener('keydown', event => { event.preventDefault(); x += 40; });
+  requestAnimationFrame(paint);
+}
+</script></html>
