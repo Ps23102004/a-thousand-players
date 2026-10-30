@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Square Courier — black-box fixture</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #142850; color: white; font: 20px system-ui; display: grid; place-content: center; min-height: 100vh; }
+  canvas { display: block; width: min(90vw, 640px); height: auto; outline: none; }
+  button { padding: 16px 28px; font: inherit; cursor: pointer; }
+  p { font-size: 16px; }
+</style>
+<button id="start">Start delivery</button>
+<canvas width="640" height="360" tabindex="0" aria-label="Move the yellow courier square with WASD or arrow keys" hidden></canvas>
+<p>Square Courier · WASD / arrows to move</p>
+<script>
+// Original fixture: no imported game code or external assets. Each flag plants one bug.
+const bug = new URLSearchParams(location.search).get('bug') || 'none';
+const canvas = document.querySelector('canvas'), ctx = canvas.getContext('2d');
+const keys = new Set();
+let x = 320, y = 180, started = 0, last = 0;
+canvas.style.display = 'none';
+addEventListener('keydown', event => {
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)) event.preventDefault();
+  keys.add(event.key.toLowerCase());
+});
+addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
+addEventListener('blur', () => keys.clear());
+function paint() {
+  ctx.fillStyle = '#142850'; ctx.fillRect(0, 0, 640, 360);
+  ctx.strokeStyle = '#245080'; ctx.lineWidth = 2;
+  for (let n = 40; n < 640; n += 40) { ctx.beginPath(); ctx.moveTo(n, 0); ctx.lineTo(n, 360); ctx.stroke(); }
+  for (let n = 40; n < 360; n += 40) { ctx.beginPath(); ctx.moveTo(0, n); ctx.lineTo(640, n); ctx.stroke(); }
+  ctx.fillStyle = '#ffe066'; ctx.fillRect(x - 16, y - 16, 32, 32);
+}
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (bug !== 'deadkeys') {
+    x += ((keys.has('d') || keys.has('arrowright')) - (keys.has('a') || keys.has('arrowleft'))) * dt * 180;
+    y += ((keys.has('s') || keys.has('arrowdown')) - (keys.has('w') || keys.has('arrowup'))) * dt * 180;
+    // Wrap rather than pinning the square at a wall during exploratory input.
+    x = (x + 640) % 640; y = (y + 360) % 360;
+  }
+  if (bug === 'blank' && now - started >= 8000) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 640, 360); }
+  else if (!(bug === 'freeze' && now - started >= 8000)) paint();
+  requestAnimationFrame(tick);
+}
+document.querySelector('button').addEventListener('click', event => {
+  event.currentTarget.remove(); canvas.hidden = false; canvas.style.display = 'block'; canvas.focus();
+  started = last = performance.now(); paint(); requestAnimationFrame(tick);
+  if (bug === 'error') setTimeout(() => { throw new Error('Planted Square Courier uncaught error'); }, 5000);
+  if (bug === 'crash') setTimeout(() => { location.href = 'about:blank'; }, 10000);
+}, { once: true });
+</script>
+</html>
